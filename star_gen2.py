@@ -179,7 +179,7 @@ class MaxCalculator():
             max_angles = 0
         elif self.item['molecule'] == 'DNA':
             max_angles = lam-2
-        elif self.item['salt']:
+        elif self.item['molecule'] == 'salt':
             max_angles = 0
         return max_angles
 
