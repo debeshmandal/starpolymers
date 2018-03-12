@@ -154,7 +154,7 @@ class MaxCalculator():
             elif self.item['counterions'] == False:
                 max_atoms = lam
         if self.item['molecule'] == 'salt':
-            max_atoms = self.item['concentration']
+            max_atoms = 2*self.item['concentration']
         return max_atoms
 
     def bonds(self):
@@ -312,11 +312,11 @@ class FileGenerator():
         atom_ID_shift = CUMU_atoms
         spac = spacing
         shift_length = item['lam'] * spac
-        atom_pos_shift = shift_length * translation
+        atom_pos_shift = translation
         lam = item['lam']
         molecule_id = system_index + 1
         box = 40.0
-        
+        counterions = item['counterions']
 
         if item['molecule'] == 'star':
 
@@ -349,10 +349,6 @@ class FileGenerator():
                                                               atom_pos_shift[system_index][2]))
         
         if item['molecule'] == 'DNA':
-
-            # counterions
-
-            counterions = item['counterions']
             
             # create DNA atoms
             atom_type = 1
@@ -406,9 +402,10 @@ class FileGenerator():
                         charge = 1
                     elif j == 1:
                         charge = -1
-                    x_pos = random.randrange(-0.9,0.9)*box
-                    y_pos = random.randrange(-0.9,0.9)*box
-                    z_pos = random-randrange(-0.9,0.9)*box
+                    x_pos = random.random()*box
+                    y_pos = random.random()*box
+                    z_pos = random.random()*box
+                    atom_type = 1
                     next_line = str()
                     next_line += str("{} ".format(atom_id))
                     next_line += str("{} ".format(molecule_id))
@@ -583,7 +580,7 @@ class FileGenerator():
             item = system[0]
             filename = item['molecule']+str(item['kap'])+'_'+str(item['lam'])+'.dat'
         else:
-            filename = str('exp_0999999999')
+            filename = str('exp.dat')
 
         return filename
 
