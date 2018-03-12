@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import math
 import os
+import random
 
 direction = np.array([[1, 0, 0],
                       [0, 1, 0],
@@ -140,7 +141,7 @@ class MaxCalculator():
     def atoms(self):
         kap = self.item['kap']
         lam = self.item['lam']
-        if self.item['molecule'] == 'star':]
+        if self.item['molecule'] == 'star':
             if self.item['counterions'] == True:
                 max_atoms = 2*(kap*lam+1)
             elif self.item['counterions'] == False:
@@ -152,6 +153,8 @@ class MaxCalculator():
                 max_atoms = 2*lam
             elif self.item['counterions'] == False:
                 max_atoms = lam
+        if self.item['molecule'] == 'salt':
+            max_atoms = self.item['concentration']
         return max_atoms
 
     def bonds(self):
@@ -308,6 +311,7 @@ class FileGenerator():
         atom_pos_shift = shift_length * translation
         lam = item['lam']
         molecule_id = system_index + 1
+        box = 40.0
         
 
         if item['molecule'] == 'star':
@@ -385,6 +389,33 @@ class FileGenerator():
                 next_line += str("{}".format(z_pos))
                 next_line += "\n"
                 atom_list += next_line
+
+        if item['molecule'] == 'salt':
+
+            # generates salt ions for a given concentration
+
+            conc = item['concentration']
+            for i in range((n_atoms/2)):
+                for j in range(2):
+                    atom_id = i+1 + atom_ID_shift
+                    if j == 0:
+                        charge = 1
+                    elif j == 1:
+                        charge = -1
+                    x_pos = random.random()*box
+                    y_pos = random.random()*box
+                    z_pos = random-random()*box
+                    next_line = str()
+                    next_line += str("{} ".format(atom_id))
+                    next_line += str("{} ".format(molecule_id))
+                    next_line += str("{} ".format(atom_type))
+                    next_line += str("{} ".format(charge))
+                    next_line += str("{} ".format(x_pos))
+                    next_line += str("{} ".format(y_pos))
+                    next_line += str("{}".format(z_pos))
+                    next_line += "\n"
+                    atom_list += next_line
+            
 
         return atom_list
         
