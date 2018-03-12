@@ -395,16 +395,16 @@ class FileGenerator():
             # generates salt ions for a given concentration
 
             conc = item['concentration']
-            for i in range((n_atoms/2)):
+            for i in range(conc):
                 for j in range(2):
-                    atom_id = i+1 + atom_ID_shift
+                    atom_id = 2*i+1 + j + atom_ID_shift
                     if j == 0:
                         charge = 1
                     elif j == 1:
                         charge = -1
-                    x_pos = random.random()*box
-                    y_pos = random.random()*box
-                    z_pos = random-random()*box
+                    x_pos = random.randrange(-0.9,0.9)*box
+                    y_pos = random.randrange(-0.9,0.9)*box
+                    z_pos = random-randrange(-0.9,0.9)*box
                     next_line = str()
                     next_line += str("{} ".format(atom_id))
                     next_line += str("{} ".format(molecule_id))
@@ -416,7 +416,6 @@ class FileGenerator():
                     next_line += "\n"
                     atom_list += next_line
             
-
         return atom_list
         
     def write_bonds(self, system, system_index):
