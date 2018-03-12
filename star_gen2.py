@@ -166,6 +166,8 @@ class MaxCalculator():
             max_bonds = 0
         elif self.item['molecule'] == 'DNA':
             max_bonds = lam-1
+        elif self.item['salt']:
+            max_bonds = 0
         return max_bonds
 
     def angles(self):
@@ -177,6 +179,8 @@ class MaxCalculator():
             max_angles = 0
         elif self.item['molecule'] == 'DNA':
             max_angles = lam-2
+        elif self.item['salt']:
+            max_angles = 0
         return max_angles
 
 class FileGenerator():
