@@ -166,7 +166,7 @@ class MaxCalculator():
             max_bonds = 0
         elif self.item['molecule'] == 'DNA':
             max_bonds = lam-1
-        elif self.item['salt']:
+        elif self.item['molecule'] == 'salt':
             max_bonds = 0
         return max_bonds
 
