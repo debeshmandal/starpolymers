@@ -140,8 +140,11 @@ class MaxCalculator():
     def atoms(self):
         kap = self.item['kap']
         lam = self.item['lam']
-        if self.item['molecule'] == 'star':
-            max_atoms = kap*lam + 1
+        if self.item['molecule'] == 'star':]
+            if self.item['counterions'] == True:
+                max_atoms = 2*(kap*lam+1)
+            elif self.item['counterions'] == False:
+                max_atoms = kap*lam + 1
         elif self.item['molecule'] == 'dummy':
             max_atoms = 0
         elif self.item['molecule'] == 'DNA':
@@ -365,23 +368,23 @@ class FileGenerator():
                 atom_list += next_line
             
             # create counterions
-            if counterions == True:                
-                for i in range(lam):
-                    atom_id = i+1 + atom_ID_shift + lam
-                    charge = -1 * charge_gen(item)
-                    x_pos = (mol_length-(i*spac))*direction[0][0] + atom_pos_shift[system_index][0] + spac
-                    y_pos = (mol_length-(i*spac))*direction[0][1] + atom_pos_shift[system_index][1] + spac
-                    z_pos = (mol_length-(i*spac))*direction[0][2] + atom_pos_shift[system_index][2] + spac
-                    next_line = str()
-                    next_line += str("{} ".format(atom_id))
-                    next_line += str("{} ".format(molecule_id))
-                    next_line += str("{} ".format(atom_type))
-                    next_line += str("{} ".format(charge))
-                    next_line += str("{} ".format(x_pos))
-                    next_line += str("{} ".format(y_pos))
-                    next_line += str("{}".format(z_pos))
-                    next_line += "\n"
-                    atom_list += next_line
+        if counterions == True:                
+            for i in range(lam):
+                atom_id = i+1 + atom_ID_shift + lam
+                charge = -1 * charge_gen(item)
+                x_pos = (mol_length-(i*spac))*direction[0][0] + atom_pos_shift[system_index][0] + spac
+                y_pos = (mol_length-(i*spac))*direction[0][1] + atom_pos_shift[system_index][1] + spac
+                z_pos = (mol_length-(i*spac))*direction[0][2] + atom_pos_shift[system_index][2] + spac
+                next_line = str()
+                next_line += str("{} ".format(atom_id))
+                next_line += str("{} ".format(molecule_id))
+                next_line += str("{} ".format(atom_type))
+                next_line += str("{} ".format(charge))
+                next_line += str("{} ".format(x_pos))
+                next_line += str("{} ".format(y_pos))
+                next_line += str("{}".format(z_pos))
+                next_line += "\n"
+                atom_list += next_line
 
         return atom_list
         
