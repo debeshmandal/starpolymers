@@ -579,6 +579,11 @@ class FileGenerator():
         if len(system) == 1:
             item = system[0]
             filename = item['molecule']+str(item['kap'])+'_'+str(item['lam'])+'.dat'
+        elif len(system) == 3:
+            f_kap = str(system[2]['kap'])
+            f_lam = str(system[2]['lam'])
+            f_conc = str(system[0]['concentration'])
+            filename = 'pd_'+f_kap+'_'+f_lam+'_'+f_conc+'.dat'
         else:
             filename = str('exp.dat')
 
