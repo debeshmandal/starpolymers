@@ -20,12 +20,9 @@ salt = {'molecule': 'salt',
         'kap': 0,
         'lam': 0,
         'charge_max': 1,
-        'concentration': 10}
+        'charge_style': 'all',
+        'concentration': 10,
+        'neutralise' : True}
 
-neutralising_ions = {'molecule': 'salt',
-        'kap': 0,
-        'lam': 0,
-        'charge_max': 1,
-        'concentration': 'neutralise'}
-
-x.write_system_to_file()
+system = [DNA, salt]
+x.write_system_to_file(system)

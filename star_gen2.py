@@ -183,6 +183,16 @@ class MaxCalculator():
             max_angles = 0
         return max_angles
 
+    def charges(self):
+        if self.item['molecule'] != 'salt':
+            charge_mag = self.item['charge_max']
+            n_atoms = atoms(self)
+            max_charge = n_atoms * charge_mag
+        else:
+            max_charge = 0
+        return max_charge
+                
+
 class FileGenerator():
     """
     Input:
@@ -316,7 +326,10 @@ class FileGenerator():
         lam = item['lam']
         molecule_id = system_index + 1
         box = 40.0
-        counterions = item['counterions']
+        if item['molecule'] != 'salt':
+            counterions = item['counterions']
+        else:
+            counterions = False
 
         if item['molecule'] == 'star':
 
@@ -391,9 +404,9 @@ class FileGenerator():
                 atom_list += next_line
 
         if item['molecule'] == 'salt':
-
-            # generates salt ions for a given concentration
-
+             
+        # generates salt ions for a given concentration
+        
             conc = item['concentration']
             for i in range(conc):
                 for j in range(2):
@@ -416,7 +429,42 @@ class FileGenerator():
                     next_line += str("{}".format(z_pos))
                     next_line += "\n"
                     atom_list += next_line
-            
+
+            if item['neutralise'] == True:
+                # calculate total charge of the system
+                MAX_charge = int()
+                for items in system:
+                    ChargeCalc = MaxCalculator(item)
+                    MAX_charge += ChargeCalc.charges()
+                    
+                # set n_neut
+                n_neut = abs(MAX_charge)/item['charge_max']
+
+                # set charge_sign
+
+                if MAX_charge > 0:
+                    charge_sign = 1
+                else:
+                    charge_sign = -1
+                atom_id_start = 2*conc + atom_ID_shift
+                atom_type = 1
+                for i in range(n_neut):
+                    atom_id = atom_id_start + i
+                    charge = charge_sign * item['charge_max']
+                    x_pos = random.random()*box
+                    y_pos = random.random()*box
+                    z_pos = random.random()*box
+                    next_line = str()
+                    next_line += str("{} ".format(atom_id))
+                    next_line += str("{} ".format(molecule_id))
+                    next_line += str("{} ".format(atom_type))
+                    next_line += str("{} ".format(charge))
+                    next_line += str("{} ".format(x_pos))
+                    next_line += str("{} ".format(y_pos))
+                    next_line += str("{}".format(z_pos))
+                    next_line += "\n"
+                    atom_list += next_line
+                
         return atom_list
         
     def write_bonds(self, system, system_index):
