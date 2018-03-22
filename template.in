@@ -12,7 +12,7 @@ variable theta0 equal 180.0
 variable k1 equal 10.0
 variable k2 equal 0.0
 
-variable fname string exp_09
+variable fname string exp
 variable step equal 100
 variable dt equal 0.0015
 
