@@ -1,4 +1,4 @@
-import star_gen2 as sg
+import starpolymers.star_gen2 as sg
 import subprocess
 
 x = sg.FileGenerator(2000, None)

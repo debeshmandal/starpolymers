@@ -147,7 +147,7 @@ def neutraliser(system):
         if item['molecule'] != 'salt':
             q = item['charge_max']
             n_atoms = MaxCalculator(item).atoms(system)
-            sys_charge += n_atoms * q
+            sys_charge -= n_atoms * q
     return sys_charge
         
     
