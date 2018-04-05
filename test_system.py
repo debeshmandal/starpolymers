@@ -1,7 +1,7 @@
 import star_gen2 as sg
 import subprocess
 
-x = sg.FileGenerator()
+x = sg.FileGenerator(2000, None)
 
 star = {'molecule': 'star',
         'kap': 10,

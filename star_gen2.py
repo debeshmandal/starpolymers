@@ -234,7 +234,7 @@ class FileGenerator():
                 
     """
 
-    def __init__(self, box=40.0, fstyle=None):
+    def __init__(self, box, fstyle):
         self.box = box
         self.fstyle = fstyle
 
