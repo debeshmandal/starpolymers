@@ -134,12 +134,30 @@ def charge_gen(item):
     if item['charge_style'] == 'all':
         return float(item['charge_max'])
 
+def neutraliser(system):
+    """
+
+    Returns the charge imbalance of a system by summing the charges of all
+    none salt items
+    
+    """
+
+    sys_charge = int()
+    for item in system:
+        if item['molecule'] != 'salt':
+            q = item['charge_max']
+            n_atoms = MaxCalculator(item).atoms(system)
+            sys_charge += n_atoms * q
+    return sys_charge
+        
+    
+
 class MaxCalculator():
 
     def __init__(self, item):
         self.item = item
     
-    def atoms(self):
+    def atoms(self, system):
         kap = self.item['kap']
         lam = self.item['lam']
         if self.item['molecule'] == 'star':
@@ -156,6 +174,8 @@ class MaxCalculator():
                 max_atoms = lam
         if self.item['molecule'] == 'salt':
             max_atoms = 2*self.item['concentration']
+            if self.item['neutralise'] == True:
+                max_atoms += neutraliser(system)
         return max_atoms
 
     def bonds(self):
@@ -184,14 +204,14 @@ class MaxCalculator():
             max_angles = 0
         return max_angles
 
-    def charges(self):
-        if self.item['molecule'] != 'salt':
-            charge_mag = self.item['charge_max']
-            n_atoms = self.atoms()
-            max_charge = n_atoms * charge_mag
-        else:
-            max_charge = 0
-        return max_charge
+    #def charges(self, system):
+    #    if self.item['molecule'] != 'salt':
+    #        charge_mag = self.item['charge_max']
+    #        n_atoms = self.atoms(system)
+    #        max_charge = n_atoms * charge_mag
+    #    else:
+    #        max_charge = 0
+    #    return max_charge
                 
 
 class FileGenerator():
@@ -249,7 +269,7 @@ class FileGenerator():
         for item in system:
             HeadGen = MaxCalculator(item)
             MAX_length += item['lam'] * spac
-            MAX_atoms += HeadGen.atoms()
+            MAX_atoms += HeadGen.atoms(system)
             MAX_bonds += HeadGen.bonds()
             MAX_angles += HeadGen.angles()        
         
@@ -318,7 +338,7 @@ class FileGenerator():
 
         CUMU_atoms = int()        
         for i in range(system_index):
-            CUMU_atoms += MaxCalculator(system[i]).atoms()
+            CUMU_atoms += MaxCalculator(system[i]).atoms(system)
         
         atom_ID_shift = CUMU_atoms
         spac = spacing
@@ -432,11 +452,8 @@ class FileGenerator():
                     atom_list += next_line
 
             if item['neutralise'] == True:
-                # calculate total charge of the system
-                MAX_charge = int()
-                for items in system:
-                    ChargeCalc = MaxCalculator(items)
-                    MAX_charge += ChargeCalc.charges()
+            
+                MAX_charge = neutraliser(system)
                     
                 # set n_neut
                 n_neut = abs(MAX_charge)/item['charge_max']
@@ -486,7 +503,7 @@ class FileGenerator():
         CUMU_atoms = int()
         CUMU_bonds = int()
         for i in range(system_index):
-            CUMU_atoms += MaxCalculator(system[i]).atoms()
+            CUMU_atoms += MaxCalculator(system[i]).atoms(system)
             CUMU_bonds += MaxCalculator(system[i]).bonds()
             
         atom_ID_shift = CUMU_atoms
@@ -556,7 +573,7 @@ class FileGenerator():
         CUMU_atoms = int()
         CUMU_angles = int()
         for i in range(system_index):
-            CUMU_atoms += MaxCalculator(system[i]).atoms()
+            CUMU_atoms += MaxCalculator(system[i]).atoms(system)
             CUMU_angles += MaxCalculator(system[i]).angles()
             
         atom_ID_shift = CUMU_atoms

@@ -61,7 +61,7 @@ compute myRDF all rdf 50
 
 min_style 		cg
 minimize 		1e-15 1e-15 500000 1000000
-run 			500000
+run 			50000
 reset_timestep	0
 dump 			1 all custom ${step} results/dump.${fname}.* id type x y z q vx vy vz mol
 thermo 			${step} 

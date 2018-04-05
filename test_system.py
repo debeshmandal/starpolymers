@@ -23,7 +23,7 @@ salt = {'molecule': 'salt',
         'lam': 0,
         'charge_max': 1,
         'charge_style': 'all',
-        'concentration': 1,
+        'concentration': 200,
         'neutralise' : True}
 
 system = [star, salt]
