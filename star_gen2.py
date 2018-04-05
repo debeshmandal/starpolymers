@@ -26,7 +26,8 @@ direction = np.array([[1, 0, 0],
                       [-1/math.sqrt(2), 0, -1/math.sqrt(2)]])
 
 spacing = 2.0
-box = 2000
+box = 40.0
+
 translation = np.array([[0, 0, 0],
                         [0.2, 0.2, 0],
                         [2, 1.5, -0.5],
