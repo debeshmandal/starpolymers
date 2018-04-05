@@ -26,6 +26,7 @@ direction = np.array([[1, 0, 0],
                       [-1/math.sqrt(2), 0, -1/math.sqrt(2)]])
 
 spacing = 2.0
+box = 40.0
 
 translation = np.array([[0, 0, 0],
                         [0.2, 0.2, 0],
@@ -281,8 +282,6 @@ class FileGenerator():
         b_bond_types = 1
         c_angle_types = 1
 
-        box = 40.0
-
         xlo = -box
         xhi = box
         ylo = -box
@@ -346,7 +345,6 @@ class FileGenerator():
         atom_pos_shift = translation
         lam = item['lam']
         molecule_id = system_index + 1
-        box = 40.0
         if item['molecule'] != 'salt':
             counterions = item['counterions']
         else:
