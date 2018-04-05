@@ -71,7 +71,7 @@ dummy_item = {'molecule': 'dummy',
 
 # ---- #
 
-def angle_gen(n_atoms, kap, lam, angle_shift, atom_shift, central='all'):
+def central_centre_gen(n_atoms, kap, lam, angle_shift, atom_shift):
 
     """
 
@@ -82,31 +82,14 @@ def angle_gen(n_atoms, kap, lam, angle_shift, atom_shift, central='all'):
     angle_list_central = str()
     n_start = lam+1
     k=0
-    if central == 'all' or central == 'end':
-        for j in reversed(range(kap+1)):
-            if j > 2:
-                for i in range((kap-j),kap-1):
-                    angle_ID = lam+2 + k + angle_shift
-                    angle_type = 1
-                    atom1 = lam*(kap+1-j) + atom_shift
-                    atom2 = n_atoms
-                    atom3 = lam*(i+2) + atom_shift
-                    next_line = str()
-                    next_line += str("{} ".format(angle_ID))
-                    next_line += str("{} ".format(angle_type))
-                    next_line += str("{} ".format(atom1))
-                    next_line += str("{} ".format(atom2))
-                    next_line += str("{}".format(atom3))
-                    next_line += "\n"
-                    angle_list_central += str(next_line)
-                    k+=1
-        if central == 'all' or central == 'centre':    
-            if j == 2:
-                angle_ID = lam+2+k + angle_shift
+    for j in reversed(range(kap+1)):
+        if j > 2:
+            for i in range((kap-j),kap-1):
+                angle_ID = kap+1 + k + angle_shift
                 angle_type = 1
-                atom1 = lam*(kap-1) + atom_shift
+                atom1 = lam*(kap+1-j) + atom_shift
                 atom2 = n_atoms
-                atom3 = lam*kap + atom_shift
+                atom3 = lam*(i+2) + atom_shift
                 next_line = str()
                 next_line += str("{} ".format(angle_ID))
                 next_line += str("{} ".format(angle_type))
@@ -115,6 +98,24 @@ def angle_gen(n_atoms, kap, lam, angle_shift, atom_shift, central='all'):
                 next_line += str("{}".format(atom3))
                 next_line += "\n"
                 angle_list_central += str(next_line)
+                k+=1
+
+
+    for j in reversed(range(kap+1)):
+        if j == 2:
+            angle_ID = kap+1+k + angle_shift
+            angle_type = 1
+            atom1 = lam*(kap-1) + atom_shift
+            atom2 = n_atoms
+            atom3 = lam*kap + atom_shift
+            next_line = str()
+            next_line += str("{} ".format(angle_ID))
+            next_line += str("{} ".format(angle_type))
+            next_line += str("{} ".format(atom1))
+            next_line += str("{} ".format(atom2))
+            next_line += str("{}".format(atom3))
+            next_line += "\n"
+            angle_list_central += str(next_line)
 
     return angle_list_central
 
@@ -186,7 +187,7 @@ class MaxCalculator():
     def charges(self):
         if self.item['molecule'] != 'salt':
             charge_mag = self.item['charge_max']
-            n_atoms = atoms(self)
+            n_atoms = self.atoms()
             max_charge = n_atoms * charge_mag
         else:
             max_charge = 0
@@ -434,7 +435,7 @@ class FileGenerator():
                 # calculate total charge of the system
                 MAX_charge = int()
                 for items in system:
-                    ChargeCalc = MaxCalculator(item)
+                    ChargeCalc = MaxCalculator(items)
                     MAX_charge += ChargeCalc.charges()
                     
                 # set n_neut
@@ -449,7 +450,7 @@ class FileGenerator():
                 atom_id_start = 2*conc + atom_ID_shift
                 atom_type = 1
                 for i in range(n_neut):
-                    atom_id = atom_id_start + i
+                    atom_id = atom_id_start + i+1
                     charge = charge_sign * item['charge_max']
                     x_pos = random.random()*box
                     y_pos = random.random()*box
@@ -568,21 +569,23 @@ class FileGenerator():
             kap = item['kap']
             n_atoms = kap * lam + 1 + atom_ID_shift
             
-            for i in range(kap):
-                angle_ID = i+1 + angle_ID_shift
-                angle_type = 1
-                atom1 = (i+1)*lam-1 + atom_ID_shift
-                atom2 = (i+1)*lam + atom_ID_shift
-                atom3 = n_atoms
-                next_line = str()
-                next_line += str("{} ".format(angle_ID))
-                next_line += str("{} ".format(angle_type))
-                next_line += str("{} ".format(atom1))
-                next_line += str("{} ".format(atom2))
-                next_line += str("{}".format(atom3))
-                next_line += "\n"
-                angle_list += next_line
-            angle_list += angle_gen(n_atoms, kap, lam, angle_ID_shift, atom_ID_shift, central=item['central'])
+            if item['central'] != 'centre':
+                for i in range(kap):
+                    angle_ID = i+1 + angle_ID_shift
+                    angle_type = 1
+                    atom1 = (i+1)*lam-1 + atom_ID_shift
+                    atom2 = (i+1)*lam + atom_ID_shift
+                    atom3 = n_atoms
+                    next_line = str()
+                    next_line += str("{} ".format(angle_ID))
+                    next_line += str("{} ".format(angle_type))
+                    next_line += str("{} ".format(atom1))
+                    next_line += str("{} ".format(atom2))
+                    next_line += str("{}".format(atom3))
+                    next_line += "\n"
+                    angle_list += next_line
+            if item['central'] != 'end':
+                angle_list += central_centre_gen(n_atoms, kap, lam, angle_ID_shift, atom_ID_shift)
             for i in range(kap):
                 for j in range(lam-2):
                     angle_ID = kap*(kap+1)/2 + j+1 + i*(lam-2) + angle_ID_shift

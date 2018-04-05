@@ -4,8 +4,8 @@ import subprocess
 x = sg.FileGenerator()
 
 star = {'molecule': 'star',
-        'kap': 3,
-        'lam': 10,
+        'kap': 10,
+        'lam': 3,
         'charge_style': 'all',
         'charge_max': 1,
         'central' : 'all',
