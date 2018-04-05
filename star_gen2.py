@@ -26,7 +26,6 @@ direction = np.array([[1, 0, 0],
                       [-1/math.sqrt(2), 0, -1/math.sqrt(2)]])
 
 spacing = 2.0
-box = 40.0
 
 translation = np.array([[0, 0, 0],
                         [0.2, 0.2, 0],
@@ -232,7 +231,12 @@ class FileGenerator():
                 'lam': int(number of base pairs),
                 'charge_style': 'all'
                 'charge': -1}
+                
     """
+
+    def __init__(self, box=40.0, fstyle=None):
+        self.box = box
+        self.fstyle = fstyle
 
     def write_comments(self, system):
 
@@ -282,12 +286,12 @@ class FileGenerator():
         b_bond_types = 1
         c_angle_types = 1
 
-        xlo = -box
-        xhi = box
-        ylo = -box
-        yhi = box
-        zlo = -box
-        zhi = box
+        xlo = -self.box
+        xhi = self.box
+        ylo = -self.box
+        yhi = self.box
+        zlo = -self.box
+        zhi = self.box
         
         header = str()
 
@@ -334,6 +338,7 @@ class FileGenerator():
 
         atom_list = str()
         item = system[system_index]
+        box = self.box
 
         CUMU_atoms = int()        
         for i in range(system_index):
@@ -642,21 +647,31 @@ class FileGenerator():
         Returns string that is the filename for the system
 
         """
-        if len(system) == 1:
-            item = system[0]
-            filename = item['molecule']+str(item['kap'])+'_'+str(item['lam'])+'.dat'
-        elif len(system) == 3:
-            f_kap = str(system[2]['kap'])
-            f_lam = str(system[2]['lam'])
-            f_conc = str(system[0]['concentration'])
-            filename = 'pd_'+f_kap+'_'+f_lam+'_'+f_conc+'.dat'
-        elif len(system) == 2 and system[0]['molecule'] == 'star':
+        if self.fstyle == 'al':
+            star = system[0]
+            salt = system[1]
+            filename = str('al_'+star['kap']+'_'+star['lam']+'_'+salt['conc'])
+        if self.fstyle == 'ssr':
             f_kap = str(system[0]['kap'])
             f_lam = str(system[0]['lam'])
-            f_conc = str(system[1]['concentration'])
-            filename = 'sl_'+f_kap+'_'+f_lam+'_'+f_conc+'.dat'
-        else:
-            filename = str('exp.dat')
+            f_conc = str(system[2]['concentration'])
+            filename = 'ssr_'+f_kap+'_'+f_lam+'_'+f_conc+'.dat'
+        elif self.fstyle == None:
+            if len(system) == 1:
+                item = system[0]
+                filename = item['molecule']+str(item['kap'])+'_'+str(item['lam'])+'.dat'
+            elif len(system) == 3:
+                f_kap = str(system[2]['kap'])
+                f_lam = str(system[2]['lam'])
+                f_conc = str(system[0]['concentration'])
+                filename = 'pd_'+f_kap+'_'+f_lam+'_'+f_conc+'.dat'
+            elif len(system) == 2 and system[0]['molecule'] == 'star':
+                f_kap = str(system[0]['kap'])
+                f_lam = str(system[0]['lam'])
+                f_conc = str(system[1]['concentration'])
+                filename = 'sl_'+f_kap+'_'+f_lam+'_'+f_conc+'.dat'
+            else:
+                filename = str('exp.dat')
 
         return filename
 
