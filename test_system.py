@@ -1,7 +1,7 @@
-import starpolymers.star_gen2 as sg
+import star_gen2 as sg
 import subprocess
 
-x = sg.FileGenerator(2000, None)
+x = sg.FileGenerator(40, 'ssr')
 
 star = {'molecule': 'star',
         'kap': 10,
@@ -23,8 +23,8 @@ salt = {'molecule': 'salt',
         'lam': 0,
         'charge_max': 1,
         'charge_style': 'all',
-        'concentration': 200,
+        'concentration': 1,
         'neutralise' : True}
 
-system = [star, salt]
+system = [star, DNA, salt]
 x.write_system_to_file(system)

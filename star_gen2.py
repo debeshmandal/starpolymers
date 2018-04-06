@@ -147,7 +147,7 @@ def neutraliser(system):
         if item['molecule'] != 'salt':
             q = item['charge_max']
             n_atoms = MaxCalculator(item).atoms(system)
-            sys_charge -= n_atoms * q
+            sys_charge += n_atoms * -q
     return sys_charge
         
     
@@ -459,14 +459,14 @@ class FileGenerator():
                 MAX_charge = neutraliser(system)
                     
                 # set n_neut
-                n_neut = abs(MAX_charge)/item['charge_max']
+                n_neut = int(abs(MAX_charge)/item['charge_max'])
 
                 # set charge_sign
 
                 if MAX_charge > 0:
-                    charge_sign = 1
+                    charge_sign = 1.0
                 else:
-                    charge_sign = -1
+                    charge_sign = -1.0
                 atom_id_start = 2*conc + atom_ID_shift
                 atom_type = 1
                 for i in range(n_neut):
