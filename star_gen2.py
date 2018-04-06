@@ -175,7 +175,7 @@ class MaxCalculator():
         if self.item['molecule'] == 'salt':
             max_atoms = 2*self.item['concentration']
             if self.item['neutralise'] == True:
-                max_atoms += neutraliser(system)
+                max_atoms += abs(neutraliser(system))
         return max_atoms
 
     def bonds(self):
