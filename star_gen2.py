@@ -656,6 +656,10 @@ class FileGenerator():
             f_lam = str(system[0]['lam'])
             f_conc = str(system[2]['concentration'])
             filename = 'ssr_'+f_kap+'_'+f_lam+'_'+f_conc+'.dat'
+        if self.fstyle == 'svl':
+            f_kap = str(system[0]['kap'])
+            f_lam = str(system[0]['lam'])
+            filename = 'svl_{}_{}.dat'.format(f_kap, f_lam)
         elif self.fstyle == None:
             if len(system) == 1:
                 item = system[0]
