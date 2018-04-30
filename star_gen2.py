@@ -588,8 +588,10 @@ class FileGenerator():
 
             kap = item['kap']
             n_atoms = kap * lam + 1 + atom_ID_shift
+
+            # Central Atom is k in ijk angular potential (x-x-o)
             
-            if item['central'] != 'centre':
+            if item['central'] != 'centre' or 'none':
                 for i in range(kap):
                     angle_ID = i+1 + angle_ID_shift
                     angle_type = 1
@@ -604,8 +606,14 @@ class FileGenerator():
                     next_line += str("{}".format(atom3))
                     next_line += "\n"
                     angle_list += next_line
-            if item['central'] != 'end':
+
+            # Central Atom is j in ijk angular potential (x-o-x) 
+            
+            if item['central'] != 'end' or 'none':
                 angle_list += central_centre_gen(n_atoms, kap, lam, angle_ID_shift, atom_ID_shift)
+
+            # Angular topology for arms
+            
             for i in range(kap):
                 for j in range(lam-2):
                     angle_ID = kap*(kap+1)/2 + j+1 + i*(lam-2) + angle_ID_shift
