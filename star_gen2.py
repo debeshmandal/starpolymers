@@ -668,6 +668,11 @@ class FileGenerator():
             f_kap = str(system[0]['kap'])
             f_lam = str(system[0]['lam'])
             filename = 'svl_{}_{}.dat'.format(f_kap, f_lam)
+        if self.fstyle == 'ca':
+            f_kap = str(system[0]['kap'])
+            f_lam = str(system[0]['lam'])
+            f_ang = str(system[0]['central'])
+            filename = 'ca_{}_{}_{}.dat'.format(f_kap, f_lam, f_ang)
         elif self.fstyle == None:
             if len(system) == 1:
                 item = system[0]
