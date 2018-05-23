@@ -5,7 +5,7 @@
 
 variable kap equal 3
 variable lam equal 3
-
+variable conc equal 1
 variable K equal 4.38
 variable R0 equal 6.5
 variable theta0 equal 180.0
