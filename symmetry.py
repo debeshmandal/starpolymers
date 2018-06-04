@@ -27,7 +27,7 @@ class SymmetryAnalyser:
         self.f = filename
         self.positions = read_data(filename)    
 
-    def plot_complex(self):
+    def plot_complex(self, eig=False):
         """
 
         Plots complexes onto 3D axis
@@ -37,7 +37,14 @@ class SymmetryAnalyser:
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         positions = self.positions
-        ax.scatter(positions[:,0], positions[:,1], positions[:,2], label='{}'.format(self.f))
+        ax.scatter(positions[:,0], positions[:,1], positions[:,2], label='{}'.format(self.f), alpha = 0.1)
+        if eig==True:
+            A = self.statistics()
+            C = A[0]
+            basis = np.mat(np.zeros([3,3]))
+            for i in range(3):
+                basis[i] = C + (np.array(A[2])[i] * np.array(A[3])[:,i])
+                ax.plot([C[0],basis[i,0]],[C[1],basis[i,1]],[C[2],basis[i,2]],c='black', alpha=0.5)
         plt.show()
 
     def statistics(self, pretty=False, symmetry_only=False):
