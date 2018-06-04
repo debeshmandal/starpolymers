@@ -69,3 +69,17 @@ class SymmetryAnalyser:
             return symmetry_index
         else:
             return [mean, covariance, eigenvalues, eigenvectors, scaled_eigenvalues, symmetry_index]
+
+    def transform(self, plot=False):
+        positions = np.mat(self.positions)
+        transformer = np.mat(self.statistics()[3])
+        new = positions * transformer
+        if plot == True:
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
+            ax.scatter(new[:,0],new[:,1],new[:,2])
+            plt.show()
+        return new
+        
+
+        
