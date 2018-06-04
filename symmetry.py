@@ -12,11 +12,7 @@ def product(vector):
         result = result * vector[i]
     return result
 
-class SymmetryAnalyser:
-    def __init__(self, filename):
-        self.fname = filename
-
-    def read_data(fname):
+def read_data(fname):
         """
 
         Reads data from LAMMPS dump file
@@ -26,7 +22,12 @@ class SymmetryAnalyser:
         positions = raw_data[raw_data[9]!=3].iloc[:,2:5].values
         return positions
 
-    def plot_complex(positions):
+class SymmetryAnalyser:
+    def __init__(self, filename):
+        self.f = filename
+        self.positions = read_data(filename)    
+
+    def plot_complex(self):
         """
 
         Plots complexes onto 3D axis
@@ -35,9 +36,12 @@ class SymmetryAnalyser:
 
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        ax.scatter(positions[:,0], positions[:,1], positions[:,2], label='Molecule {}'.format(i))
+        positions = self.positions
+        ax.scatter(positions[:,0], positions[:,1], positions[:,2], label='{}'.format(self.f))
+        plt.show()
 
-    def statistics(positions):
+    def statistics(self):
+        positions = self.positions
         mean = np.array([np.mean(positions[:,0]),
                          np.mean(positions[:,1]),
                          np.mean(positions[:,2])])
@@ -47,3 +51,4 @@ class SymmetryAnalyser:
         eigenvectors = la.eig(covariance)[1]
         scaled_eigenvalues = eigenvalues / eigenvalues.max()
         symmetry_index = product(scaled_eigenvalues)
+        return [mean, covariance, eigenvalues, eigenvectors, scaled_eigenvalues, symmetry_index]
