@@ -40,7 +40,7 @@ class SymmetryAnalyser:
         ax.scatter(positions[:,0], positions[:,1], positions[:,2], label='{}'.format(self.f))
         plt.show()
 
-    def statistics(self):
+    def statistics(self, pretty=False, symmetry_only=False):
         positions = self.positions
         mean = np.array([np.mean(positions[:,0]),
                          np.mean(positions[:,1]),
@@ -51,4 +51,14 @@ class SymmetryAnalyser:
         eigenvectors = la.eig(covariance)[1]
         scaled_eigenvalues = eigenvalues / eigenvalues.max()
         symmetry_index = product(scaled_eigenvalues)
-        return [mean, covariance, eigenvalues, eigenvectors, scaled_eigenvalues, symmetry_index]
+        if pretty == True:
+            print '\nThe mean (centre-of-mass) is \n', mean
+            print '\nThe covariance matrix is \n', covariance
+            print '\nThe eigenvalues are \n', eigenvalues
+            print '\nThe eigenvectors are \n', eigenvectors
+            print '\nThe scaled eigenvalues are \n', scaled_eigenvalues
+            print '\nThe symmetry_index is {0:.5f}'.format(symmetry_index)
+        if symmetry_only == True:
+            return symmetry_index
+        else:
+            return [mean, covariance, eigenvalues, eigenvectors, scaled_eigenvalues, symmetry_index]
