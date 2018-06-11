@@ -27,7 +27,7 @@ class LogReader():
 
     def read_thermo(self):
 
-        idxlist = line_begins_with(['Step', 'Loop'], self.resultspat)
+        idxlist = line_begins_with(['Step', 'Loop'], self.fname)
         start = max(idxlist[0])
         end = max(idxlist[1])
         length = (end-start)-1
