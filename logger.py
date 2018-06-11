@@ -10,7 +10,7 @@ def line_begins_with(words, fname):
     linelist = []
     with open(fname, 'r') as f:
         for line in f:
-            linelist.append(line)#.split(None, 1)[0])
+            linelist.append(line)
 
     numberlist = []
     for word in words:
@@ -25,7 +25,7 @@ class LogReader():
         self.ID = str(ID)
         self.fname = 'results/{0}/log.{0}.txt'.format(ID)
 
-    def read_thermo(self):
+    def read(self, kind):
 
         idxlist = line_begins_with(['Step', 'Loop'], self.fname)
         start = max(idxlist[0])
@@ -39,30 +39,40 @@ class LogReader():
 
         # delete temp file
 
-        return thermo
+        if kind == 'thermo':
+            data = thermo
 
-    def read_energy(self):
+        elif kind == 'energy':
+            energy = thermo[['Step', 'TotEng', 'PotEng']]
+            data = energy
 
-        # read_thermo
-
-        data = self.read_thermo()
-        data = data[['Step', 'TotEng', 'PotEng']]
+        elif kind == 'temp':
+            temp = thermo[['Step', 'Temp']]
+            data = temp
 
         return data
 
+
     def fast_plot(self, kind, savefig=False):
 
+        data = self.read(kind)
+
         if kind == 'energy':
-            data = self.read_energy()
             plt.plot(data['Step'], data['PotEng'], label='Potential Energy')
             plt.plot(data['Step'],data['TotEng'], label='Total Energy')
-            plt.xlabel(r'Timestep $[ \tau ]$')
             plt.ylabel('Energy $[ k_B T ]$')
-            plt.title('{}'.format(self.ID))
-            plt.legend()
-            if savefig==True:
-                plt.savefig('{}-energy'.format(self.ID))
-            plt.show()
+
+        if kind == 'temp':
+            plt.plot(data['Step'], data['Temp'], label='Temperature')
+            plt.ylabel('Temperature $[T]$')
                 
         else:
-            ValueError('No such fast plot for kind: {}'.format(self.ID))
+            raise ValueError('No such fast plot for kind: {}'.format(kind))
+            return
+
+        plt.xlabel(r'Timestep $[ \tau ]$')
+        plt.title('{}'.format(self.ID))
+        plt.legend()
+        if savefig==True:
+            plt.savefig('{}-{}'.format(self.ID, kind))
+        plt.show()
