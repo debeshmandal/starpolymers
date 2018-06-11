@@ -23,12 +23,11 @@ class LogReader():
     
     def __init__(self, ID):
         self.ID = str(ID)
-        self.fname = 'log.{}.txt'.format(ID)
-        self.resultspath = 'results/{}/self.fname'.format(ID)
+        self.fname = 'results/{}/log.{}.txt'.format(ID)
 
     def read_thermo(self):
 
-        idxlist = line_begins_with(['Step', 'Loop'], self.resultspath)
+        idxlist = line_begins_with(['Step', 'Loop'], self.resultspat)
         start = max(idxlist[0])
         end = max(idxlist[1])
         length = (end-start)-1
