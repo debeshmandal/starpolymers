@@ -3,12 +3,21 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import re
 
-def line_begins_with(word):
+def line_begins_with(words, fname):
 
-    line_number = 0
+    linelist = []
+    with open(fname, 'r') as f:
+        for line in f:
+            linelist.append(line)#.split(None, 1)[0])
 
-    return line_number
+    numberlist = []
+    for word in words:
+        idx = [i for i, item in enumerate(linelist) if re.search(word, item)]
+        numberlist.append(idx)
+        
+    return numberlist
 
 class LogReader():
     
@@ -18,15 +27,15 @@ class LogReader():
 
     def read_thermo(self):
 
-        line_begins_with('fix') # LBW 1
-
-        line_begins_with('Step') # LBW 2
-        
-        line_begins_with('test') # LBW 3 - line doesn't begin with a number
+        idxlist = line_begins_with(['Step', 'Loop'], self.fname)
+        start = max(idxlist[0])
+        end = max(idxlist[1])
+        length = (end-start)-1
 
         # read file from LBW 2-3 and write to temp file
 
-        thermo = pd.read_csv(self.fname) # read tempfile
+        thermo = pd.read_csv(self.fname, delim_whitespace=True,
+                             header=0, skiprows=start,  nrows=length) # read tempfile
 
         # delete temp file
 
@@ -37,11 +46,7 @@ class LogReader():
         # read_thermo
 
         data = self.read_thermo()
-        data = pd.DataFrame([
-            data['Step'].values,
-            data['PotEng'].values,
-            data['TotEng'].values
-            ])
+        data = data[['Step', 'TotEng', 'PotEng']]
 
         return data
 
@@ -49,10 +54,11 @@ class LogReader():
 
         if kind == 'energy':
             data = self.read_energy()
-            fig, ax = plt.subplot(1)
-            ax.plot(data['Step'],data['PotEng'], label='Potential Energy')
-            ax.plot(data['Step'],data['TotEng'], label='Kinetic Energy')
-            ax.legend()
+            plt.plot(data['Step'], data['PotEng'], label='Potential Energy')
+            plt.plot(data['Step'],data['TotEng'], label='Total Energy')
+            plt.xlabel(r'Timestep $[ \tau ]$')
+            plt.ylabel('Energy $[ k_B T ]$')
+            plt.legend()
             if savefig==True:
                 plt.savefig('{}-energy'.format(self.ID))
             plt.show()
