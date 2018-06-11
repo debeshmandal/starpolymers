@@ -23,7 +23,7 @@ class LogReader():
     
     def __init__(self, ID):
         self.ID = str(ID)
-        self.fname = 'results/{}/log.{}.txt'.format(ID)
+        self.fname = 'results/{0}/log.{0}.txt'.format(ID)
 
     def read_thermo(self):
 
