@@ -30,14 +30,12 @@ class LogReader():
         idxlist = line_begins_with(['Step', 'Loop'], self.fname)
         start = max(idxlist[0])
         end = max(idxlist[1])
-        print 'test'
         length = (end-start)-1
-        print length
 
         # read file from LBW 2-3 and write to temp file
 
         thermo = pd.read_csv(self.fname, delim_whitespace=True,
-                             header=0, skiprows=start,  nrows=9) # read tempfile
+                             header=0, skiprows=start,  nrows=length) # read tempfile
 
         # delete temp file
 

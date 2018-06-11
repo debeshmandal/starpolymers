@@ -78,7 +78,7 @@ class DumpReader():
         d1 = self.com('1', steps)[[0,1,2]].values
         d2 = self.com('2', steps)[[0,1,2]].values
         data = pd.DataFrame(distances(d1,d2))
-        data['Steps'] = steps
+        data['Step'] = steps
         return data
             
         
