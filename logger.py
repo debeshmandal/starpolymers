@@ -58,6 +58,7 @@ class LogReader():
             plt.plot(data['Step'],data['TotEng'], label='Total Energy')
             plt.xlabel(r'Timestep $[ \tau ]$')
             plt.ylabel('Energy $[ k_B T ]$')
+            plt.title('{}'.format(self.ID))
             plt.legend()
             if savefig==True:
                 plt.savefig('{}-energy'.format(self.ID))
