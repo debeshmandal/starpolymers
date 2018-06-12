@@ -273,7 +273,7 @@ class FileGenerator():
 
         for item in system:
             HeadGen = MaxCalculator(item)
-            MAX_length += item['lam'] * spac
+            MAX_length += int(item['lam']) * spac
             MAX_atoms += HeadGen.atoms(system)
             MAX_bonds += HeadGen.bonds()
             MAX_angles += HeadGen.angles()        
