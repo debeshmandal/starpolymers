@@ -685,7 +685,9 @@ class FileGenerator():
                 f_kap = str(system[0]['kap'])
                 f_lam = str(system[0]['lam'])
                 f_conc = str(system[2]['concentration'])
-                filename = 'pd_'+f_kap+'_'+f_lam+'_'+f_conc+'.dat'
+                filename = '{}_{}_{}_{}.dat'.format(self.fstyle,
+                                                    f_kap, f_lam,
+                                                    f_conc)
             elif len(system) == 2 and system[0]['molecule'] == 'star':
                 f_kap = str(system[0]['kap'])
                 f_lam = str(system[0]['lam'])
