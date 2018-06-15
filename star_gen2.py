@@ -677,7 +677,7 @@ class FileGenerator():
             f_kap = str(system[0]['kap'])
             f_lam = str(system[0]['lam'])
             filename = 'es_{}_{}.dat'.format(f_kap, f_lam)
-        elif self.fstyle == None:
+        else:
             if len(system) == 1:
                 item = system[0]
                 filename = item['molecule']+str(item['kap'])+'_'+str(item['lam'])+'.dat'
