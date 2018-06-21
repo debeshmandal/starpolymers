@@ -32,10 +32,14 @@ class DumpReader():
 
     def __init__(self, ID):
         self.ID = str(ID)
+        self.path = 'results/{}'.format(self.ID)
+
+    def change_path(self, path):
+        self.path = path
 
     def read(self, step, kind='positions-short'):
         
-        fname = 'results/{0}/dump.{0}.{1}'.format(self.ID, step)
+        fname = '{0}/dump.{0}.{1}'.format(self.path, self.ID, step)
         with open(fname, 'r') as f:
             for i, line in enumerate(f):
                 if i == 8:

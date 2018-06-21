@@ -25,6 +25,9 @@ class LogReader():
         self.ID = str(ID)
         self.fname = 'results/{0}/log.{0}.txt'.format(ID)
 
+    def change_path(self, path):
+        self.fname = path
+
     def read_thermo(self):
 
         idxlist = line_begins_with(['Step', 'Loop'], self.fname)
