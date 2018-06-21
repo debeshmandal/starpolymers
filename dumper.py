@@ -39,7 +39,7 @@ class DumpReader():
 
     def read(self, step, kind='positions-short'):
         
-        fname = '{0}/dump.{0}.{1}'.format(self.path, self.ID, step)
+        fname = '{0}/dump.{1}.{2}'.format(self.path, self.ID, step)
         with open(fname, 'r') as f:
             for i, line in enumerate(f):
                 if i == 8:
