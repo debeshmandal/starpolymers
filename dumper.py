@@ -2,7 +2,6 @@
 
 import pandas as pd
 import numpy as np
-from sklearn.metrics.pairwise import pairwise_distances
 
 def com(df):
     """
@@ -40,12 +39,15 @@ class DumpReader():
     def read(self, step, kind='positions-short'):
         
         fname = '{0}/dump.{1}.{2}'.format(self.path, self.ID, step)
+        print fname
         with open(fname, 'r') as f:
+            print f.read()
             for i, line in enumerate(f):
                 if i == 8:
                     columns = line
         columns = columns.lstrip('ITEMS: ATOMS ')
         columns = columns.split()
+        print columns
         positions = pd.read_csv(fname, skiprows=9, delimiter = ' ',
                                 header=None)
         delete = len(positions.columns.tolist())-1
