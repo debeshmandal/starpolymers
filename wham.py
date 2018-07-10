@@ -92,10 +92,10 @@ def boltzmann(x, bf):
     return math.exp()
 
 class WHAM():
-    def __init__(self, ID, centres, K=10):
+    def __init__(self, ID, centres, K=10, root='results'):
         self.master = pd.DataFrame()
         self.ID = ID
-        self.root = 'results'
+        self.root = root
         self.path = '{}/{}'.format(self.root, ID)
         self.hists = list()
         self.master = {'A': pd.DataFrame().rename(columns={0:'j', 1:'A'}),
@@ -103,12 +103,12 @@ class WHAM():
         self.columns = list()
         self.biases = list()
         self.centres = centres # e.g. [1, 2, 3, 4...]
-        self.xis = data = pd.read_csv('{}_{}/xi.hist'.format(self.path, centres[0]), header=None, delim_whitespace=True,
-                       skiprows=4).rename(columns={
-                           0: 'bin',
-                           1: 'xi',
-                           2: 'counts',
-                           3: 'p'})[['xi']]
+        self.xis = pd.read_csv('{}_{}/xi.hist'.format(self.path, centres[0]), header=None, delim_whitespace=True,
+                               skiprows=4).rename(columns={
+                                   0: 'bin',
+                                   1: 'xi',
+                                   2: 'counts',
+                                   3: 'p'})[['xi']]  
         self.K = K
       
 
