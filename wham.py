@@ -94,7 +94,8 @@ def boltzmann(x, bf):
 class WHAM():
     def __init__(self, ID, centres, K=10):
         self.master = pd.DataFrame()
-        self.path = 'results/{}'.format(ID)
+        self.root = 'results'
+        self.path = '{}/{}'.format(self.root, ID)
         self.hists = list()
         self.master = {'A': pd.DataFrame().rename(columns={0:'j', 1:'A'}),
                        'F': pd.DataFrame().rename(columns={0:'xi', 1: 'F'})}
@@ -112,8 +113,11 @@ class WHAM():
 
     # initialise a master dataframe that will be updated each iteration
 
-    def change_path(self, path):
-        self.path = path
+    def change_path(self, path, keyword='path'):
+        if keyword == 'path':
+            self.path = path
+        if keyword == 'root':
+            self.root = path
 
     def initialise_csv_files(self):
         """
