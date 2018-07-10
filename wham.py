@@ -118,6 +118,7 @@ class WHAM():
             self.path = path
         if keyword == 'root':
             self.root = path
+            self.path = '{}/{}'.format(self.root, ID)
 
     def initialise_csv_files(self):
         """
