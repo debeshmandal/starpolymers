@@ -94,6 +94,7 @@ def boltzmann(x, bf):
 class WHAM():
     def __init__(self, ID, centres, K=10):
         self.master = pd.DataFrame()
+        self.ID = ID
         self.root = 'results'
         self.path = '{}/{}'.format(self.root, ID)
         self.hists = list()
@@ -118,7 +119,7 @@ class WHAM():
             self.path = path
         if keyword == 'root':
             self.root = path
-            self.path = '{}/{}'.format(self.root, ID)
+            self.path = '{}/{}'.format(self.root, self.ID)
 
     def initialise_csv_files(self):
         """
