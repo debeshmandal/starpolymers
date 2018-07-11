@@ -256,6 +256,6 @@ class WHAM():
         results = results[['xi','{}_merged'.format(merger)]]
         if plot == 'on':
             plt.bar(results.iloc[:,0], results.iloc[:,1], width=0.35)
-            plt.xlabel(r'$\xi$ [$\sigma$]')
+            plt.xlabel('xi')
             plt.ylabel('{}_merged'.format(merger))
         return results
