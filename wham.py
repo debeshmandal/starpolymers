@@ -93,12 +93,13 @@ class WHAM():
                                    0: 'bin',
                                    1: 'xi',
                                    2: 'counts',
-                                   3: 'p_bias'})[['xi']] 
+                                   3: 'p_bias'})[['xi']]
         self.master = {'p_unbias': pd.DataFrame(columns=self.centres+['xi']),
                        'p_bias': pd.DataFrame(columns=self.centres+['xi']),
                        'master':pd.DataFrame(columns=['xi', 'p']),
                        'exp(-bF)': pd.DataFrame(columns=['centre', 'exp(-bF)']),
                        'exp(bw)': pd.DataFrame(columns=self.centres+['xi'])}
+	print self.master
         self.master['p_bias']['xi'] = self.xis
         self.master['p_unbias']['xi'] = self.xis
         self.master['master']['xi'] = self.xis
