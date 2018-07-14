@@ -95,16 +95,15 @@ class WHAM():
                                    2: 'counts',
                                    3: 'p_bias'})[['xi']]
         self.master = {'p_unbias': pd.DataFrame(columns=self.centres+['xi']),
-                       'p_bias': pd.DataFrame(columns=self.centres+['xi']),
+                       'p_bias': pd.DataFrame(columns=self.centres),
                        'master':pd.DataFrame(columns=['xi', 'p']),
                        'exp(-bF)': pd.DataFrame(columns=['centre', 'exp(-bF)']),
                        'exp(bw)': pd.DataFrame(columns=self.centres+['xi'])}
-	print self.master
-        self.master['p_bias']['xi'] = self.xis
-        self.master['p_unbias']['xi'] = self.xis
-        self.master['master']['xi'] = self.xis
+        self.master['p_bias']['xi'] = self.xis['xi']
+        self.master['p_unbias']['xi'] = self.xis['xi']
+        self.master['master']['xi'] = self.xis['xi']
         self.master['exp(-bF)']['centre'] = self.centres
-        self.master['exp(bw)']['xi'] = self.xis
+        self.master['exp(bw)']['xi'] = self.xis['xi']
       
 
     # initialise a master dataframe that will be updated each iteration
