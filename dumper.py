@@ -19,11 +19,12 @@ def com(df):
         result.append(temp)
     return result
 
-def distances(r1, r2):
-    dif = r1-r2
-    dif = np.square(dif)
-    sum_dif =dif[:,0]+dif[:,1]+dif[:,2]
-    dist = np.sqrt(sum_dif)
+def distances(r1, r2, box=50):
+    dist = np.abs(r1-r2)
+    dist = np.where(dist>0.5*box, dist-box, dist)
+    dist = np.power(dist, 2)
+    dist = np.sum(dist)
+    dist = np.power(dist, 0.5)
     return dist
     
 
@@ -31,28 +32,30 @@ class DumpReader():
 
     def __init__(self, ID):
         self.ID = str(ID)
-        self.path = 'results/{}'.format(self.ID)
+        self.root = 'results/'
+        self.path = '{}/{}'.format(self.root, self.ID)
 
-    def change_path(self, path):
-        self.path = path
+    def change_path(self, path, kind='path'):
+        if kind=='path':
+            self.path = path
+        elif kind=='root':
+            self.root = path
 
     def read(self, step, kind='positions-short'):
         
         fname = '{0}/dump.{1}.{2}'.format(self.path, self.ID, step)
-        print fname
         with open(fname, 'r') as f:
-            print f.read()
             for i, line in enumerate(f):
                 if i == 8:
                     columns = line
         columns = columns.lstrip('ITEMS: ATOMS ')
         columns = columns.split()
-        print columns
         positions = pd.read_csv(fname, skiprows=9, delimiter = ' ',
                                 header=None)
         delete = len(positions.columns.tolist())-1
         positions = positions.drop(delete, axis=1)
         positions = positions.set_axis(columns, axis='columns', inplace=False)
+        positions = positions.sort_values('id').reset_index(drop=True)
 
         if kind == 'all':
             data = positions
@@ -86,6 +89,8 @@ class DumpReader():
         data = pd.DataFrame(distances(d1,d2))
         data['Step'] = steps
         return data
+
+        
             
         
         
