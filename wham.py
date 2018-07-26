@@ -83,10 +83,11 @@ def boltzmann(x, bf):
     return math.exp()
 
 class WHAM():
-    def __init__(self, ID, centres, K=10, root='results'):
+    def __init__(self, ID, centres, K=2, root='results', max_counts = 5000):
         self.ID = ID
         self.centres = centres # e.g. [1, 2, 3, 4...]
         self.K = K
+        self.max_counts = max_counts
         self.root = root
         self.path = '{}/{}'.format(self.root, ID)
         self.xis = pd.read_csv('{}_{}/xi.hist'.format(self.path, centres[0]), header=None, delim_whitespace=True,
@@ -170,7 +171,7 @@ class WHAM():
         # get p_bias from files
         for i in self.centres:
             data = self.get_data(i)
-            self.master['p_bias'][i]=data['counts']/data['counts'].sum()
+            self.master['p_bias'][i]=data['counts']/self.max_counts
             self.master['exp(bw)'][i] = bias(self.xis.values, i, self.K)
 
         # initialise F_i - set all values to 1 and return exp(F)*bf
