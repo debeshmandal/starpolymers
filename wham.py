@@ -45,7 +45,6 @@ def bias(array, centre, K=2):
 
 def free_energy(array):
 
-    print array
     result = np.log(array)
     result = -kBT * result
     
@@ -59,8 +58,10 @@ def wham_F(p, w):
     Returns F_i which is a 1D array with length that is equal to the number of centres
 
     """
-    x = np.multiply(p,w)
-    F_i = np.sum(x, axis=0)
+    F_i = list()
+    for i in range(w.shape[1]):
+        F_i.append(np.sum(np.multiply(w[:,i],p), axis=0))
+    F_i = np.array(F_i)
     return F_i
 
 def wham_p(p_b, F, w):
@@ -169,7 +170,7 @@ class WHAM():
         # get p_bias from files
         for i in self.centres:
             data = self.get_data(i)
-            self.master['p_bias'][i]=data['p_bias']
+            self.master['p_bias'][i]=data['counts']/data['counts'].sum()
             self.master['exp(bw)'][i] = bias(self.xis.values, i, self.K)
 
         # initialise F_i - set all values to 1 and return exp(F)*bf
@@ -195,37 +196,35 @@ class WHAM():
         ## run WHAM equations
 
         p_u = wham_p(p_b, F, w)
-        new_F = wham_F(p_u, w)
-
-        
-
-        ## calculate convergence condition
-
         p = np.sum(p_u, axis=1)
+        new_F = wham_F(p, w)        
+
+        ## calculate convergence condition        
         
         self.master['p_unbias'][self.centres] = p_u
         self.master['master']['p'] = p
         self.master['exp(-bF)']['exp(-bF)'] = new_F
 
 
-    def full_run(self, max_iterations=100, conv=0.01, lower_bound=0.001):
+    def full_run(self, max_iterations=100, conv=0.001, lower_bound=0.001):
 
         self.initialise_csv_files()
         self.initialise_master()
+        F_old = np.copy(self.master['exp(-bF)']['exp(-bF)'].values)
         self.iterate()
-        master = self.master['master']
-        p_old = master['p'].values
-        self.iterate()
-        p_new = master['p'].values
-        convergence = np.mean(p_new - p_old)
+        F_new = self.master['exp(-bF)']['exp(-bF)'].values
+        convergence = np.mean(F_new - F_old)
+        print convergence
         counter = 0
-        
-        while convergence > conv:
-            while counter < max_iterations:
-                p_old = p_new
+
+        if counter < max_iterations:
+            while abs(convergence) > conv:
+                print convergence
+                F_old = np.copy(self.master['exp(-bF)']['exp(-bF)'].values)
                 self.iterate()
-                p_new = master['p']
-                convergence = np.mean(p_new - p_old)
+                F_new = self.master['exp(-bF)']['exp(-bF)'].values
+                convergence = np.mean(F_new - F_old)
+                counter+=1
 
         self.master['master'] = self.master['master'][self.master['master']['p']>lower_bound]
         p = self.master['master']['p'].values
