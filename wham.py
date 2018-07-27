@@ -78,7 +78,9 @@ def wham_p(counts, F, w):
     numer = np.sum(counts, axis=1)
     N = np.sum(counts,axis=0)
     wf = np.multiply(1.0/F, 1.0/w)
+    #pprint(wf)
     denom = np.sum(np.multiply(1.0/N,1.0/wf), axis=1)
+
     p = denom*numer
     
     return p
@@ -184,12 +186,11 @@ class WHAM():
         ax.set_prop_cycle('color',
                           plt.cm.viridis(np.linspace(0,1,len(self.centres))))
         for centre in self.centres:
-            plt.bar(self.master['counts']['xi'],
-                     self.master['counts'][centre], alpha=0.1,
-                    width=0.3)
+            plt.plot(self.master['counts']['xi'],
+                     self.master['counts'][centre], alpha=0.5)
         plt.plot(self.master['counts']['xi'],
                  self.master['counts'][self.centres].sum(axis=1),
-                 'k:x')
+                 'k:')
         plt.ylabel('counts')
         plt.xlabel(r'$xi$ [$sigma$]')
         plt.show()
@@ -231,7 +232,7 @@ class WHAM():
         counter = 0
 
         while (counter < max_iterations) & (abs(convergence) > conv):
-            print convergence
+            #print convergence
             F_old = np.copy(self.master['exp(-bF)']['exp(-bF)'].values)
             self.iterate()
             F_new = self.master['exp(-bF)']['exp(-bF)'].values
