@@ -14,7 +14,7 @@ beta = 1.0/kBT
 bf = exp(-beta) # e^-kBT - same as exp(beta)
 
 def pprint(a):
-    print pd.DataFrame(a)
+    print '\n', pd.DataFrame(a), '\n'
 
 def write_to_csv(path):
     data = pd.read_csv('{}/xi.hist'.format(path), header=None, delim_whitespace=True,
@@ -78,10 +78,12 @@ def wham_p(counts, F, w):
     numer = np.sum(counts, axis=1)
     N = np.sum(counts,axis=0)
     wf = np.multiply(1.0/F, 1.0/w)
-    #pprint(wf)
     denom = np.sum(np.multiply(1.0/N,1.0/wf), axis=1)
+    pprint(denom)
+    
 
     p = denom*numer
+    #pprint(p)
     
     return p
 
@@ -225,6 +227,7 @@ class WHAM():
 
         self.initialise_csv_files()
         self.initialise_master()
+        print (self.master['counts'][self.centres].sum(axis=1)/self.master['counts'][self.centres].sum(axis=1).sum()).sum()
         F_old = np.copy(self.master['exp(-bF)']['exp(-bF)'].values)
         self.iterate()
         F_new = self.master['exp(-bF)']['exp(-bF)'].values
@@ -232,7 +235,8 @@ class WHAM():
         counter = 0
 
         while (counter < max_iterations) & (abs(convergence) > conv):
-            #print convergence
+            print '\nconvergence = ', convergence
+            print '\ntotal probability = ',self.master['master']['p'].sum()
             F_old = np.copy(self.master['exp(-bF)']['exp(-bF)'].values)
             self.iterate()
             F_new = self.master['exp(-bF)']['exp(-bF)'].values
