@@ -3,22 +3,6 @@
 import pandas as pd
 import numpy as np
 
-def com(df):
-    """
-    returns a list of arrays [x_mean, y_mean, z_mean, mol]
-    """
-    result = []
-    n_mols = df['mol'].max()
-    for i in range(n_mols):
-        data = df[df['mol']==i+1]
-        temp = np.ndarray([1,4])
-        temp[0][0] = data['x'].mean()
-        temp[0][1] = data['y'].mean()
-        temp[0][2] = data['z'].mean()
-        temp[0][3] = data['mol'].mean()
-        result.append(temp)
-    return result
-
 def distances(r1, r2, box=50):
     dist = np.abs(r1-r2)
     dist = np.where(dist>0.5*box, dist-box, dist)
@@ -26,13 +10,26 @@ def distances(r1, r2, box=50):
     dist = np.sum(dist)
     dist = np.power(dist, 0.5)
     return dist
-    
+
+def delta(molecule, salt):
+    cds = []
+    pos = molecule[['x','y','z']].values
+    #print 'molecule is: \n', pos
+    cis = salt[['x','y','z']].values
+    #print 'salt is: \n', cis
+    for i in range(len(pos)):
+        dist = []
+        for j in range(len(salt)):
+            dist.append(distances(pos[i], cis[j]))
+        cds.append(min(dist))
+            
+    return cds
 
 class DumpReader():
 
-    def __init__(self, ID):
+    def __init__(self, ID, box=50):
         self.ID = str(ID)
-        self.root = 'results/'
+        self.root = 'results'
         self.path = '{}/{}'.format(self.root, self.ID)
 
     def change_path(self, path, kind='path'):
@@ -65,30 +62,69 @@ class DumpReader():
 
         elif kind == 'positions-long':
             data = positions[['id', 'x', 'y', 'z', 'mol', 'q']]
-            
+           
         return data
 
-    def com(self, molecule, steps):
+    def com(self, molecule):
+        fname = self.path + '/com{}.out'.format(molecule)
+        data = pd.read_csv(fname,
+                           comment='#',
+                           delim_whitespace = True,
+                           header=None)
+        com = pd.DataFrame()
+        com['ts'] = data[data[1]==3][0].values
+        com['x'] = data[data[0]==1][1].values
+        com['y'] = data[data[0]==2][1].values
+        com['z'] = data[data[0]==3][1].values
         
-        result = pd.DataFrame()
-        for i in steps:
-            data = self.read(i)
-            centres = com(data)
-            index = int(molecule)-1
-            temp = centres[index]
-            temp_df = pd.DataFrame(temp)
-            temp_df['Step'] = i
-            temp_df = temp_df.drop(3, axis=1)
-            result = result.append(temp_df, ignore_index=True)
-        return result        
+        return com
+        
 
     def complex_distance(self, steps):
 
-        d1 = self.com('1', steps)[[0,1,2]].values
-        d2 = self.com('2', steps)[[0,1,2]].values
+        d1 = self.com(1)[[0,1,2]].values
+        d2 = self.com(2)[[0,1,2]].values
         data = pd.DataFrame(distances(d1,d2))
         data['Step'] = steps
         return data
+
+    def counterion_distance(self, step, bound=20):
+
+        data = self.read(step, kind='positions-long')
+        pairs = [['star','neg'],['dna','pos']]
+        dfs = {'star': data[data['mol']==1],
+               'dna': data[data['mol']==2],
+               'pos': data[(data['q']>0) & (data['mol']==3)],
+               'neg': data[(data['q']<0) & (data['mol']==3)]}
+
+        
+        coms = {'star': self.com(1)[self.com(1)['ts']==step],
+               'dna': self.com(2)[self.com(2)['ts']==step]}
+
+
+        # get all salt ions from within bound from relevant com
+
+        # rescale relevant dfs by centre of mass
+        distances = dict()
+
+        distances['star'] = delta(dfs['star'], dfs['neg'])
+        #print distances['star']
+        distances['dna'] = delta(dfs['dna'], dfs['pos'])
+        #print distances['dna']
+
+        # concat both above dataframes
+
+        result = pd.concat([pd.DataFrame(distances['star']),
+                            pd.DataFrame(distances['dna'])])
+        return np.mean(result.values)
+        #result.std()
+
+        # take mean and std
+
+        # return mean and std
+
+        
+        
 
         
             
