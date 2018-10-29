@@ -2,6 +2,7 @@
 
 import pandas as pd
 import numpy as np
+from scipy.spatial import distance_matrix
 
 def distances(r1, r2, box=50):
     dist = np.abs(r1-r2)
@@ -98,8 +99,8 @@ class DumpReader():
                'neg': data[(data['q']<0) & (data['mol']==3)]}
 
         
-        coms = {'star': self.com(1)[self.com(1)['ts']==step],
-               'dna': self.com(2)[self.com(2)['ts']==step]}
+        #coms = {'star': self.com(1)[self.com(1)['ts']==step],
+        #       'dna': self.com(2)[self.com(2)['ts']==step]}
 
 
         # get all salt ions from within bound from relevant com
@@ -123,11 +124,120 @@ class DumpReader():
 
         # return mean and std
 
+    def counterion_number(self, step, bound=2):
+        data = self.read(step, kind='positions-long')
+        dfs = {'star': data[data['mol']==1].reset_index(drop=True),
+               'dna': data[data['mol']==2].reset_index(drop=True),
+               'pos': data[(data['q']>0) & (data['mol']==3)].reset_index(drop=True),
+               'neg': data[(data['q']<0) & (data['mol']==3)].reset_index(drop=True)}
+        count = 0
+
+        dist = distance_matrix(dfs['star'][['x','y','z']].values,
+                                    dfs['neg'][['x','y','z']].values)
+
+        count += len(dist[np.where(dist<=bound)])
+
+        dist = distance_matrix(dfs['dna'][['x','y','z']].values,
+                                    dfs['pos'][['x','y','z']].values)
+
+        count += len(dist[np.where(dist<=bound)])
         
-        
+        #for i in range(len(dfs['pos'])):
+        #    ion=dfs['pos'][['x', 'y', 'z']].loc[[i]].values
+        #    for j in range(len(dfs['dna'])):
+        #        atom = dfs['dna'][['x', 'y', 'z']].loc[[j]].values
+        #        
+        #        if distances(ion, atom)<bound:
+        #            count +=1
+        #            continue
 
         
+
+                    
+        #for i in range(len(dfs['neg'])):
+        #    ion = dfs['neg'][['x', 'y', 'z']].loc[[i]].values
+        #    for j in range(len(dfs['star'])):
+        #        atom = dfs['star'][['x', 'y', 'z']].loc[[j]].values
+        #        #count_2 = 0
+        #        if distances(ion, atom)<bound:
+        #            count +=1
+        #            continue
+
+        #count = count_1 + count_2
+
+        return count
+
+    def xyz(self, steps, out=True, folder=None):
+        for step in steps:
+            data = self.read(step)
+            data = data[['mol', 'x', 'y', 'z']]
+            if folder != None:
+                fname = '{0}/{1}.{2}.xyz'.format(folder, self.ID, step)
+            else:
+                fname = '{0}.{1}.xyz'.format(self.ID, step)
+            with open(fname, 'w') as f:
+                f.write(str(data.shape[0]-1))
+                f.write('\n')
+                data.to_csv(f, header=False, index=None, sep=' ')
+
+    def dep_pqr(self, config, steps, out=True, folder=None, radius=2.0,
+            molecules=[1,2]):
+        
+        for step in steps:
+            data = self.read(step, kind='positions-long')
+            r = radius
+            # write HETATMs
+            master = data.rename(columns={'id': 'residueNumber',
+                                          'x': 'X',
+                                          'y': 'Y',
+                                          'z': 'Z',
+                                          'mol': 'molName',
+                                          'q': 'charge'})
+            master['recordName'] = ['HETATM']*len(master)
+            master['radius'] = [radius] * len(master)
+            atomNames = ['C'] * len(master)
+            master['atomName'] = atomNames
+            #master['molName'] = ['ION'] * len(master)
+            master = master[master['molName'] != 3]
+            master = master[['recordName', 'residueNumber',
+                             'atomName', 'molName',
+                             'X',
+                             'Y',
+                             'Z',
+                             'charge',
+                             'radius']]
             
+            
+            # write CONECTs
+
+            conects = pd.DataFrame()
+
+            # read from BONDS to ANGLES
+
+            # generate list of atom_IDs - this becomes ATOM_ID
+
+            # for all atoms (get total number of atoms)
+
+                # ATOM 1 = each atom - create line
+
+                # search column 1 - if atom appears in this ATOM $(counter+2)
+                # equals number in column 2, counter += 1
+
+                # search column 2 - if atom appears in this, ATOM $(counter+2)
+                # equals number in column 1, counter += 1, if counter == 3,
+                # new line
+            
+            if folder != None:
+                fname = '{0}/{1}.{2}.pqr'.format(folder, self.ID, step)
+            else:
+                fname = '{0}.{1}.pqr'.format(self.ID, step)
+
+            # with open as f:
+            master = master.round(2)
+            master.to_csv(fname, header=False, index=None, sep=' ')
+                # conects.to_csv
+                # END
+            print master
         
         
     
