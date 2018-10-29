@@ -13,6 +13,8 @@ kBT = 1.2
 beta = 1.0/kBT
 bf = exp(-beta) # e^-kBT - same as exp(beta)
 
+def pprint(a):
+    print '\n', pd.DataFrame(a), '\n'
 
 def write_to_csv(path):
     data = pd.read_csv('{}/xi.hist'.format(path), header=None, delim_whitespace=True,
@@ -45,7 +47,6 @@ def bias(array, centre, K=2):
 
 def free_energy(array):
 
-    print array
     result = np.log(array)
     result = -kBT * result
     
@@ -59,33 +60,39 @@ def wham_F(p, w):
     Returns F_i which is a 1D array with length that is equal to the number of centres
 
     """
-    x = np.multiply(p,w)
-    F_i = np.sum(x, axis=0)
+    F_i = list()
+    for i in range(w.shape[1]):
+        F_i.append(np.sum(np.multiply(w[:,i],p), axis=0))
+    F_i = np.array(F_i)
     return F_i
 
-def wham_p(p_b, F, w):
+def wham_p(counts, F, w):
 
     """
 
-    Returns p_u which is a vector with length the number xis
+    Returns p which is a vector with length the number xis
 
     """
+    
+    
+    numer = np.sum(counts, axis=1)
+    N = np.sum(counts,axis=0)
+    wf = np.multiply(1.0/F, 1.0/w)
+    denom = np.sum(np.multiply(1.0/N,1.0/wf), axis=1)
+    pprint(denom)
+    
 
-    p_u = np.ndarray([len(p_b), len(F)])
-    for i in range(len(F)):
-        weight = w[:, i] * F[i]
-        p_u[:,i] = np.multiply(p_b[:, i], weight)
-
-    return p_u
-
-def boltzmann(x, bf):
-    return math.exp()
+    p = denom*numer
+    #pprint(p)
+    
+    return p
 
 class WHAM():
-    def __init__(self, ID, centres, K=10, root='results'):
+    def __init__(self, ID, centres, K=2, root='results', max_counts = 5000):
         self.ID = ID
         self.centres = centres # e.g. [1, 2, 3, 4...]
         self.K = K
+        self.max_counts = max_counts
         self.root = root
         self.path = '{}/{}'.format(self.root, ID)
         self.xis = pd.read_csv('{}_{}/xi.hist'.format(self.path, centres[0]), header=None, delim_whitespace=True,
@@ -94,13 +101,11 @@ class WHAM():
                                    1: 'xi',
                                    2: 'counts',
                                    3: 'p_bias'})[['xi']]
-        self.master = {'p_unbias': pd.DataFrame(columns=self.centres+['xi']),
-                       'p_bias': pd.DataFrame(columns=self.centres),
+        self.master = {'counts': pd.DataFrame(columns=self.centres),
                        'master':pd.DataFrame(columns=['xi', 'p']),
-                       'exp(-bF)': pd.DataFrame(columns=['centre', 'exp(-bF)']),
+                       'exp(-bF)': pd.DataFrame(columns=['centre', 'F', 'exp(-bF)']),
                        'exp(bw)': pd.DataFrame(columns=self.centres+['xi'])}
-        self.master['p_bias']['xi'] = self.xis['xi']
-        self.master['p_unbias']['xi'] = self.xis['xi']
+        self.master['counts']['xi'] = self.xis['xi']
         self.master['master']['xi'] = self.xis['xi']
         self.master['exp(-bF)']['centre'] = self.centres
         self.master['exp(bw)']['xi'] = self.xis['xi']
@@ -169,13 +174,28 @@ class WHAM():
         # get p_bias from files
         for i in self.centres:
             data = self.get_data(i)
-            self.master['p_bias'][i]=data['p_bias']
+            self.master['counts'][i]=data['counts']
             self.master['exp(bw)'][i] = bias(self.xis.values, i, self.K)
 
         # initialise F_i - set all values to 1 and return exp(F)*bf
 
         F = np.ones([len(self.master['exp(-bF)']),1])
+        self.master['exp(-bF)']['F'] = F
         self.master['exp(-bF)']['exp(-bF)'] = np.exp(F) * bf
+
+    def raw_histogram(self):
+        fig, ax = plt.subplots()
+        ax.set_prop_cycle('color',
+                          plt.cm.viridis(np.linspace(0,1,len(self.centres))))
+        for centre in self.centres:
+            plt.plot(self.master['counts']['xi'],
+                     self.master['counts'][centre], alpha=0.5)
+        plt.plot(self.master['counts']['xi'],
+                 self.master['counts'][self.centres].sum(axis=1),
+                 'k:')
+        plt.ylabel('counts')
+        plt.xlabel(r'$xi$ [$sigma$]')
+        plt.show()
         
 
     def iterate(self):
@@ -188,50 +208,47 @@ class WHAM():
 
         # iterate previously defined functions and return difference
 
-        p_b = self.master['p_bias'][self.centres].values
+        counts = self.master['counts'][self.centres].values
         F = self.master['exp(-bF)']['exp(-bF)'].values # exponentials
         w = self.master['exp(bw)'][self.centres].values
 
         ## run WHAM equations
 
-        p_u = wham_p(p_b, F, w)
-        new_F = wham_F(p_u, w)
+        p = wham_p(counts, F, w)
+        new_F = wham_F(p, w)        
 
+        ## calculate convergence condition        
         
-
-        ## calculate convergence condition
-
-        p = np.sum(p_u, axis=1)
-        
-        self.master['p_unbias'][self.centres] = p_u
         self.master['master']['p'] = p
         self.master['exp(-bF)']['exp(-bF)'] = new_F
 
 
-    def full_run(self, max_iterations=100, conv=0.01, lower_bound=0.001):
+    def full_run(self, max_iterations=100, conv=0.001, lower_bound=0.001):
 
         self.initialise_csv_files()
         self.initialise_master()
+        print (self.master['counts'][self.centres].sum(axis=1)/self.master['counts'][self.centres].sum(axis=1).sum()).sum()
+        F_old = np.copy(self.master['exp(-bF)']['exp(-bF)'].values)
         self.iterate()
-        master = self.master['master']
-        p_old = master['p'].values
-        self.iterate()
-        p_new = master['p'].values
-        convergence = np.mean(p_new - p_old)
+        F_new = self.master['exp(-bF)']['exp(-bF)'].values
+        convergence = abs(np.mean(F_new - F_old))
         counter = 0
-        
-        while convergence > conv:
-            while counter < max_iterations:
-                p_old = p_new
-                self.iterate()
-                p_new = master['p']
-                convergence = np.mean(p_new - p_old)
+
+        while (counter < max_iterations) & (abs(convergence) > conv):
+            print '\nconvergence = ', convergence
+            print '\ntotal probability = ',self.master['master']['p'].sum()
+            F_old = np.copy(self.master['exp(-bF)']['exp(-bF)'].values)
+            self.iterate()
+            F_new = self.master['exp(-bF)']['exp(-bF)'].values
+            convergence = abs(np.mean(F_new - F_old))
+            counter+=1
+                
 
         self.master['master'] = self.master['master'][self.master['master']['p']>lower_bound]
         p = self.master['master']['p'].values
         self.master['master']['PMF'] = free_energy(p)
             
-    def merge(self, merger='p_bias', plot='off'):
+    def merge(self, merger='counts', plot='off'):
 
         results = pd.DataFrame()
         results['xi'] = self.xis
