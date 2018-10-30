@@ -32,6 +32,7 @@ class DumpReader():
         self.ID = str(ID)
         self.root = 'results'
         self.path = '{}/{}'.format(self.root, self.ID)
+        self.box = box
 
     def change_path(self, path, kind='path'):
         if kind=='path':
@@ -54,15 +55,33 @@ class DumpReader():
         positions = positions.drop(delete, axis=1)
         positions = positions.set_axis(columns, axis='columns', inplace=False)
         positions = positions.sort_values('id').reset_index(drop=True)
+        try:
+            positions = positions.rename(columns={'xu': 'x',
+                                                  'yu': 'y',
+                                                  'zu': 'z'})
+            positions['x'] = positions['x'].values % self.box
+            positions['y'] = positions['y'].values % self.box
+            positions['z'] = positions['z'].values % self.box
+        except:
+            None
 
         if kind == 'all':
             data = positions
 
         elif kind == 'positions-short':
-            data = positions[['x', 'y', 'z', 'mol']]
+            data = positions[['id',
+                              'x',
+                              'y',
+                              'z',
+                              'mol']]
+
 
         elif kind == 'positions-long':
-            data = positions[['id', 'x', 'y', 'z', 'mol', 'q']]
+            data = positions[['id',
+                              'x',
+                              'y',
+                              'z',
+                              'mol', 'q']]
            
         return data
 
