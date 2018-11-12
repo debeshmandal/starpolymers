@@ -1,5 +1,4 @@
 import star_gen2 as sg
-import subprocess
 
 x = sg.FileGenerator(40, 'ssr')
 
@@ -9,14 +8,16 @@ star = {'molecule': 'star',
         'charge_style': 'all',
         'charge_max': 1,
         'central' : 'all',
-        'counterions':False}
+        'counterions':False,
+        'angle_type': 1}
 
 DNA = {'molecule': 'DNA',
        'kap': 1,
        'lam': 21,
        'charge_style': 'all',
        'charge_max': -1,
-       'counterions': False}
+       'counterions': False,
+       'angle_type': 2}
 
 salt = {'molecule': 'salt',
         'kap': 0,

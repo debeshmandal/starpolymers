@@ -271,20 +271,41 @@ class FileGenerator():
 
         spac = spacing
 
+        atom_type_list = [1]
+        bond_type_list = [1]
+        angle_type_list = [1]
+        
+            
+
         for item in system:
             HeadGen = MaxCalculator(item)
             MAX_length += int(item['lam']) * spac
             MAX_atoms += HeadGen.atoms(system)
             MAX_bonds += HeadGen.bonds()
-            MAX_angles += HeadGen.angles()        
+            MAX_angles += HeadGen.angles()
+
+            try:
+                atom_type_list.append(item['atom_type'])
+            except:
+                None
+                
+            try:
+                bond_type_list.append(item['bond_type'])
+            except:
+                None
+                
+            try:
+                angle_type_list.append(item['angle_type'])
+            except:
+                None
         
         n_atoms = MAX_atoms
         m_bonds = MAX_bonds
         l_angles = MAX_angles
 
-        a_atom_types = 1
-        b_bond_types = 1
-        c_angle_types = 1
+        a_atom_types = max(atom_type_list)
+        b_bond_types = max(bond_type_list)
+        c_angle_types = max(angle_type_list)
 
         xlo = -self.box
         xhi = self.box
@@ -594,7 +615,7 @@ class FileGenerator():
             if item['central'] != 'centre' or 'none':
                 for i in range(kap):
                     angle_ID = i+1 + angle_ID_shift
-                    angle_type = 1
+                    angle_type = item['angle_type']
                     atom1 = (i+1)*lam-1 + atom_ID_shift
                     atom2 = (i+1)*lam + atom_ID_shift
                     atom3 = n_atoms
@@ -617,7 +638,7 @@ class FileGenerator():
             for i in range(kap):
                 for j in range(lam-2):
                     angle_ID = kap*(kap+1)/2 + j+1 + i*(lam-2) + angle_ID_shift
-                    angle_type = 1
+                    angle_type = item['angle_type']
                     atom1 = lam*i+1+j + atom_ID_shift
                     atom2 = lam*i+2+j + atom_ID_shift
                     atom3 = lam*i+3+j + atom_ID_shift
@@ -633,7 +654,7 @@ class FileGenerator():
         if item['molecule'] == 'DNA':
             for i in range(lam-2):
                 angle_ID = i+1 + angle_ID_shift
-                angle_type = 1
+                angle_type = item['angle_type']
                 atom1 = i+1 + atom_ID_shift
                 atom2 = i+2 + atom_ID_shift
                 atom3 = i+3 + atom_ID_shift
