@@ -151,15 +151,15 @@ class DumpReader():
                'neg': data[(data['q']<0) & (data['mol']==3)].reset_index(drop=True)}
         count = 0
 
-        dist = distance_matrix(dfs['star'][['x','y','z']].values,
-                                    dfs['neg'][['x','y','z']].values)
+        dist = np.transpose(distance_matrix(dfs['star'][['x','y','z']].values,
+                                    dfs['neg'][['x','y','z']].values))
 
-        count += len(dist[np.where(dist<=bound)])
+        count += len(dist[dist[:,0]<=bound])
 
-        dist = distance_matrix(dfs['dna'][['x','y','z']].values,
-                                    dfs['pos'][['x','y','z']].values)
+        dist = np.transpose(distance_matrix(dfs['dna'][['x','y','z']].values,
+                                    dfs['pos'][['x','y','z']].values))
 
-        count += len(dist[np.where(dist<=bound)])
+        count += len(dist[dist[:,0]<=bound])
         
         #for i in range(len(dfs['pos'])):
         #    ion=dfs['pos'][['x', 'y', 'z']].loc[[i]].values
