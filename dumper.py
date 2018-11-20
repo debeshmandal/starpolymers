@@ -3,6 +3,9 @@
 import pandas as pd
 import numpy as np
 from scipy.spatial import distance_matrix
+from scipy.spatial.distance import pdist, euclidean
+from numpy.linalg import norm
+import math
 
 def distances(r1, r2, box=50):
     dist = np.abs(r1-r2)
@@ -26,6 +29,9 @@ def delta(molecule, salt):
             
     return cds
 
+def com(array):
+    return np.mean(array, axis=0)
+
 class DumpReader():
 
     def __init__(self, ID, box=50):
@@ -40,7 +46,7 @@ class DumpReader():
         elif kind=='root':
             self.root = path
 
-    def read(self, step, kind='positions-short'):
+    def read(self, step, kind='positions-short', unwrap=False):
         
         fname = '{0}/dump.{1}.{2}'.format(self.path, self.ID, step)
         with open(fname, 'r') as f:
@@ -55,15 +61,16 @@ class DumpReader():
         positions = positions.drop(delete, axis=1)
         positions = positions.set_axis(columns, axis='columns', inplace=False)
         positions = positions.sort_values('id').reset_index(drop=True)
-        try:
-            positions = positions.rename(columns={'xu': 'x',
-                                                  'yu': 'y',
-                                                  'zu': 'z'})
-            positions['x'] = positions['x'].values % self.box
-            positions['y'] = positions['y'].values % self.box
-            positions['z'] = positions['z'].values % self.box
-        except:
-            None
+        if unwrap == True:
+            try:
+                positions = positions.rename(columns={'xu': 'x',
+                                                      'yu': 'y',
+                                                      'zu': 'z'})
+                positions['x'] = positions['x'].values % self.box
+                positions['y'] = positions['y'].values % self.box
+                positions['z'] = positions['z'].values % self.box
+            except:
+                None
 
         if kind == 'all':
             data = positions
@@ -85,7 +92,7 @@ class DumpReader():
            
         return data
 
-    def com(self, molecule):
+    def read_com(self, molecule):
         fname = self.path + '/com{}.out'.format(molecule)
         data = pd.read_csv(fname,
                            comment='#',
@@ -257,6 +264,69 @@ class DumpReader():
                 # conects.to_csv
                 # END
             print master
+
+    def gyr_complex(self, step, salt=3, case='pdist'):
+
+        # read file ensuring that ix iy and iz are present
+        try:
+            data = self.read(step, kind='all')[['mol','x','y','z',
+                                                'ix', 'iy', 'iz']]
+        except KeyError:
+            print "Periodic Boundary image (i.e. ix, iy, iz) not present"
+        
+        # remove salt atoms
+        data = data[data['mol']!=salt]
+
+        # for atoms that are not in i*==0, move them by box*i*
+        data['xs'] = data['x'].values + self.box*data['ix'].values
+        data['ys'] = data['y'].values + self.box*data['iy'].values
+        data['zs'] = data['z'].values + self.box*data['iz'].values
+        data = data[['xs', 'ys', 'zs']]
+        
+
+        # calculate gyration radius
+        # rg = 1/N^2 * mean(r - com)
+
+        # compute com
+        centre = com(data.values)
+
+        #print centre
+
+        if case == 'euc':
+            
+            dist = []
+            for i in range(len(data)):
+                dist.append(euclidean(data.values[i], centre) ** 2)
+            data['dist'] = dist
+            rg2 = np.sum(data['dist'].values)/len(data)
+            rg = math.sqrt(rg2)
+
+        elif case == 'distances':
+            
+            dist = 0
+            for i in range(len(data)):
+                dist += distances(data.values[i], centre) ** 2
+            rg2 = dist/len(data)
+            rg = math.sqrt(rg2)
+
+        elif case == 'pdist':
+
+            # get distance matrix
+            p = np.square(pdist(data.values))
+            n = len(data)
+            rg2 = np.sum(p)/(8*n**2)
+            rg = math.sqrt(rg2)
+
+        elif case == 'norm':
+            dist = 0
+            for i in range(len(data)):
+                dist += norm(data.values[i] - centre) ** 2
+            rg2 = dist/len(data)
+            rg = math.sqrt(rg2)
+
+        return rg
+
+        
         
         
     
