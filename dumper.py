@@ -9,6 +9,8 @@ import math
 
 def distances(r1, r2, box=50):
     dist = np.abs(r1-r2)
+    for i in range(3):
+        dist[i] = dist[i] - box*round(dist[i]/box)
     dist = np.where(dist>0.5*box, dist-box, dist)
     dist = np.power(dist, 2)
     dist = np.sum(dist)
