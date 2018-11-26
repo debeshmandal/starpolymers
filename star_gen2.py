@@ -25,6 +25,11 @@ direction = np.array([[1, 0, 0],
                       [0, -1/math.sqrt(2), -1/math.sqrt(2)],
                       [-1/math.sqrt(2), 0, -1/math.sqrt(2)]])
 
+
+lam_list = ['star', 'DNA']
+salt_list = ['salt']
+molecule_list = lam_list + salt_list
+
 spacing = 2.0
 
 translation = np.array([[0, 0, 0],
@@ -119,11 +124,11 @@ def central_centre_gen(n_atoms, kap, lam, angle_shift, atom_shift):
 
     return angle_list_central
 
-def charge_gen(item):
+def charge_gen(item, atom_number=None):
 
     """
 
-    Returns an float that represents the charge on a single bead.
+    Returns a float that represents the charge on a single bead.
     
     """
     
@@ -133,6 +138,54 @@ def charge_gen(item):
         return
     if item['charge_style'] == 'all':
         return float(item['charge_max'])
+
+    # use dictionary for complicated things
+    #
+    #
+    # : {'style' : 'random'|'block',
+    #    'homo' : True | False,
+    #    'ratio' : 0.0 < x < 1.0,
+    #    'arms' : pattern list form that recurs e.g. [0, 1, 0, 1]
+    #    'blocks' : pattern but dict w/ block size e.g. {3: 1, 2: 0, 1: -1}
+    #    'het' : {arm_index <int> : group <a-z> # check if groups exist
+    #    'a' : 'blocks'|'arms' : {}|[] ... }
+    #
+    #    return float(charge)
+
+def check_item(item):
+
+    isvalid = bool()
+    if item['molecule'] in molecule_list:
+        isvalid = True
+    else:
+        print "ERROR: item['molecule'] must be one of {}".format(molecule_list)
+        return isvalid
+
+    if type(item['molecule'])!=str:
+        isvalid = False
+        print "ERROR: {} should have an item['molecule'] that is a string".format(item['molecule'])
+        return isvalid
+    
+    elif item['molecule'] in lam_list:
+        if type(item['lam'])!=int:
+            isvalid = False
+            print "ERROR: {} is a molecule and needs an integer value for item['lam']".format(item['molecule'])
+            return isvalid
+
+    elif item['molecule'] == 'star':
+        if type(item['kap'])!=int:
+            isvalid = False
+            print "ERROR: {} is a star and needs an integer value for item['kap']".format(item['molecule'])
+            return isvalid
+        
+    elif item['molecule'] in salt_list:
+        if type(item['concentration']) != int:
+            isvalid = False
+            print "ERROR: {} is a salt and needs"
+        return isvalid
+    else:
+        isvalid = True
+        return isvalid
 
 def neutraliser(system):
     """
@@ -234,7 +287,7 @@ class FileGenerator():
                 
     """
 
-    def __init__(self, box, fstyle):
+    def __init__(self, box, fstyle='exp'):
         self.box = box
         self.fstyle = fstyle
 
@@ -361,6 +414,8 @@ class FileGenerator():
         item = system[system_index]
         box = self.box
 
+        # write function to check that item obeys rules
+
         CUMU_atoms = int()        
         for i in range(system_index):
             CUMU_atoms += MaxCalculator(system[i]).atoms(system)
@@ -386,7 +441,14 @@ class FileGenerator():
             for i in range(kap):
                 for j in range(lam):
                     atom_id = j+1 + (i*lam) + atom_ID_shift
-                    charge = charge_gen(item)
+                    
+                    # check charge_ratio of item (if present), if not assume
+                    # = 1
+                    # if ratio < item[charge_ratio], do
+
+                    charge = charge_gen(item, atom_number=(atom_id-atom_ID_shift))
+
+                    # else continue
                     x_pos = (mol_length-(j*spac))*direction[i][0] + atom_pos_shift[system_index][0]
                     y_pos = (mol_length-(j*spac))*direction[i][1] + atom_pos_shift[system_index][1]
                     z_pos = (mol_length-(j*spac))*direction[i][2] + atom_pos_shift[system_index][2]
@@ -739,7 +801,16 @@ class FileGenerator():
                     'charge': -1}
 
         """
-        
+        #print "Running system checks ... \n"
+        #for i in range(len(system)):
+        #    print "Checking item index {} ...".format(i)
+        #    if check_item(system[i]):
+        #        print "Item is valid ... \n"
+        #    else:
+        #        print "Error in system, see above messages"
+        #        return
+        #print "System is valid, proceeding to write ..."
+            
         with open(self.create_filename(system), 'w') as f:
             f.write(self.write_comments(system))
             f.write(self.write_header(system))
@@ -762,5 +833,6 @@ class FileGenerator():
                 if i == 0:
                     f.write(self.write_angles(system, i))
                 else:
-                    f.write(self.write_angles(system, i))                
+                    f.write(self.write_angles(system, i))
+        print "Writing complete for {}".format(self.create_filename(system))
         return
