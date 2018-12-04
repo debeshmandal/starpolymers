@@ -267,8 +267,19 @@ class DumpReader():
                 # END
             print master
 
-    def gyr_complex(self, step, salt=3, case='pdist'):
+    def gyration(self, step, salt=3):
+        """
 
+        Returns the radius of gyration of all molecules except the salt
+        molecule.
+
+        Arguments:
+
+        step: integer value for timestep
+        salt=3: which molecule to exclude
+
+        """
+        
         # read file ensuring that ix iy and iz are present
         try:
             data = self.read(step, kind='all')[['mol','x','y','z',
@@ -284,52 +295,14 @@ class DumpReader():
         data['ys'] = data['y'].values + self.box*data['iy'].values
         data['zs'] = data['z'].values + self.box*data['iz'].values
         data = data[['xs', 'ys', 'zs']]
-        
 
-        # calculate gyration radius
-        # rg = 1/N^2 * mean(r - com)
-
-        # compute com
-        centre = com(data.values)
-
-        #print centre
-
-        if case == 'euc':
-            
-            dist = []
-            for i in range(len(data)):
-                dist.append(euclidean(data.values[i], centre) ** 2)
-            data['dist'] = dist
-            rg2 = np.sum(data['dist'].values)/len(data)
+        dist = 0
+        for i in range(len(data)):
+            for j in range(len(data)):
+                dist += distances(data.values[i], data.values[j]) ** 2
+            rg2 = dist/(2*len(data)**2)
             rg = math.sqrt(rg2)
-
-        elif case == 'distances':
-            
-            dist = 0
-            for i in range(len(data)):
-                dist += distances(data.values[i], centre) ** 2
-            rg2 = dist/len(data)
-            rg = math.sqrt(rg2)
-
-        elif case == 'pdist':
-
-            # get distance matrix
-            p = np.square(pdist(data.values))
-            n = len(data)
-            rg2 = np.sum(p)/(8*n**2)
-            rg = math.sqrt(rg2)
-
-        elif case == 'norm':
-            dist = 0
-            for i in range(len(data)):
-                dist += norm(data.values[i] - centre) ** 2
-            rg2 = dist/len(data)
-            rg = math.sqrt(rg2)
-
         return rg
-
-        
-        
         
     
         
