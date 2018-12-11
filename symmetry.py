@@ -5,6 +5,7 @@ import numpy as np
 import numpy.linalg as la
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from dumper import DumpReader as dr
 
 def product(vector):
     result = 1
@@ -12,20 +13,46 @@ def product(vector):
         result = result * vector[i]
     return result
 
-def read_data(fname):
+def read_data(fname, exclude=3):
         """
 
         Reads data from LAMMPS dump file
 
         """
         raw_data = pd.read_csv(fname, delimiter=' ', skiprows=9, header=None)
-        positions = raw_data[raw_data[9]!=3].iloc[:,2:5].values
+        positions = raw_data[raw_data[9]!=exclude].iloc[:,2:5].values
         return positions
 
+def scale(positions, box=50):
+    
+    # pick one particle
+
+    ID = len(positions)/2
+
+    # centre this at (0,0,0)
+
+    scale_by = -positions[ID,:]
+
+    # for all particles
+    # scale by same amount
+
+    scaled = positions+scale_by
+
+    # measure distance in x,y,z direction
+
+    for i in range(len(scaled)):
+        for j in range(3):
+            scaled[i,j] = scaled[i,j] - box*round(scaled[i,j]/box)
+
+    return scaled
+
 class SymmetryAnalyser:
-    def __init__(self, filename):
+    def __init__(self, filename, exclude=3):
         self.f = filename
-        self.positions = read_data(filename)    
+        self.positions = read_data(filename, exclude)
+
+    def scale_complex(self):
+        self.positions = scale(self.positions)
 
     def plot_complex(self, eig=False):
         """
@@ -64,7 +91,7 @@ class SymmetryAnalyser:
             print '\nThe eigenvalues are \n', eigenvalues
             print '\nThe eigenvectors are \n', eigenvectors
             print '\nThe scaled eigenvalues are \n', scaled_eigenvalues
-            print '\nThe symmetry_index is {0:.5f}'.format(symmetry_index)
+            print '\nThe symmetry_index is {0:.4e}'.format(symmetry_index)
         if symmetry_only == True:
             return symmetry_index
         else:
