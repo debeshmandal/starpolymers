@@ -124,20 +124,45 @@ def central_centre_gen(n_atoms, kap, lam, angle_shift, atom_shift):
 
     return angle_list_central
 
-def charge_gen(item, atom_number=None):
+def item_charge(item, system):
+    """
+
+    Returns list of atom numbers that should have a charge.
+    The length of the list can be fed into the max calculator.
+    
+    
+    """
+
+    # get number of atoms
+
+    n_atoms = MaxCalculator(item).atoms(system)
+
+    # create list from range
+
+    atom_list = range(1, n_atoms+1)
+
+    # calculate number of charges
+    # and sample the list    
+
+    if item['charge_style'] == 'random':
+        n_charges = int(n_atoms*item['charge_params']['ratio'])
+        print 'n_charges = {}'.format(n_charges)
+        atom_list = random.sample(atom_list, n_charges)
+        print atom_list
+
+    return atom_list
+
+def charge_gen(item, atom_number, charge_list):
 
     """
 
     Returns a float that represents the charge on a single bead.
     
     """
-    
-    if item['charge_style'] == 'random':
-        return
-    if item['charge_style'] == 'alternating':
-        return
-    if item['charge_style'] == 'all':
+    if atom_number in charge_list:
         return float(item['charge_max'])
+    else:
+        return 0.0
 
     # use dictionary for complicated things
     #
@@ -152,7 +177,7 @@ def charge_gen(item, atom_number=None):
     #
     #    return float(charge)
 
-def check_item(item):
+def __check_item(item):
 
     isvalid = bool()
     if item['molecule'] in molecule_list:
@@ -198,10 +223,16 @@ def neutraliser(system):
     sys_charge = int()
     for item in system:
         if item['molecule'] != 'salt':
-            q = item['charge_max']
-            n_atoms = MaxCalculator(item).atoms(system)
-            sys_charge += n_atoms * -q
-    return sys_charge
+            # find out what the total charge is
+            if item['charge_style'] == 'all':
+                q = item['charge_max']
+                n_atoms = MaxCalculator(item).atoms(system)
+                sys_charge += n_atoms * -q
+            elif item['charge_style'] == 'random':
+                q = item['charge_max']
+                n_atoms = MaxCalculator(item).atoms(system)
+                sys_charge += n_atoms * -q * item['charge_params']['ratio']
+    return int(sys_charge)
         
     
 
@@ -413,6 +444,7 @@ class FileGenerator():
         atom_list = str()
         item = system[system_index]
         box = self.box
+        charge_list = item_charge(item, system)
 
         # write function to check that item obeys rules
 
@@ -446,8 +478,8 @@ class FileGenerator():
                     # = 1
                     # if ratio < item[charge_ratio], do
 
-                    charge = charge_gen(item, atom_number=(atom_id-atom_ID_shift))
-
+                    charge = charge_gen(item, atom_id-atom_ID_shift, charge_list)
+                    
                     # else continue
                     x_pos = (mol_length-(j*spac))*direction[i][0] + atom_pos_shift[system_index][0]
                     y_pos = (mol_length-(j*spac))*direction[i][1] + atom_pos_shift[system_index][1]
@@ -463,7 +495,8 @@ class FileGenerator():
                     next_line += "\n"
                     atom_list += next_line
             atom_list += str("{} {} {} {} {} {} {} \n".format(n_atoms, molecule_id,
-                                                                 atom_type, charge_gen(item),
+                                                              atom_type,
+                                                              charge_gen(item, n_atoms, charge_list),
                                                               atom_pos_shift[system_index][0],
                                                               atom_pos_shift[system_index][1],
                                                               atom_pos_shift[system_index][2]))
@@ -476,7 +509,7 @@ class FileGenerator():
             n_atoms = lam
             for i in range(lam):
                 atom_id = i+1 + atom_ID_shift
-                charge = charge_gen(item)
+                charge = charge_gen(item, atom_id-atom_ID_shift, charge_list)
                 x_pos = (mol_length-(i*spac))*direction[0][0] + atom_pos_shift[system_index][0]
                 y_pos = (mol_length-(i*spac))*direction[0][1] + atom_pos_shift[system_index][1]
                 z_pos = (mol_length-(i*spac))*direction[0][2] + atom_pos_shift[system_index][2]
@@ -495,7 +528,7 @@ class FileGenerator():
         if counterions == True:                
             for i in range(lam):
                 atom_id = i+1 + atom_ID_shift + lam
-                charge = -1 * charge_gen(item)
+                charge = -1 * charge_gen(item, atom_id-atom_ID_shift, charge_list)
                 x_pos = (mol_length-(i*spac))*direction[0][0] + atom_pos_shift[system_index][0] + spac
                 y_pos = (mol_length-(i*spac))*direction[0][1] + atom_pos_shift[system_index][1] + spac
                 z_pos = (mol_length-(i*spac))*direction[0][2] + atom_pos_shift[system_index][2] + spac
@@ -738,7 +771,9 @@ class FileGenerator():
         Returns string that is the filename for the system
 
         """
-        if self.fstyle == 'al':
+        if self.fstyle == 'exp':
+            filename = 'exp.dat'
+        elif self.fstyle == 'al':
             star = system[0]
             salt = system[1]
             filename = str('al_'+star['kap']+'_'+star['lam']+'_'+salt['conc'])
