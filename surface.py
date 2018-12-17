@@ -9,7 +9,7 @@ from itertools import permutations
 
 def lj(r, eps, sig, rc):
     rr = 1/r ** 2
-    sr6 = float(sigma)/r ** 6
+    sr6 = float(sig)/r ** 6
     potential = 4 * eps * (sr6 - sr6*rr)
     return potential                 
 
@@ -23,20 +23,21 @@ class Molecule():
         self.sigma = dictionary['sigma']
         self.epsilon = dictionary['epsilon']
 
-    def surface(self, grid, pool_size=5):
+    def calculate_surface(self, grid, pool_size=5):
         self.surface = grid.grid
-        subgrids = np.vsplit(self.surface, 1)
-        pool = Pool(pool_size)
-        outputs = pd.Dataframe()
-        print 'test'
-        for i in range(len(atoms)):
+        subgrids = np.vsplit(self.surface, len(self.surface))
+        outputs = pd.DataFrame()
+        for i in range(len(self.atoms)):
+            output = []
             print 'atom number {} is running'.format(i)
-            atoms[i].settings(self.bound,
-                              self.epsilon,
-                              self.sigma,
-                              self.rc)
-            output[i] = pool.map(atoms[i].lj, subgrids)
-            self.surface = self.surface[output[i]]
+            for j in subgrids:
+                self.atoms[i].settings(self.bound,
+                                       self.epsilon,
+                                       self.sigma,
+                                       self.rc)
+                output.append(self.atoms[i].lj(j))
+            outputs[i] = output
+        self.surface = self.surface[outputs.any(axis=1)]
         
 class Grid():
     def __init__(self, resolution, fine_graining=10, box=50):
@@ -48,13 +49,12 @@ class Grid():
         n = self.box*2/self.coarse
         x = np.linspace(-self.box, self.box, int(n))
         self.grid = np.array(list(permutations(x,3)))
-        print self.grid.shape
 
 class Atom():
     def __init__(self, position):
         self.position = position
 
-    def settings(bound, epsilon, sigma, rc):
+    def settings(self, bound, epsilon, sigma, rc):
         self.bound = bound
         self.eps = epsilon
         self.sigma = sigma
@@ -64,7 +64,7 @@ class Atom():
         r = distance.euclidean(self.position, test_particle)
         if r > self.cutoff:
             return False
-        if lj(r, self.eps, self.sigma, self.cutoff) > self.bound:
+        if lj(r, self.eps, self.sigma, self.cutoff) < self.bound:
             return True
         else:
             return False
@@ -112,7 +112,8 @@ def run(path, ID, step, box=50, res=0.1,
     molecule.settings(settings)
     grid = Grid(res)
     grid.initialise()
-    return molecule.surface(grid)
+    molecule.calculate_surface(grid)
+    return molecule.surface
 
 def plot_surface(surface):
     fig = plt.figure()
