@@ -139,15 +139,33 @@ def item_charge(item, system):
 
     # create list from range
 
-    atom_list = range(1, n_atoms+1)
+    
 
     # calculate number of charges
-    # and sample the list    
+    # and sample the list
+
+    atom_list = []
 
     if item['charge_style'] == 'random':
+        atom_list = range(1, n_atoms+1)
         n_charges = int(n_atoms*item['charge_params']['ratio'])
         print 'n_charges = {}'.format(n_charges)
         atom_list = random.sample(atom_list, n_charges)
+        print atom_list
+
+    if item['charge_style'] == 'diblock-regular':
+        
+        arm_charges = item['lam'] * item['charge_params']['ratio']
+        arm_charges = int(arm_charges)
+        for i in range(item['kap']):
+            arm_list = np.array(range(1, item['lam']+1)) + (i*item['lam'])
+            if item['charge_params']['block_position'] == 'centre':
+                atom_list.extend(list(arm_list[:arm_charges]))
+            elif item['charge_params']['block_position'] == 'end':
+                arm_charges_neg = -1 * arm_charges
+                atom_list.extend(list(arm_list[arm_charges_neg:]))
+        if item['charge_params']['centre']:
+            atom_list.append(n_atoms)
         print atom_list
 
     return atom_list
@@ -232,6 +250,10 @@ def neutraliser(system):
                 q = item['charge_max']
                 n_atoms = MaxCalculator(item).atoms(system)
                 sys_charge += n_atoms * -q * item['charge_params']['ratio']
+            elif item['charge_style'] == 'diblock-regular':
+                q = item['charge_max']
+                n_atoms = MaxCalculator(item).atoms(system)
+                sys_charge += item['kap'] * -q * int(item['charge_params']['ratio'] * item['lam']) + 1
     return int(sys_charge)
         
     
