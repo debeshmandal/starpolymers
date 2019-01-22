@@ -1,4 +1,5 @@
 import star_gen2 as sg
+import base
 
 x = sg.FileGenerator(40)
 

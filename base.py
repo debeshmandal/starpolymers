@@ -2,46 +2,47 @@ import numpy as np
 import math
 import pandas as pd
 
-def base_gen(dims, z=0, spac=0.5, mol=1, shift=0):
+def base_gen(dims, z=0, spac=2, mol=1, shift=0, out='output'):
     lines = []
 
     x = dims[0]
     y = dims[1]
 
-    xlo = -x/2.0
-    xhi = x/2.0
+    xx = np.arange(-x, x, spac)
+    yy = np.arange(-y, y, spac*math.sqrt(3))
 
-    ylo = -y/2.0
-    yhi = y/2.0
+    mesh = np.meshgrid(xx,yy)
 
-    c = spac * math.sin(math.pi/3.0) # height of triangles
+    data=pd.DataFrame()
+    for i in range(len(mesh[0])):
+
+        # create first mesh in column form
+        temp = pd.DataFrame()
+        temp['x'] = mesh[0][i]
+        temp['y'] = mesh[1][i]
+        data = data.append(temp, ignore_index=True)
+
+        # Do the same but accounting for a shift in the {1000} direction
+        temp = pd.DataFrame()
+        temp['x'] = mesh[0][i] + 0.5*spac
+        temp['y'] = mesh[1][i] + 0.5*spac*math.sqrt(3)
+        data = data.append(temp, ignore_index=True)
 
 
-    ax = np.arange(xlo,xhi,0.5)        # arg 1 is xlo, arg 2 is xhi, arg 3 is distance between atoms [width]
-    bx = np.arange(xlo+spac/2.0,xhi,0.5)     # same but for second row
-    ay = np.arange(ylo,yhi,2*c)        # arg 1 is ylo, arg 2 is yhi, arg 3 is distance between atoms [height]
-    by = np.arange(c,yhi,2*c)        # same but for second row
+    data = data[abs(data['x'])<dims[0]]
+    data = data[abs(data['y'])<dims[1]]
+    data['z'] = np.zeros(len(data))+z
 
-    xa, ya = np.meshgrid(ax, ay)
-    xb, yb = np.meshgrid(bx, by)
-    xx = np.hstack(np.concatenate((ya, yb)))
-    yy = np.hstack(np.concatenate((xa, xb)))
-    zz = np.zeros((len(xx))) + z    # z is z-value of plane
+    if out=='df':
+        return data
 
-    #randomfunc = np.random.choice(np.arange(0,len(xx),1), 50)
-
-    df = pd.DataFrame()
-    df['x']=xx
-    df['y']=yy
-    df['z']=zz
-
-    for i in range(len(df)):
+    for i in range(len(data)):
         atom = i+1
         atom_type = 1
         charge = 0
-        x = df.loc[i]['x']
-        y = df.loc[i]['y']
-        z = df.loc[i]['z']
+        x = data.loc[i]['x']
+        y = data.loc[i]['y']
+        z = data.loc[i]['z']
         line = '{} {} {} {} {} {} {}\n'.format(atom+shift, mol, 
                                             atom_type, charge, 
                                             x, y, z)
