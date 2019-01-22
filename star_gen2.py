@@ -5,6 +5,8 @@ import pandas as pd
 import math
 import os
 import random
+from brush import Brush
+import base
 
 direction = np.array([[1, 0, 0],
                       [0, 1, 0],
@@ -146,6 +148,9 @@ def item_charge(item, system):
 
     atom_list = []
 
+    if item['charge_style'] == 'all':
+        atom_list = range(1, n_atoms+1)
+
     if item['charge_style'] == 'random':
         atom_list = range(1, n_atoms+1)
         n_charges = int(n_atoms*item['charge_params']['ratio'])
@@ -166,7 +171,6 @@ def item_charge(item, system):
                 atom_list.extend(list(arm_list[arm_charges_neg:]))
         if item['charge_params']['centre']:
             atom_list.append(n_atoms)
-        print atom_list
 
     return atom_list
 
@@ -256,7 +260,13 @@ def neutraliser(system):
                 sys_charge += item['kap'] * -q * int(item['charge_params']['ratio'] * item['lam']) + 1
     return int(sys_charge)
         
-    
+def make_brush(item, mol=1):
+    brush = Brush(item['trunk']['lam'], mol=mol,
+                  starting_position=item['start'],
+                  direction=item['direction'], base_id=item['base_id'])
+    for branch in item['branches']:
+        brush.create_branch(branch['site'],branch['lam'])
+    return brush
 
 class MaxCalculator():
 
@@ -264,16 +274,19 @@ class MaxCalculator():
         self.item = item
     
     def atoms(self, system):
-        kap = self.item['kap']
-        lam = self.item['lam']
+        
         if self.item['molecule'] == 'star':
+            kap = self.item['kap']
+            lam = self.item['lam']
             if self.item['counterions'] == True:
+                
                 max_atoms = 2*(kap*lam+1)
             elif self.item['counterions'] == False:
                 max_atoms = kap*lam + 1
         elif self.item['molecule'] == 'dummy':
             max_atoms = 0
         elif self.item['molecule'] == 'DNA':
+            lam = self.item['lam']
             if self.item['counterions'] == True:
                 max_atoms = 2*lam
             elif self.item['counterions'] == False:
@@ -282,32 +295,55 @@ class MaxCalculator():
             max_atoms = 2*self.item['concentration']
             if self.item['neutralise'] == True:
                 max_atoms += abs(neutraliser(system))
+        if self.item['molecule']=='brush':
+            brush=make_brush(self.item)
+            max_atoms = brush.write_atoms()[1]
+        if self.item['molecule']=='base':
+            max_atoms = base.base_gen(self.item['dims'],
+                                      spac=self.item['spacing'])[1]
         return max_atoms
 
     def bonds(self):
-        kap = self.item['kap']
-        lam = self.item['lam']
+        
         if self.item['molecule'] == 'star':
+            kap = self.item['kap']
+            lam = self.item['lam']
             max_bonds = kap*lam
         elif self.item['molecule'] == 'dummy':
+            kap = self.item['kap']
+            lam = self.item['lam']
             max_bonds = 0
         elif self.item['molecule'] == 'DNA':
+            kap = self.item['kap']
+            lam = self.item['lam']
             max_bonds = lam-1
         elif self.item['molecule'] == 'salt':
             max_bonds = 0
+        elif self.item['molecule'] == 'brush':
+            brush = make_brush(self.item)
+            max_bonds = brush.write_bonds()[1]
+        elif self.item['molecule'] == 'base':
+            max_bonds=0
         return max_bonds
 
     def angles(self):
-        kap = self.item['kap']
-        lam = self.item['lam']
+        
         if self.item['molecule'] == 'star':
+            kap = self.item['kap']
+            lam = self.item['lam']
             max_angles = kap*(kap-3+2*lam)/2
         elif self.item['molecule'] == 'dummy':
             max_angles = 0
         elif self.item['molecule'] == 'DNA':
+            kap = self.item['kap']
+            lam = self.item['lam']
             max_angles = lam-2
         elif self.item['molecule'] == 'salt':
             max_angles = 0
+        elif self.item['molecule'] == 'brush':
+            max_angles=0
+        elif self.item['molecule'] == 'base':
+            max_angles=0
         return max_angles
 
     #def charges(self, system):
@@ -352,9 +388,10 @@ class FileGenerator():
 
         """
         comments = str()
-        kap = system[0]['kap']
-        lam = system[0]['lam']
-        first_line = str('Star Polymer with {} arms which are {} beads in length'.format(kap, lam))
+        #kap = system[0]['kap']
+        #lam = system[0]['lam']
+        #first_line = str('Star Polymer with {} arms which are {} beads in length'.format(kap, lam))
+        first_line = 'test'
         second_line = str('secondline')
         comments += str('# {}\n'.format(first_line))
         comments += str('# {}\n'.format(second_line))
@@ -385,7 +422,7 @@ class FileGenerator():
 
         for item in system:
             HeadGen = MaxCalculator(item)
-            MAX_length += int(item['lam']) * spac
+            #MAX_length += int(item['lam']) * spac
             MAX_atoms += HeadGen.atoms(system)
             MAX_bonds += HeadGen.bonds()
             MAX_angles += HeadGen.angles()
@@ -476,11 +513,14 @@ class FileGenerator():
         
         atom_ID_shift = CUMU_atoms
         spac = spacing
-        shift_length = item['lam'] * spac
+        #shift_length = item['lam'] * spac
         atom_pos_shift = translation
-        lam = item['lam']
+        try:
+            lam = item['lam']
+        except:
+            None
         molecule_id = system_index + 1
-        if item['molecule'] != 'salt':
+        if item['molecule'] in ['star', 'DNA']:
             counterions = item['counterions']
         else:
             counterions = False
@@ -623,6 +663,16 @@ class FileGenerator():
                     next_line += str("{}".format(z_pos))
                     next_line += "\n"
                     atom_list += next_line
+
+        if item['molecule'] == 'brush':
+            brush = make_brush(item, mol=molecule_id)
+            atom_list = brush.write_atoms(shift=atom_ID_shift)[0]
+
+        if item['molecule'] == 'base':
+            atom_list = base.base_gen(item['dims'], z=item['plane'],
+                                      spac=item['spacing'], 
+                                      mol=molecule_id, 
+                                      shift=atom_ID_shift)[0]      
                 
         return atom_list
         
@@ -649,7 +699,10 @@ class FileGenerator():
             
         atom_ID_shift = CUMU_atoms
         bond_ID_shift = CUMU_bonds
-        lam = item['lam'] 
+        try:
+            lam = item['lam'] 
+        except:
+            None
 
 
         if item['molecule'] == 'star':
@@ -694,6 +747,11 @@ class FileGenerator():
                 next_line += str("{}".format(atom2))
                 next_line += "\n"
                 bond_list += next_line
+
+        if item['molecule'] == 'brush':
+            brush = make_brush(item)
+            bond_list = brush.write_bonds(bond_shift=bond_ID_shift,
+                                          atom_shift=atom_ID_shift)[0]
 
         return bond_list
 
@@ -838,7 +896,7 @@ class FileGenerator():
 
         return filename
 
-    def write_system_to_file(self, system):
+    def write_system_to_file(self, system, angles=True):
 
         """
 
@@ -885,11 +943,12 @@ class FileGenerator():
                     f.write(self.write_bonds(system, i))
                 else:
                     f.write(self.write_bonds(system, i))
-            f.write('\nAngles\n\n')
-            for i in range(len(system)):
-                if i == 0:
-                    f.write(self.write_angles(system, i))
-                else:
-                    f.write(self.write_angles(system, i))
+            if angles == True:
+                f.write('\nAngles\n\n')
+                for i in range(len(system)):
+                    if i == 0:
+                        f.write(self.write_angles(system, i))
+                    else:
+                        f.write(self.write_angles(system, i))
         print "Writing complete for {}".format(self.create_filename(system))
         return

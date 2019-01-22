@@ -15,13 +15,30 @@ def lj(r, eps, sig, rc):
 
 class Molecule():
     def __init__(self, atoms):
-        self.atoms = atoms
+        self.atoms = atoms # list
+
+    def __call__(self):
+        for atom in self.atoms:
+            print atom.position
 
     def settings(self, dictionary):
         self.bound = dictionary['bound']
         self.rc = dictionary['rc']
         self.sigma = dictionary['sigma']
         self.epsilon = dictionary['epsilon']
+
+    def initialise_space(self):
+        atom_array = []
+        for atom in self.atoms:
+            atom_array.append(atom.position)
+        atom_array = np.array(atom_array)
+        length = np.max(distance.pdist(atom_array))
+        return length
+
+    def recentre(self):
+        scaler = -self.atoms[len(self.atoms)/2].position
+        for atom in self.atoms:
+            atom.position = atom.position + scaler                
 
     def calculate_surface(self, grid, pool_size=5):
         self.surface = grid.grid
@@ -40,15 +57,12 @@ class Molecule():
         self.surface = self.surface[outputs.any(axis=1)]
         
 class Grid():
-    def __init__(self, resolution, fine_graining=10, box=50):
+    def __init__(self, gridpoints, box=50):
         self.box = box
-        self.coarse = resolution
-        self.fine = float(resolution)*10
-
-    def initialise(self):
-        n = self.box*2/self.coarse
-        x = np.linspace(-self.box, self.box, int(n))
+        self.coarse = gridpoints
+        x = np.linspace(-self.box, self.box, self.coarse)
         self.grid = np.array(list(permutations(x,3)))
+        
 
 class Atom():
     def __init__(self, position):
@@ -64,7 +78,8 @@ class Atom():
         r = distance.euclidean(self.position, test_particle)
         if r > self.cutoff:
             return False
-        if lj(r, self.eps, self.sigma, self.cutoff) < self.bound:
+        pot = lj(r, self.eps, self.sigma, self.cutoff) 
+        if pot > self.bound[0] and pot < self.bound[1]:            
             return True
         else:
             return False
@@ -103,22 +118,35 @@ class Converter():
         return molecule
 
 def run(path, ID, step, box=50, res=0.1,
-        settings={'bound':1.0,
-                  'rc':6.0,
+        settings={'bound':0.0,
+                  'rc':2.5,
                   'epsilon':1.0,
                   'sigma':2.5}, exclude=3):
     molecule = Converter(path, ID, step, box=box,
                          exclude=exclude).create_molecule()
     molecule.settings(settings)
+    # get longest distance between molecules
+    # recentre on middle atom
+    # set box size to this r_max
     grid = Grid(res)
     grid.initialise()
     molecule.calculate_surface(grid)
-    return molecule.surface
+    return molecule
 
-def plot_surface(surface):
+def plot_surface(molecule):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(surface[:,0], surface[:,1], surface[:,2],
-               'o', s=1)
+    ax.scatter(molecule.surface[:,0],
+               molecule.surface[:,1],
+               molecule.surface[:,2],
+               'o', s=1, alpha=0.4)
+    for atom in molecule.atoms:
+        ax.scatter(atom.position[0],
+                   atom.position[1],
+                   atom.position[2],
+                   'o',c='black', s=40)
     plt.show()
+
+
+
     
