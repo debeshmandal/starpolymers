@@ -40,7 +40,7 @@ class Molecule():
         for atom in self.atoms:
             atom.position = atom.position + scaler                
 
-    def calculate_surface(self, grid, pool_size=5):
+    def calculate_surface(self, grid):
         self.surface = grid.grid
         subgrids = np.vsplit(self.surface, len(self.surface))
         outputs = pd.DataFrame()
@@ -85,7 +85,7 @@ class Atom():
             return False
 
 class Converter():
-    def __init__(self, path, ID, step, box=50, exclude=3):
+    def __init__(self, path, ID, step, box=50, exclude=[3]):
         self.path = path
         self.ID = ID
         self.step = step
@@ -99,7 +99,8 @@ class Converter():
         reader = dr(self.ID, box=self.box)
         reader.change_path(self.path)
         data = reader.read(self.step)
-        data = data[data['mol']!=self.exclude]
+        for i in self.exclude:
+            data = data[data['mol']!=i]
         data = data[['x', 'y', 'z']].values
 
         # for each row
@@ -129,7 +130,6 @@ def run(path, ID, step, box=50, res=0.1,
     # recentre on middle atom
     # set box size to this r_max
     grid = Grid(res)
-    grid.initialise()
     molecule.calculate_surface(grid)
     return molecule
 
@@ -139,12 +139,13 @@ def plot_surface(molecule):
     ax.scatter(molecule.surface[:,0],
                molecule.surface[:,1],
                molecule.surface[:,2],
-               'o', s=1, alpha=0.4)
+               'o', s=1)
     for atom in molecule.atoms:
         ax.scatter(atom.position[0],
                    atom.position[1],
                    atom.position[2],
-                   'o',c='black', s=40)
+                   'o',c='black', s=20,
+                   alpha=0.4)
     plt.show()
 
 
