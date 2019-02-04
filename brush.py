@@ -119,9 +119,10 @@ class Brush():
             
             else:
                 
-                atom_1 = self.branches[site_bonds_made]['site']
-                atom_2 = last_branch(self, site_bonds_made) + 1
-                site_bonds_made+=1
+                if self.branches[site_bonds_made]['site'] != None:
+                    atom_1 = self.branches[site_bonds_made]['site']
+                    atom_2 = last_branch(self, site_bonds_made) + 1
+                    site_bonds_made+=1
         
             line = "{} {} {} {}\n".format(bond + bond_shift, bond_type,
                                           atom_1 + atom_shift, 
