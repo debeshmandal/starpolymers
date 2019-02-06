@@ -15,7 +15,7 @@ def last_branch(Brush, branch_index):
 class Brush():
     
     def __init__(self, trunk_length, mol=1, starting_position=np.array([0,0,0]),
-                 direction='up', base_id=None):
+                 direction='up', base_id=None, graft_type=1):
         self.trunk = {'lam': trunk_length,
                       'atoms': range(1, trunk_length+1)}
         self.branches = []
@@ -26,6 +26,7 @@ class Brush():
         self.start = starting_position
         self.direction=direction
         self.base_id = base_id
+        self.graft_type = graft_type
         
     def generate_atom_list(self):
         self.atom_list = range(1, self.n_atoms+1)
@@ -44,12 +45,16 @@ class Brush():
     def write_atoms(self, shift=0):
         
         lines = []
+        graft = True
         
-        atom_type=1
         charge=0
         existing_branches=0
         direction=self.direction
         for atom in self.atom_list:
+            if graft==True:
+                atom_type=self.graft_type
+            else:
+                atom_type=1
             x = self.start[0]
             y = self.start[1]
             z = self.start[2]
@@ -74,6 +79,7 @@ class Brush():
                         z -= self.branches[i]['site']-1
             line = "{} {} {} {} {} {} {}\n".format(atom+shift, self.mol, atom_type, charge, x, y, z)
             lines.append(line)
+            graft = False
         output = str()
         for line in lines:
             output += line
@@ -119,7 +125,7 @@ class Brush():
             
             else:
                 
-                if self.branches[site_bonds_made]['site'] != None:
+                if self.branches[site_bonds_made].get('site')!= None:
                     atom_1 = self.branches[site_bonds_made]['site']
                     atom_2 = last_branch(self, site_bonds_made) + 1
                     site_bonds_made+=1

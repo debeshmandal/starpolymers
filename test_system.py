@@ -1,7 +1,7 @@
 import star_gen2 as sg
 import base
 
-x = sg.FileGenerator(10)
+x = sg.FileGenerator(10, atom_masses=[1.0, 1.0])
 
 star = {'molecule': 'star',
         'kap': 10,
@@ -36,7 +36,8 @@ brush = {'molecule':'brush',
          'direction':'up',
          'charge_style':'none',
          'counterions':False,
-         'base_id': None}
+         'base_id': None,
+         'graft_type':2}
 
 brush2 = {'molecule':'brush',
          'trunk': {'lam':4},
@@ -60,5 +61,5 @@ surface_top = {'molecule' : 'base',
                'spacing':0.5,
                'charge_style':'none'}
 
-system = [brush]
+system = [brush, brush2]
 x.write_system_to_file(system, angles=False)

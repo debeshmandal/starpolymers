@@ -199,6 +199,7 @@ def charge_gen(item, atom_number, charge_list):
     #
     #    return float(charge)
 
+
 def __check_item(item):
 
     isvalid = bool()
@@ -263,7 +264,8 @@ def neutraliser(system):
 def make_brush(item, mol=1):
     brush = Brush(item['trunk']['lam'], mol=mol,
                   starting_position=item['start'],
-                  direction=item['direction'], base_id=item['base_id'])
+                  direction=item['direction'], base_id=item.get('base_id'),
+                  graft_type=item.get('graft_type', 1))
     for branch in item['branches']:
         brush.create_branch(branch['site'],branch['lam'])
     return brush
@@ -376,9 +378,10 @@ class FileGenerator():
                 
     """
 
-    def __init__(self, box, fstyle='exp'):
+    def __init__(self, box, fstyle='exp', atom_masses=[1.0]):
         self.box = box
         self.fstyle = fstyle
+        self.atom_masses = atom_masses
 
     def write_comments(self, system):
 
@@ -414,7 +417,7 @@ class FileGenerator():
 
         spac = spacing
 
-        atom_type_list = [1]
+        atom_type_list = range(1, len(self.atom_masses)+1)
         bond_type_list = [1]
         angle_type_list = [1]
         
@@ -480,11 +483,10 @@ class FileGenerator():
         
         masses = str()
 
-        atom_mass = 1.0
-
-        next_line = str()
-        next_line += str("1 {}\n".format(atom_mass))
-        masses += next_line
+        for i in range(len(self.atom_masses)):
+            next_line = str()
+            next_line += str("{} {}\n".format(i+1, self.atom_masses[i]))
+            masses += next_line
 
         return masses
         
