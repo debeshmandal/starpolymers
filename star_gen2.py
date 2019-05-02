@@ -260,7 +260,45 @@ def neutraliser(system):
                 n_atoms = MaxCalculator(item).atoms(system)
                 sys_charge += item['kap'] * -q * int(item['charge_params']['ratio'] * item['lam']) + 1
     return int(sys_charge)
-        
+
+def salt(item, system, neutralise=True):
+    "Returns number of anions and cations for any given combinations of salt valencies"
+
+    conc = item['concentration']            # e.g. 100
+    cation = item['cation']                 # e.g. +2 ... +2
+    anion = item['anion']                   # e.g. -1 ... -3
+
+    lcm = np.lcm(abs(cation), abs(anion))     # e.g.  2 ...  6
+
+    # figure out n_anions and n_cations
+
+    n_anions = conc * lcm/abs(anion)         # e.g. 200...300
+    n_cations = conc * lcm/abs(cation)         # e.g. 100...200
+
+    if neutralise:
+        MAX_charge = neutraliser(system)
+
+        if MAX_charge > 0:
+            charge = cation
+                
+        elif MAX_charge < 0:
+            charge = anion
+
+        # set n_neut
+        n_neut = abs(MAX_charge)/abs(charge)
+
+        if MAX_charge > 0:
+            n_cations += n_neut
+            extra = n_neut % cation
+                
+        elif MAX_charge < 0:
+            n_anions += n_neut
+            extra = n_neut % anion              
+    print 'There are {} anions with {} valency'.format(n_anions, anion)
+    print 'There are {} cations with {} valency'.format(n_cations, cation)
+    print 'The valency of the extra ion is {}'.format(extra)
+    return [n_anions, n_cations, extra]
+
 def make_brush(item, mol=1):
     brush = Brush(item['trunk']['lam'], mol=mol,
                   starting_position=item['start'],
@@ -294,9 +332,12 @@ class MaxCalculator():
             elif self.item['counterions'] == False:
                 max_atoms = lam
         if self.item['molecule'] == 'salt':
-            max_atoms = 2*self.item['concentration']
-            if self.item['neutralise'] == True:
-                max_atoms += abs(neutraliser(system))
+
+            max_atoms = salt(self.item, system)[0] + salt(self.item, system)[1]
+
+            if salt(self.item, system)[2] != 0:
+                max_atoms+=1
+
         if self.item['molecule']=='brush':
             brush=make_brush(self.item)
             max_atoms = brush.write_atoms()[1]
@@ -610,61 +651,71 @@ class FileGenerator():
         if item['molecule'] == 'salt':
              
         # generates salt ions for a given concentration
-        
-            conc = item['concentration']
-            for i in range(conc):
-                for j in range(2):
-                    atom_id = 2*i+1 + j + atom_ID_shift
-                    if j == 0:
-                        charge = 1
-                    elif j == 1:
-                        charge = -1
-                    x_pos = random.random()*box
-                    y_pos = random.random()*box
-                    z_pos = random.random()*box
-                    atom_type = 1
-                    next_line = str()
-                    next_line += str("{} ".format(atom_id))
-                    next_line += str("{} ".format(molecule_id))
-                    next_line += str("{} ".format(atom_type))
-                    next_line += str("{} ".format(charge))
-                    next_line += str("{} ".format(x_pos))
-                    next_line += str("{} ".format(y_pos))
-                    next_line += str("{}".format(z_pos))
-                    next_line += "\n"
-                    atom_list += next_line
+            n_anions = salt(item, system)[0] 
+            n_cations = salt(item, system)[1]
 
-            if item['neutralise'] == True:
-            
-                MAX_charge = neutraliser(system)
-                    
-                # set n_neut
-                n_neut = int(abs(MAX_charge)/item['charge_max'])
+            # create cations
 
-                # set charge_sign
-
-                if MAX_charge > 0:
-                    charge_sign = 1.0
-                else:
-                    charge_sign = -1.0
-                atom_id_start = 2*conc + atom_ID_shift
+            for i in range(n_cations):
+                atom_id = i+1 + atom_ID_shift
+                charge = 1.0 * abs(item['cation'])
+                x_pos = (random.random()-0.5)*box*2
+                y_pos = (random.random()-0.5)*box*2
+                z_pos = (random.random()-0.5)*box*2
                 atom_type = 1
-                for i in range(n_neut):
-                    atom_id = atom_id_start + i+1
-                    charge = charge_sign * item['charge_max']
-                    x_pos = random.random()*box
-                    y_pos = random.random()*box
-                    z_pos = random.random()*box
-                    next_line = str()
-                    next_line += str("{} ".format(atom_id))
-                    next_line += str("{} ".format(molecule_id))
-                    next_line += str("{} ".format(atom_type))
-                    next_line += str("{} ".format(charge))
-                    next_line += str("{} ".format(x_pos))
-                    next_line += str("{} ".format(y_pos))
-                    next_line += str("{}".format(z_pos))
-                    next_line += "\n"
-                    atom_list += next_line
+                next_line = str()
+                next_line += str("{} ".format(atom_id))
+                next_line += str("{} ".format(molecule_id))
+                next_line += str("{} ".format(atom_type))
+                next_line += str("{} ".format(charge))
+                next_line += str("{} ".format(x_pos))
+                next_line += str("{} ".format(y_pos))
+                next_line += str("{}".format(z_pos))
+                next_line += "\n"
+                atom_list += next_line
+
+            atom_ID_shift += n_cations
+
+            # create anions
+
+            for i in range(n_anions):
+                atom_id = i+1 + atom_ID_shift
+                charge = -1.0 * abs(item['anion'])
+                x_pos = (random.random()-0.5)*box*2
+                y_pos = (random.random()-0.5)*box*2
+                z_pos = (random.random()-0.5)*box*2
+                atom_type = 1
+                next_line = str()
+                next_line += str("{} ".format(atom_id))
+                next_line += str("{} ".format(molecule_id))
+                next_line += str("{} ".format(atom_type))
+                next_line += str("{} ".format(charge))
+                next_line += str("{} ".format(x_pos))
+                next_line += str("{} ".format(y_pos))
+                next_line += str("{}".format(z_pos))
+                next_line += "\n"
+                atom_list += next_line   
+
+            atom_ID_shift += n_anions     
+
+            # even out any charge discrepancies
+            # 
+
+            if salt(item, system)[2] != 0:
+                atom_id = atom_ID_shift + 1
+                x_pos = (random.random()-0.5)*box*2
+                y_pos = (random.random()-0.5)*box*2
+                z_pos = (random.random()-0.5)*box*2
+                next_line = str()
+                next_line += str("{} ".format(atom_id))
+                next_line += str("{} ".format(molecule_id))
+                next_line += str("{} ".format(atom_type))
+                next_line += str("{} ".format(salt(item, system)[2]))
+                next_line += str("{} ".format(x_pos))
+                next_line += str("{} ".format(y_pos))
+                next_line += str("{}".format(z_pos))
+                next_line += "\n"
+                atom_list += next_line
 
         if item['molecule'] == 'brush':
             brush = make_brush(item, mol=molecule_id)
