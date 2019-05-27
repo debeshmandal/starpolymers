@@ -1,5 +1,3 @@
-# pmf function
-
 # aim is to read, write and plot PMF files and DeltaG
 # together
 
@@ -33,10 +31,11 @@ def _label_generator(variables, parameters, units=None):
             label += variables[j]
             label += '='
             label += str(params[j])
-            label += units[j]
+            if units != None:
+                    label += units[j]
             if j+1 != len(variables):
                 label += ', '
-    dictionary[i+1] = label
+        dictionary[i+1] = label
     return dictionary
 
 def _get_pmf(runs, fname='out.harmonic1.ti.pmf', root=None):
@@ -71,7 +70,7 @@ def _get_pmf(runs, fname='out.harmonic1.ti.pmf', root=None):
         root = '{}/'.format(root)
     for run in range(1, runs+1):
         fin = '{}{}/{}'.format(root, run, fname)
-        
+       
         try:
             temp = pd.read_csv(fin, 
                                delim_whitespace=True,
@@ -90,6 +89,33 @@ def _get_pmf(runs, fname='out.harmonic1.ti.pmf', root=None):
     data['std'] = np.std(pmfs.values, axis=1)
     return data
 
+def _dg(pmf, std):
+    value = pmf.max() - pmf.min()
+    error = std[pmf.idxmax()] - std[pmf.idxmin()]
+    return [value, error]
+
+def _get_dg(PMF_LIST, variables, parameters):
+    # self.dg should be a dataframe with
+    # columns=['variables[0], ..., variables[N], dg, err]
+
+    dataframe = pd.DataFrame()
+    params = np.array(parameters)
+    for i in range(len(variables)):
+        dataframe[variables[i]] = params[:,i]
+    
+    dg = []
+    std = []
+    
+    for i in range(PMF_LIST.N):
+        temp = _dg(PMF_LIST.PMF['{}_mean'.format(i+1)],
+                   PMF_LIST.PMF['{}_std'.format(i+1)])
+        dg.append(temp[0])
+        std.append(temp[1])
+
+    dataframe['dg'] = dg
+    dataframe['std'] = std
+    return dataframe
+
 def _write_pmf(dataframe, fname):
     dataframe.to_csv(fname, index=False)
     return
@@ -106,7 +132,7 @@ def _plot_pmf(PMF, ax):
 def _plot_pmf_list(PMF_LIST, ax):
     labels = PMF_LIST.labels
     for i in range(1, PMF_LIST.N+1):
-        pmf = PMF_LIST[i].pmf
+        pmf = PMF_LIST.PMF
         ax.errorbar(pmf['xi'], pmf['{}_mean'.format(i)],
                     yerr=pmf['{}_std'.format(i)], label=labels[i],
                     capsize=2, fmt='{}'.format(markers[i-1]),
@@ -161,7 +187,7 @@ class PMF():
 
 class PMF_LIST():
     def __init__(self, pmf_list, variables=[''], parameters=[[]],
-                 fname='pmfs'):
+                 units=None, fname='pmfs'):
 
         self.N = len(pmf_list)
 
@@ -171,11 +197,12 @@ class PMF_LIST():
 
         # self.dg should be a dataframe with
         # columns=['variables[0], ..., variables[N], dg, err]
-        self.dg = _get_dg(self.PMF, variables, parameters)
+        self.dg = _get_dg(self, variables, parameters)
 
         # self.labels is given by e.g. {1: 'variable = parameter[0]',...
         # or {1: 'var[0] = param[0][0], var[1] = param[0][1]',...
         self.labels = _label_generator(variables, parameters)
+       
 
     def plot(self):#, subax_dimensions):
         fig, ax = plt.subplots()
@@ -184,6 +211,8 @@ class PMF_LIST():
         # make subax and plot dG
         #subax = _make_inset(ax, subax_dimensions)
         #_plot_dg(self, subax)
+
+        plt.legend()
 
         plt.show()
 

@@ -8,6 +8,8 @@ import random
 from brush import Brush
 import base
 
+spacing = 1.0
+
 direction = np.array([[1, 0, 0],
                       [0, 1, 0],
                       [0, 0, 1],
@@ -31,8 +33,6 @@ direction = np.array([[1, 0, 0],
 lam_list = ['star', 'DNA']
 salt_list = ['salt']
 molecule_list = lam_list + salt_list
-
-spacing = 2.0
 
 translation = np.array([[0, 0, 0],
                         [0.2, 0.2, 0],
