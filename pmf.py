@@ -4,8 +4,8 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-
-markers = ['o','d','*','P','h','x','+']
+from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
+from design import *
 
 def _scale(series, n=5):
     factor = series.tail(n).mean()
@@ -129,17 +129,81 @@ def _plot_pmf(PMF, ax):
                 capsize=2, fmt='kx', markersize=5, elinewidth=1)
     return
 
+def _colour(PMF_LIST, order_by=0):
+    colours = []
+    params = PMF_LIST.dg.values[:, order_by]
+    group, counts = np.unique(params, return_counts=True)
+    #print group, counts
+    #print cdict 
+    if len(group)/len(params) == 1:
+        return False
+    for i in range(len(group)):
+        c = base[i]
+        for j in range(counts[i]):
+            #print cdict[c][j]
+            colours.append(cdict[c][j])
+    #print colours
+    return colours
+           
+
 def _plot_pmf_list(PMF_LIST, ax):
     labels = PMF_LIST.labels
+    colours = _colour(PMF_LIST)
+    if colours == False:
+        ax.set_prop_cycle(color=plt.cm.viridis(np.linspace(0.1, 0.9,
+                                               len(labels))))
     for i in range(1, PMF_LIST.N+1):
-        pmf = PMF_LIST.PMF
-        ax.errorbar(pmf['xi'], pmf['{}_mean'.format(i)],
-                    yerr=pmf['{}_std'.format(i)], label=labels[i],
-                    capsize=2, fmt='{}'.format(markers[i-1]),
-                    markersize=5, elinewidth=1)
+        pmf = PMF_LIST.PMF            
+        if colours == False:
+ 
+            ax.errorbar(pmf['xi'], pmf['{}_mean'.format(i)],
+                        yerr=pmf['{}_std'.format(i)], 
+                        label=labels[i], capsize=2, 
+                        fmt='{}'.format(markers[i-1]),
+                        markersize=5, elinewidth=1)
+
+        else:
+            
+            ax.errorbar(pmf['xi'], pmf['{}_mean'.format(i)],
+                        yerr=pmf['{}_std'.format(i)], 
+                        label=labels[i], capsize=2, 
+                        fmt='{}'.format(markers[i-1]),
+                        mfc=colours[i-1], mec=colours[i-1],
+                        ecolor=colours[i-1], markersize=5, 
+                        elinewidth=1)
+
+    ax.set_xlabel(r'$\xi$ [$\sigma$]')
+    ax.set_ylabel(r'$\mathcal{W}$ [$k_BT$]')
+
     return
 
-def _plot_dg(ax):
+def _plot_dg(self, ax, var=0, x_axis=1):
+    params = self.dg.values[:,var]
+    group, counts = np.unique(params, return_index=True)
+    if len(group) == len(params):
+        ax.errorbar(self.dg.values[:,var], self.dg.values[:,-2],
+                    yerr=self.dg.values[:,-1], fmt='kx:')
+    else:
+        for i in range(len(group)):
+            temp = pd.DataFrame(self.dg.values[:, [var, x_axis,-2,-1]])
+            temp = temp.rename(columns={0: 'group',
+                                        1: 'X',
+                                        2: 'Y',
+                                        3: 'err'})
+            data = temp[temp['group']==group[i]]
+            X = data['X'].values
+            Y = data['Y'].values
+            err  = data['err'].values
+            lab = group[i]
+            colour = base[i]
+            marker = markers[i]
+            ax.errorbar(X, Y, yerr=err, label=lab, 
+                        capsize=2, fmt='{}:'.format(marker),
+                        mfc=colour, mec=colour,
+                        ecolor=colour, markersize=5,
+                        elinewidth=1, color=colour)
+    ax.set_xlabel(self.dg.columns[x_axis])
+    ax.set_ylabel(r'$\Delta \mathcal{W}$ [$k_BT$]')
     return
 
 class PMF():
@@ -204,16 +268,17 @@ class PMF_LIST():
         self.labels = _label_generator(variables, parameters)
        
 
-    def plot(self):#, subax_dimensions):
+    def plot(self, fout='pmf.pdf', legend_cols=2, 
+             sub=[0.25, 0.675, 0.2, 0.2]):#, subax_dimensions):
         fig, ax = plt.subplots()
         _plot_pmf_list(self, ax)
+        plt.legend(frameon=False, ncol=legend_cols)
 
         # make subax and plot dG
-        #subax = _make_inset(ax, subax_dimensions)
-        #_plot_dg(self, subax)
+        subax = plt.axes(sub)
+        _plot_dg(self, subax)
 
-        plt.legend()
-
+        plt.savefig(fout)
         plt.show()
 
 class PMF_ARRAY():
