@@ -38,6 +38,12 @@ def _label_generator(variables, parameters, units=None):
         dictionary[i+1] = label
     return dictionary
 
+def _get_traj(fname):
+    data = pd.read_csv(fname, delim_whitespace=True,
+                       header=None, comment='#')
+    data = data.rename(columns={0: 'ts', 1: 'xi'})
+    return data
+
 def _get_pmf(runs, fname='out.harmonic1.ti.pmf', root=None):
     """
 
@@ -249,6 +255,26 @@ class PMF():
         if show:
             plt.show()
 
+    def min(self, bound=1):
+        """
+        
+        returns a tuple of (xi_min, xi_max) which
+        provides the range where the free energy is a minimum
+
+        """
+        pmf = self.pmf
+        pmf_min = pmf['pmf'].min() - bound
+        pmf_max = pmf['pmf'].min() + bound
+
+        data = pmf[pmf['pmf']<pmf_max]
+        data = data[data['pmf']>pmf_min]
+        
+        xi_min = data['xi'].min()
+        xi_max = data['xi'].max()
+
+        return (xi_min, xi_max)
+    
+
 class PMF_LIST():
     def __init__(self, pmf_list, variables=[''], parameters=[[]],
                  units=None, fname='pmfs'):
@@ -280,15 +306,3 @@ class PMF_LIST():
 
         plt.savefig(fout)
         plt.show()
-
-class PMF_ARRAY():
-    def __init__(self, series_list, fname='dg'):
-        self.DG = _get_series(series_list)
-        self.fname = fname
-
-    def write(self):
-        _write_dg(self.DG)
-        return
-
-    def plot_dg(self):
-        _plot_dg(self, ax)
