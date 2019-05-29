@@ -154,9 +154,7 @@ def item_charge(item, system):
     if item['charge_style'] == 'random':
         atom_list = range(1, n_atoms+1)
         n_charges = int(n_atoms*item['charge_params']['ratio'])
-        print 'n_charges = {}'.format(n_charges)
         atom_list = random.sample(atom_list, n_charges)
-        print atom_list
 
     if item['charge_style'] == 'diblock-regular':
         
@@ -260,7 +258,42 @@ def neutraliser(system):
                 n_atoms = MaxCalculator(item).atoms(system)
                 sys_charge += item['kap'] * -q * int(item['charge_params']['ratio'] * item['lam']) + 1
     return int(sys_charge)
-        
+
+def salt(item, system, neutralise=True):
+    "Returns number of anions and cations for any given combinations of salt valencies"
+
+    conc = item['concentration']            # e.g. 100
+    cation = item['cation']                 # e.g. +2 ... +2
+    anion = item['anion']                   # e.g. -1 ... -3
+
+    lcm = np.lcm(abs(cation), abs(anion))     # e.g.  2 ...  6
+
+    # figure out n_anions and n_cations
+
+    n_anions = conc * lcm/abs(anion)         # e.g. 200...300
+    n_cations = conc * lcm/abs(cation)         # e.g. 100...200
+
+    if neutralise:
+        MAX_charge = neutraliser(system)
+
+        if MAX_charge > 0:
+            charge = cation
+                
+        elif MAX_charge < 0:
+            charge = anion
+
+        # set n_neut
+        n_neut = abs(MAX_charge)/abs(charge)
+
+        if MAX_charge > 0:
+            n_cations += n_neut
+            extra = n_neut % cation
+                
+        elif MAX_charge < 0:
+            n_anions += n_neut
+            extra = n_neut % anion              
+    return [n_anions, n_cations, extra]
+
 def make_brush(item, mol=1):
     brush = Brush(item['trunk']['lam'], mol=mol,
                   starting_position=item['start'],
@@ -294,9 +327,12 @@ class MaxCalculator():
             elif self.item['counterions'] == False:
                 max_atoms = lam
         if self.item['molecule'] == 'salt':
-            max_atoms = 2*self.item['concentration']
-            if self.item['neutralise'] == True:
-                max_atoms += abs(neutraliser(system))
+
+            max_atoms = salt(self.item, system)[0] + salt(self.item, system)[1]
+
+            if salt(self.item, system)[2] != 0:
+                max_atoms+=1
+
         if self.item['molecule']=='brush':
             brush=make_brush(self.item)
             max_atoms = brush.write_atoms()[1]
@@ -378,10 +414,11 @@ class FileGenerator():
                 
     """
 
-    def __init__(self, box, fstyle='exp', atom_masses=[1.0]):
+    def __init__(self, box, atom_masses=[1.0], bond_types=1, angle_types=1):
         self.box = box
-        self.fstyle = fstyle
         self.atom_masses = atom_masses
+        self.bond_types = bond_types
+        self.angle_types = angle_types
 
     def write_comments(self, system):
 
@@ -418,9 +455,8 @@ class FileGenerator():
         spac = spacing
 
         atom_type_list = range(1, len(self.atom_masses)+1)
-        bond_type_list = [1]
-        angle_type_list = [1]
-        
+        bond_type_list = list(np.array(range(self.bond_types))+1)
+        angle_type_list = list(np.array(range(self.angle_types))+1)
             
 
         for item in system:
@@ -610,61 +646,71 @@ class FileGenerator():
         if item['molecule'] == 'salt':
              
         # generates salt ions for a given concentration
-        
-            conc = item['concentration']
-            for i in range(conc):
-                for j in range(2):
-                    atom_id = 2*i+1 + j + atom_ID_shift
-                    if j == 0:
-                        charge = 1
-                    elif j == 1:
-                        charge = -1
-                    x_pos = random.random()*box
-                    y_pos = random.random()*box
-                    z_pos = random.random()*box
-                    atom_type = 1
-                    next_line = str()
-                    next_line += str("{} ".format(atom_id))
-                    next_line += str("{} ".format(molecule_id))
-                    next_line += str("{} ".format(atom_type))
-                    next_line += str("{} ".format(charge))
-                    next_line += str("{} ".format(x_pos))
-                    next_line += str("{} ".format(y_pos))
-                    next_line += str("{}".format(z_pos))
-                    next_line += "\n"
-                    atom_list += next_line
+            n_anions = salt(item, system)[0] 
+            n_cations = salt(item, system)[1]
 
-            if item['neutralise'] == True:
-            
-                MAX_charge = neutraliser(system)
-                    
-                # set n_neut
-                n_neut = int(abs(MAX_charge)/item['charge_max'])
+            # create cations
 
-                # set charge_sign
-
-                if MAX_charge > 0:
-                    charge_sign = 1.0
-                else:
-                    charge_sign = -1.0
-                atom_id_start = 2*conc + atom_ID_shift
+            for i in range(n_cations):
+                atom_id = i+1 + atom_ID_shift
+                charge = 1.0 * abs(item['cation'])
+                x_pos = (random.random()-0.5)*box*2
+                y_pos = (random.random()-0.5)*box*2
+                z_pos = (random.random()-0.5)*box*2
                 atom_type = 1
-                for i in range(n_neut):
-                    atom_id = atom_id_start + i+1
-                    charge = charge_sign * item['charge_max']
-                    x_pos = random.random()*box
-                    y_pos = random.random()*box
-                    z_pos = random.random()*box
-                    next_line = str()
-                    next_line += str("{} ".format(atom_id))
-                    next_line += str("{} ".format(molecule_id))
-                    next_line += str("{} ".format(atom_type))
-                    next_line += str("{} ".format(charge))
-                    next_line += str("{} ".format(x_pos))
-                    next_line += str("{} ".format(y_pos))
-                    next_line += str("{}".format(z_pos))
-                    next_line += "\n"
-                    atom_list += next_line
+                next_line = str()
+                next_line += str("{} ".format(atom_id))
+                next_line += str("{} ".format(molecule_id))
+                next_line += str("{} ".format(atom_type))
+                next_line += str("{} ".format(charge))
+                next_line += str("{} ".format(x_pos))
+                next_line += str("{} ".format(y_pos))
+                next_line += str("{}".format(z_pos))
+                next_line += "\n"
+                atom_list += next_line
+
+            atom_ID_shift += n_cations
+
+            # create anions
+
+            for i in range(n_anions):
+                atom_id = i+1 + atom_ID_shift
+                charge = -1.0 * abs(item['anion'])
+                x_pos = (random.random()-0.5)*box*2
+                y_pos = (random.random()-0.5)*box*2
+                z_pos = (random.random()-0.5)*box*2
+                atom_type = 1
+                next_line = str()
+                next_line += str("{} ".format(atom_id))
+                next_line += str("{} ".format(molecule_id))
+                next_line += str("{} ".format(atom_type))
+                next_line += str("{} ".format(charge))
+                next_line += str("{} ".format(x_pos))
+                next_line += str("{} ".format(y_pos))
+                next_line += str("{}".format(z_pos))
+                next_line += "\n"
+                atom_list += next_line   
+
+            atom_ID_shift += n_anions     
+
+            # even out any charge discrepancies
+            # 
+
+            if salt(item, system)[2] != 0:
+                atom_id = atom_ID_shift + 1
+                x_pos = (random.random()-0.5)*box*2
+                y_pos = (random.random()-0.5)*box*2
+                z_pos = (random.random()-0.5)*box*2
+                next_line = str()
+                next_line += str("{} ".format(atom_id))
+                next_line += str("{} ".format(molecule_id))
+                next_line += str("{} ".format(atom_type))
+                next_line += str("{} ".format(salt(item, system)[2]))
+                next_line += str("{} ".format(x_pos))
+                next_line += str("{} ".format(y_pos))
+                next_line += str("{}".format(z_pos))
+                next_line += "\n"
+                atom_list += next_line
 
         if item['molecule'] == 'brush':
             brush = make_brush(item, mol=molecule_id)
@@ -692,6 +738,7 @@ class FileGenerator():
 
         bond_list = str()
         item = system[system_index]
+        bond_type = item.get('bond_type', 1)
 
         CUMU_atoms = int()
         CUMU_bonds = int()
@@ -717,13 +764,13 @@ class FileGenerator():
                 
                 if (i+1) % lam == 0:
                     bond_ID = i+1 + bond_ID_shift
-                    bond_type = 1
+                    
                     atom1 = i+1 + atom_ID_shift
                     atom2 = n_atoms                   
                     
                 else:
                     bond_ID = i+1 + bond_ID_shift
-                    bond_type = 1
+                    
                     atom1 = i+1 + atom_ID_shift
                     atom2 = i+2 + atom_ID_shift
                     
@@ -739,7 +786,7 @@ class FileGenerator():
             
             for i in range(lam-1):
                 bond_ID = i+1 + bond_ID_shift
-                bond_type = 1
+                
                 atom1 = i+1 + atom_ID_shift
                 atom2 = i+2 + atom_ID_shift
                 next_line = str()
@@ -846,59 +893,7 @@ class FileGenerator():
 
         return angle_list
 
-    def create_filename(self, system):
-
-        """
-
-        Returns string that is the filename for the system
-
-        """
-        if self.fstyle == 'exp':
-            filename = 'exp.dat'
-        elif self.fstyle == 'al':
-            star = system[0]
-            salt = system[1]
-            filename = str('al_'+star['kap']+'_'+star['lam']+'_'+salt['conc'])
-        elif self.fstyle == 'ssr':
-            f_kap = str(system[0]['kap'])
-            f_lam = str(system[0]['lam'])
-            f_conc = str(system[2]['concentration'])
-            filename = 'ssr_'+f_kap+'_'+f_lam+'_'+f_conc+'.dat'
-        elif self.fstyle == 'svl':
-            f_kap = str(system[0]['kap'])
-            f_lam = str(system[0]['lam'])
-            filename = 'svl_{}_{}.dat'.format(f_kap, f_lam)
-        elif self.fstyle == 'ca':
-            f_kap = str(system[0]['kap'])
-            f_lam = str(system[0]['lam'])
-            f_ang = str(system[0]['central'])
-            filename = 'ca_{}_{}_{}.dat'.format(f_kap, f_lam, f_ang)
-        elif self.fstyle == 'es':
-            f_kap = str(system[0]['kap'])
-            f_lam = str(system[0]['lam'])
-            filename = 'es_{}_{}.dat'.format(f_kap, f_lam)
-        else:
-            if len(system) == 1:
-                item = system[0]
-                filename = item['molecule']+str(item['kap'])+'_'+str(item['lam'])+'.dat'
-            elif len(system) == 3:
-                f_kap = str(system[0]['kap'])
-                f_lam = str(system[0]['lam'])
-                f_conc = str(system[2]['concentration'])
-                filename = '{}_{}_{}_{}.dat'.format(self.fstyle,
-                                                    f_kap, f_lam,
-                                                    f_conc)
-            elif len(system) == 2 and system[0]['molecule'] == 'star':
-                f_kap = str(system[0]['kap'])
-                f_lam = str(system[0]['lam'])
-                f_conc = str(system[1]['concentration'])
-                filename = 'sl_'+f_kap+'_'+f_lam+'_'+f_conc+'.dat'
-            else:
-                filename = str('exp.dat')
-
-        return filename
-
-    def write_system_to_file(self, system, angles=True):
+    def write_system_to_file(self, system, fname='config.dat', angles=True):
 
         """
 
@@ -928,7 +923,7 @@ class FileGenerator():
         #        return
         #print "System is valid, proceeding to write ..."
             
-        with open(self.create_filename(system), 'w') as f:
+        with open(fname, 'w') as f:
             f.write(self.write_comments(system))
             f.write(self.write_header(system))
             f.write('\nMasses\n\n')
@@ -952,5 +947,5 @@ class FileGenerator():
                         f.write(self.write_angles(system, i))
                     else:
                         f.write(self.write_angles(system, i))
-        print "Writing complete for {}".format(self.create_filename(system))
+        print "Writing complete for {}".format(fname)
         return
