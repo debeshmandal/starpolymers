@@ -9,19 +9,19 @@ from pmf import PMF
 
 markers = ['o','d','*','P','h','x','+']
 
-def _get_min(PMF):
-    return PMF.min(bound=1) # returns range of xi as tuple
+def _get_min(PMF, bound=1):
+    return PMF.min(bound=bound) # returns range of xi as tuple
 
 def _collate(gyr_list, variables, parameters):
     data = pd.DataFrame()
     for i in range(len(variables)):
-        data[variables[i]]=np,array(parameters[:,i])
-    rg = []
+        data[variables[i]]=np.array(parameters)[:,i]
+    gyr = []
     std = []
     for i in range(len(gyr_list)):
-        rg.append(gyr_list[i].complex['mean'])
+        gyr.append(gyr_list[i].complex['mean'])
         std.append(gyr_list[i].complex['std'])
-    data['rg'] = rg
+    data['gyr'] = gyr
     data['std'] = std
     return data
 
@@ -69,8 +69,8 @@ def _get_gyr(runs, fname='gyr.out', root=None,
     """
     
 
-    xi = []
-    rg = []
+    xi = pd.Series()
+    gyr = pd.Series
     if root != None:
         root = '{}/'.format(root)
     for run in range(1, runs+1):
@@ -86,29 +86,36 @@ def _get_gyr(runs, fname='gyr.out', root=None,
             temp = temp.rename(columns={0:'ts', 
                                         1:'star',
                                         2:'siRNA',
-                                        3:'rg'})
+                                        3:'gyr'})
 
             PMF_traj = '{}{}/{}'.format(root, run, f_traj)
             traj = pmf._get_traj(PMF_traj) # has columns ['ts', 'xi']
 
             # merge temp and traj
-            merged = pd.merge(temp, traj, on='ts')[['xi', 'rg']]
+            merged = pd.merge(temp, traj, on='ts')[['xi', 'gyr']]
+                     
             
-            xi.append(merged['xi'])
-            gyr.append(merged['gyr'])
+            
+            xi=xi.append(merged['xi'])
+            gyr=gyr.append(merged['gyr'])
             
         except IOError:
             print "Warning: run {} did not work!".format(run)
     
     data = pd.DataFrame() # should end with long dataframe with
                           # columns ['xi', 'gyr']
+    
     data['xi'] = xi
     data['gyr'] = gyr
+    print 'data:'
+    print data
     return data
 
-def _get_complex_size(GYR, PMF):
-    xi = _get_min(PMF)
+def _get_complex_size(GYR, PMF, bound=1):
+    xi = _get_min(PMF, bound=bound)
+    print GYR.gyr
     data = GYR.gyr['xi'].isin(xi)
+    print data
     mean = data['gyr'].mean()
     std = data['std'].std()
     return [mean, std]
@@ -158,22 +165,17 @@ class GYR():
     write() : writes file to '{self.fname}.csv'
 
     """
-    def __init__(self, fname='gyr', runs=10, root=None):
+    def __init__(self, PMF, fname='gyr', runs=10, root=None, bound=1):
         if root != None:
             self.fname = '{}/{}.csv'.format(root, fname)
         else:
             self.fname = '{}.csv'.format(fname)
         self.gyr = _get_gyr(runs, root=root)
+        self.complex = _get_complex_size(self, PMF, bound=bound)
     
     def write(self):
         _write_gyr(self.gyr, self.fname)
-        return
-
-    def complex_size(self, PMF, bound=1):
-        self.complex = _get_complex_size(self, PMF, 
-                                         bound=bound)
-
-    
+        return    
 
 class GYR_LIST():
     def __init__(self, gyr_list, variables=[''], parameters=[[]],

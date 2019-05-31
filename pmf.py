@@ -42,6 +42,7 @@ def _get_traj(fname):
     data = pd.read_csv(fname, delim_whitespace=True,
                        header=None, comment='#')
     data = data.rename(columns={0: 'ts', 1: 'xi'})
+   
     return data
 
 def _get_pmf(runs, fname='out.harmonic1.ti.pmf', root=None):
@@ -263,11 +264,11 @@ class PMF():
 
         """
         pmf = self.pmf
-        pmf_min = pmf['pmf'].min() - bound
-        pmf_max = pmf['pmf'].min() + bound
+        pmf_min = pmf['mean'].min() - bound
+        pmf_max = pmf['mean'].min() + bound
 
-        data = pmf[pmf['pmf']<pmf_max]
-        data = data[data['pmf']>pmf_min]
+        data = pmf[pmf['mean']<pmf_max]
+        data = data[data['mean']>pmf_min]
         
         xi_min = data['xi'].min()
         xi_max = data['xi'].max()
@@ -295,14 +296,15 @@ class PMF_LIST():
        
 
     def plot(self, fout='pmf.pdf', legend_cols=2, 
-             sub=[0.25, 0.675, 0.2, 0.2]):#, subax_dimensions):
+             sub=[0.25, 0.675, 0.2, 0.2], sub_var=0, sub_x=1):
+            # subax_dimensions):
         fig, ax = plt.subplots()
         _plot_pmf_list(self, ax)
         plt.legend(frameon=False, ncol=legend_cols)
 
         # make subax and plot dG
         subax = plt.axes(sub)
-        _plot_dg(self, subax)
+        _plot_dg(self, subax, var=sub_var, x_axis=sub_x)
 
         plt.savefig(fout)
         plt.show()
