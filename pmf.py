@@ -218,6 +218,7 @@ def _plot_dg(self, ax, var=0, x_axis=1):
                         elinewidth=1, color=colour)
     ax.set_xlabel(self.dg.columns[x_axis])
     ax.set_ylabel(r'$\Delta \mathcal{W}$ [$k_BT$]')
+    ax.tick_params(direction='in')
     return
 
 class PMF():
