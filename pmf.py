@@ -97,8 +97,15 @@ def _get_pmf(runs, fname='out.harmonic1.ti.pmf', root=None):
     return data
 
 def _dg(pmf, std):
-    value = pmf.max() - pmf.min()
-    error = std[pmf.idxmax()] - std[pmf.idxmin()]
+    MAX = pmf.max()
+    MIN = pmf.min()
+    difference = MAX - MIN
+    if pmf.idxmax() <= pmf.idxmin():
+        sign = 1
+    else:
+        sign = -1
+    value = sign * difference
+    error = std[pmf.idxmax()] + std[pmf.idxmin()]
     return [value, error]
 
 def _get_dg(PMF_LIST, variables, parameters):
