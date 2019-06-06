@@ -39,10 +39,14 @@ def _label_generator(variables, parameters, units=None):
     return dictionary
 
 def _get_traj(fname):
-    data = pd.read_csv(fname, delim_whitespace=True,
+    try:
+    
+        data = pd.read_csv(fname, delim_whitespace=True,
                        header=None, comment='#')
-    data = data.rename(columns={0: 'ts', 1: 'xi'})
-   
+        data = data.rename(columns={0: 'ts', 1: 'xi'})
+    except IOError:
+        print 'Warning: No traj for {}!'.format(fname)
+        return 'Error'
     return data
 
 def _get_pmf(runs, fname='out.harmonic1.ti.pmf', root=None):

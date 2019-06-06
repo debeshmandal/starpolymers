@@ -6,13 +6,36 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pmf
 from pmf import PMF
+from design import *
 
-markers = ['o','d','*','P','h','x','+']
+def _collate(gyr_list):
+    data = dict()
+    for i in (range(len(gyr_list))):
+        gyr = gyr_list[i].gyr        
+        data[i+1] = gyr
+    return data
 
-def _get_min(PMF, bound=1):
+
+def _colour(GYR_LIST, order_by=0):
+    colours = []
+    params = GYR_LIST.COMPLEX.values[:, order_by]
+    group, counts = np.unique(params, return_counts=True)
+    #print group, counts
+    #print cdict 
+    if len(group)/len(params) == 1:
+        return False
+    for i in range(len(group)):
+        c = base[i]
+        for j in range(counts[i]):
+            #print cdict[c][j]
+            colours.append(cdict[c][j])
+    #print colours
+    return colours
+
+def _get_min(PMF, bound=5):
     return PMF.min(bound=bound) # returns range of xi as tuple
 
-def _collate(gyr_list, variables, parameters):
+def _collate_complex(gyr_list, variables, parameters):
     data = pd.DataFrame()
     for i in range(len(variables)):
         data[variables[i]]=np.array(parameters)[:,i]
@@ -39,6 +62,7 @@ def _label_generator(variables, parameters, units=None):
             if j+1 != len(variables):
                 label += ', '
         dictionary[i+1] = label
+    
     return dictionary
 
 def _get_gyr(runs, fname='gyr.out', root=None, 
@@ -70,7 +94,9 @@ def _get_gyr(runs, fname='gyr.out', root=None,
     
 
     xi = pd.Series()
-    gyr = pd.Series
+    gyr = pd.Series()
+    star = pd.Series()
+    siRNA = pd.Series()
     if root != None:
         root = '{}/'.format(root)
     for run in range(1, runs+1):
@@ -89,14 +115,18 @@ def _get_gyr(runs, fname='gyr.out', root=None,
                                         3:'gyr'})
 
             PMF_traj = '{}{}/{}'.format(root, run, f_traj)
-            traj = pmf._get_traj(PMF_traj) # has columns ['ts', 'xi']
-
+            try:
+                traj = pmf._get_traj(PMF_traj) # has columns ['ts', 'xi']
+            except:
+                None
             # merge temp and traj
-            merged = pd.merge(temp, traj, on='ts')[['xi', 'gyr']]
+            merged = pd.merge(temp, traj, on='ts')
                      
             
             
             xi=xi.append(merged['xi'])
+            star = star.append(merged['star'])
+            siRNA = siRNA.append(merged['siRNA'])
             gyr=gyr.append(merged['gyr'])
             
         except IOError:
@@ -107,17 +137,21 @@ def _get_gyr(runs, fname='gyr.out', root=None,
     
     data['xi'] = xi
     data['gyr'] = gyr
-    print 'data:'
-    print data
+    data['siRNA'] = siRNA
+    data['star'] = star
+    data = data.sort_values(by='xi')
+    data = data[data['xi']<75]
+    data = data.reset_index(drop=True)
+    
     return data
 
-def _get_complex_size(GYR, PMF, bound=1):
+def _get_size(GYR, PMF, bound=5, mol='gyr'):
     xi = _get_min(PMF, bound=bound)
-    print GYR.gyr
-    data = GYR.gyr['xi'].isin(xi)
-    print data
-    mean = data['gyr'].mean()
-    std = data['std'].std()
+    data = GYR.gyr
+    data = data[data['xi'] > xi[0]]
+    data = data[data['xi'] < xi[1]]
+    mean = data[mol].mean()
+    std = data[mol].std()
     return [mean, std]
 
 def _write_gyr(dataframe, fname):
@@ -133,14 +167,74 @@ def _plot_gyr(gyr, ax):
                 capsize=2, fmt='kx', markersize=5, elinewidth=1)
     return
 
-def _plot_gyr_list(GYR_LIST, ax):
+def _plot_xi(GYR_LIST, ax, mol='star'):
     labels = GYR_LIST.labels
+    colours = _colour(GYR_LIST)
+    if colours == False:
+        ax.set_prop_cycle(color=plt.cm.viridis(np.linspace(0.1, 0.9,
+                                                           len(labels))))
+
+    
+    
     for i in range(1, GYR_LIST.N+1):
-        gyr = GYR_LIST.GYR
-        ax.errorbar(gyr['ts'], gyr['{}_mean'.format(i)],
-                    yerr=gyr['{}_std'.format(i)], label=labels[i],
-                    capsize=2, fmt='{}'.format(markers[i-1]),
-                    markersize=5, elinewidth=1)
+        
+        gyr = GYR_LIST.GYR[i]
+        
+        data = pd.DataFrame()
+        data['xi'] = gyr['xi']
+        data['rg'] = gyr['{}'.format(mol)]
+        
+        win = len(data['xi'])/100
+        roller = data.rolling(win).mean()
+        xi = roller['xi']
+        rg = roller['rg']
+        
+        if colours == False:
+           ax.plot(xi, rg, label=labels[i])
+                    
+        else:
+           ax.plot(xi, rg, color=colours[i-1],
+                   label=labels[i])
+                   
+    ax.set_xlabel(r'$\xi$ [$\sigma$]')
+    ax.set_ylabel(r'$\langle R_g \rangle$({}) [$\sigma$]'.format(mol))
+    return
+
+def _plot_complex(GYR_LIST, ax, var=0, x_axis=1):
+    labels = GYR_LIST.labels
+    #colours = _colour(GYR_LIST)
+    data = GYR_LIST.COMPLEX.values
+    params = data[:, var]
+    group, counts = np.unique(params, return_index=True)
+    if len(group) == len(params):
+
+        ax.errorbar(data[:,0], data[:,1], yerr=data[:,2],
+                    capsize=2, fmt='kx', markersize=5, elinewidth=1)
+
+    else:
+
+        for i in range(len(group)):
+            temp = pd.DataFrame(data[:, [var, x_axis, -2, -1]])
+            temp = temp.rename(columns={0:'group',
+                                        1:'X',
+                                        2:'Y',
+                                        3:'err'})
+            temp = temp[temp['group']==group[i]]
+            X = temp['X'].values
+            Y = temp['Y'].values
+            err = temp['err'].values
+            lab = '{}={}'.format(GYR_LIST.COMPLEX.columns[var], group[i])
+            colour = base[i]
+            marker = markers[i]
+            ax.errorbar(X, Y, yerr=err, label=lab,
+                        capsize=2, fmt='{}:'.format(marker),
+                        mfc=colour, mec=colour,
+                        ecolor=colour, markersize=5,
+                        elinewidth=1, color=colour)
+    
+    ax.set_xlabel(GYR_LIST.COMPLEX.columns[x_axis])
+    ax.set_ylabel(r'$\langle R_g \rangle _{complex}$ [$\sigma$]')
+    ax.tick_params(direction='in')
     return
 
 class GYR():
@@ -165,13 +259,14 @@ class GYR():
     write() : writes file to '{self.fname}.csv'
 
     """
-    def __init__(self, PMF, fname='gyr', runs=10, root=None, bound=1):
+    def __init__(self, PMF, fname='gyr', runs=10, root=None, bound=5):
         if root != None:
             self.fname = '{}/{}.csv'.format(root, fname)
         else:
             self.fname = '{}.csv'.format(fname)
         self.gyr = _get_gyr(runs, root=root)
-        self.complex = _get_complex_size(self, PMF, bound=bound)
+        self.complex = {'mean':_get_size(self, PMF, bound=bound)[0],
+                        'std':_get_size(self, PMF, bound=bound)[1]}
     
     def write(self):
         _write_gyr(self.gyr, self.fname)
@@ -182,24 +277,34 @@ class GYR_LIST():
                  units=None, fname='gyrs'):
 
         self.N = len(gyr_list)
+        self.GYR = _collate(gyr_list)
+        
 
         # self.dg should be a dataframe with
         # columns=['variables[0], ..., variables[N], dg, err]
-        self.gyr = _collate(gyr_list, variables, parameters)
+        self.COMPLEX = _collate_complex(gyr_list, variables, parameters)
 
         # self.labels is given by e.g. {1: 'variable = parameter[0]',...
         # or {1: 'var[0] = param[0][0], var[1] = param[0][1]',...
         self.labels = _label_generator(variables, parameters)
-       
 
-    def plot(self):#, subax_dimensions):
+    def plot_xi(self, fout='gyr.pdf', mol='star'):#, subax_dimensions):
         fig, ax = plt.subplots()
-        _plot_gyr_list(self, ax)
+        _plot_xi(self, ax, mol=mol)
 
         # make subax and plot dG
         #subax = _make_inset(ax, subax_dimensions)
         #_plot_dg(self, subax)
-
+        
         plt.legend()
+        plt.savefig(fout)
+        plt.show()
 
+    def plot_complex(self, fout='gyr.pdf', legend_cols=2,
+                     var=0, x_axis=1):
+        fig, ax = plt.subplots()
+        _plot_complex(self, ax, var=var, x_axis=x_axis)
+
+        plt.legend(frameon=False)
+        plt.savefig(fout)
         plt.show()
