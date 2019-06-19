@@ -36,10 +36,13 @@ def com(array):
 
 class DumpReader():
 
-    def __init__(self, ID, box=50):
+    def __init__(self, ID, box=50, fname=None):
         self.ID = str(ID)
-        self.root = 'results'
-        self.path = '{}/{}'.format(self.root, self.ID)
+        if fname == None:
+            self.root = 'results'
+            self.path = '{}/{}'.format(self.root, self.ID)
+        else:
+            self.fname = fname
         self.box = box
 
     def change_path(self, path, kind='path'):
@@ -48,9 +51,12 @@ class DumpReader():
         elif kind=='root':
             self.root = path
 
-    def read(self, step, kind='positions-short', unwrap=False):
+    def read(self, step=0, kind='positions-short', unwrap=False, use_fname=False):
         
-        fname = '{0}/dump.{1}.{2}'.format(self.path, self.ID, step)
+        if use_fname:
+            fname = self.fname
+        else:
+            fname = '{0}/dump.{1}.{2}'.format(self.path, self.ID, step)
         with open(fname, 'r') as f:
             for i, line in enumerate(f):
                 if i == 8:
