@@ -1,16 +1,13 @@
 #nc.py
-
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import pmf
 from pmf import PMF
 from design import *
-from rdf import RDF
+import rdf
 from starpolymers.dumper import DumpReader
-
-def _get_min(PMF, bound=5):
-    return PMF.min(bound=bound) # returns range of xi as tuple
 
 def _label_generator(variables, parameters, units=None):
     dictionary = dict()
@@ -29,8 +26,7 @@ def _label_generator(variables, parameters, units=None):
     
     return dictionary
 
-def _manning_radius(f, mol1, mol2, q2, L=100):
-
+def _get_manning_radius(f, mol1, mol2, q2, L=100):
     atoms = DumpReader('none', 
                        box=50,
                        fname=f).read(use_fname=True,
@@ -44,26 +40,28 @@ def _manning_radius(f, mol1, mol2, q2, L=100):
     return radius
 
 def _nc(ts, radius, mol1, mol2, q2, L=100, fdump='dump.{}.lammpstrj'):
+   
     results = []
     for i in ts:
         fname = fdump.format(i)
         atoms = DumpReader('none', 
                            box=50,
-                           fname=f).read(use_fname=True,
+                           fname=fname).read(use_fname=True,
                                          kind='positions-long')
-
+        
         molecule = atoms[atoms['mol']==mol1][['x','y','z']].values
         counterions = atoms[atoms['mol']==mol2]
         counterions = counterions[counterions['q']==q2][['x','y','z']].values
         results.append(rdf.RDF(molecule, counterions, L=100, rmax=10.0, bin_width=0.5, condensed_radius=radius).NC)
-
+   
     data = pd.DataFrame()
     data['ts'] = ts
-    data[r'$N_C$'] = results
+    data['nc'] = results
     return data
+   
     
 
-def _get_nc(runs, timesteps, radius, mol1, mol2, q2, root=None, 
+def _get_nc(runs, mol1, mol2, q2, timesteps, root=None, 
             f_traj='out.colvars.traj'):
     """
 
@@ -95,13 +93,19 @@ def _get_nc(runs, timesteps, radius, mol1, mol2, q2, root=None,
     if root != None:
         root = '{}/'.format(root)
     for run in range(1, runs+1):
+          
         fname = 'dump.{}.lammpstrj'
         fin = '{}{}/{}'.format(root, run, fname)
+        f_manning = fin.format(1000000)
        
         try:
-
-            temp = _nc(timesteps, radius, mol1, mol2, q2, L=L, 
+            os.system('cd {}/{} && tar xzf dumps.tar.gz'.format(root, run))
+            radius = _get_manning_radius(f_manning, mol1, mol2, q2)
+            temp = _nc(timesteps, radius, mol1, mol2, q2, 
                        fdump=fin)
+            
+            os.system('cd {}/{} && rm *.lammpstrj'.format(root, run))
+           
             PMF_traj = '{}{}/{}'.format(root, run, f_traj)
             try:
                 traj = pmf._get_traj(PMF_traj) # has columns ['ts', 'xi']
@@ -111,7 +115,7 @@ def _get_nc(runs, timesteps, radius, mol1, mol2, q2, root=None,
             merged = pd.merge(temp, traj, on='ts')         
             
             xi=xi.append(merged['xi'])
-            nc=nc.append(merged[r'$N_C$'])
+            nc=nc.append(merged['nc'])
             
         except IOError:
             print "Warning: run {} did not work!".format(run)
@@ -120,12 +124,17 @@ def _get_nc(runs, timesteps, radius, mol1, mol2, q2, root=None,
                           # columns ['xi', 'NC']
     
     data['xi'] = xi
-    data[r'$N_C$']=nc
+    data['nc']=nc
     data = data.sort_values(by='xi')
     data = data[data['xi']<75]
     data = data.reset_index(drop=True)
-    
+   
     return data
+
+def _plot_nc(nc, ax):
+    nc = nc.nc
+    ax.plot(nc['xi'], nc['nc'], 'k-')
+
 
 class NC():
     """
@@ -149,17 +158,32 @@ class NC():
     write() : writes file to '{self.fname}.csv'
 
     """
-    def __init__(self, manning_f, PMF, mol1, mol2, q2, fname='gyr', runs=10, root=None, bound=5):
+    def __init__(self, PMF, mol1, mol2, q2, timesteps,
+                 fname='nc', manning_step=1000000,
+                 runs=10, root=None, unzip=True):
         if root != None:
             self.fname = '{}/{}.csv'.format(root, fname)
         else:
             self.fname = '{}.csv'.format(fname)
-        self.condensed_radius = _get_manning_radius(manning_f)
-        self.nc = _get_nc(runs, root=root)
+        self.nc = _get_nc(runs, mol1, mol2, q2, timesteps, root=root)
+                
     
     def write(self):
-        _write_nc(self.nc, self.fname)
-        return
+        self.nc.to_csv(self.fname, index=False)
+        return None
+
+    def plot(self, ax_obj=None, show=True, fout='nc.pdf'):
+        if ax_obj == None:
+            fig, ax = plt.subplots()
+        else:
+            ax = ax_obj
+
+        _plot_nc(self, ax)
+        ax.set_xlabel(r'$\xi$ [$\sigma$]')
+        ax.set_ylabel(r'$N_C$')
+        plt.savefig(fout)
+        if show:
+           plt.show()
 
 class NC_AVERAGE():
     def __init__(self):
