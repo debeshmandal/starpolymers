@@ -3,7 +3,7 @@ def _create(star, dna, lower, upper, k, steps, start, stop):
     group2_start = star+1
     group2_end = star+dna
     colvar = "colvar {{\n  name dist\n  distance {{\n    group1 {{atomNumbersRange 1-{}}}\n    group2 {{atomNumbersRange {}-{}}}\n}}\n  lowerBoundary {}\n  upperBoundary {}\n}}".format(group1_end, group2_start, group2_end, lower, upper)
-    harmonic = "harmonic {{\n  colvars dist\n  forceConstant {}\n  centers {}\n  targetCenters{}\n  targetNumSteps {}\n  writeTIPMF on\n}}".format(k, start, stop, steps)
+    harmonic = "harmonic {{\n  colvars dist\n  forceConstant {}\n  centers {}\n  targetCenters {}\n  targetNumSteps {}\n  writeTIPMF on\n}}".format(k, start, stop, steps)
     return "{}\n\n{}".format(colvar, harmonic)
 
 def _write(s, fout):
