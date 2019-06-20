@@ -288,23 +288,32 @@ class GYR_LIST():
         # or {1: 'var[0] = param[0][0], var[1] = param[0][1]',...
         self.labels = _label_generator(variables, parameters)
 
-    def plot_xi(self, fout='gyr.pdf', mol='star'):#, subax_dimensions):
-        fig, ax = plt.subplots()
+    def plot_xi(self, fout='gyr.pdf', mol='star', ax=None, 
+                legend_on=True, show=False):
+        if ax != None:
+            fig, ax = plt.subplots()
         _plot_xi(self, ax, mol=mol)
 
         # make subax and plot dG
         #subax = _make_inset(ax, subax_dimensions)
         #_plot_dg(self, subax)
         
-        plt.legend()
-        plt.savefig(fout)
-        plt.show()
+        if legend_on:
+            plt.legend(frameon=False)
+        if fout != None:
+            plt.savefig(fout)
+        if show:
+            plt.show()
 
     def plot_complex(self, fout='gyr.pdf', legend_cols=2,
-                     var=0, x_axis=1):
-        fig, ax = plt.subplots()
+                     var=0, x_axis=1, ax=None, legend_on=True,
+                     show=False):
+        if ax != None:
+            fig, ax = plt.subplots()
         _plot_complex(self, ax, var=var, x_axis=x_axis)
-
-        plt.legend(frameon=False)
-        plt.savefig(fout)
-        plt.show()
+        if legend_on:
+            plt.legend(frameon=False)
+        if fout != None:
+            plt.savefig(fout)
+        if show:
+            plt.show()

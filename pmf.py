@@ -308,15 +308,20 @@ class PMF_LIST():
        
 
     def plot(self, fout='pmf.pdf', legend_cols=2, 
-             sub=[0.25, 0.675, 0.2, 0.2], sub_var=0, sub_x=1):
+             sub=[0.25, 0.675, 0.2, 0.2], sub_var=0, 
+             sub_x=1, ax=None, legend_on=True, 
+             show=False):
             # subax_dimensions):
-        fig, ax = plt.subplots()
+        if ax == None:
+            fig, ax = plt.subplots()
         _plot_pmf_list(self, ax)
-        plt.legend(frameon=False, ncol=legend_cols)
+        if legend_on==True:
+            plt.legend(frameon=False, ncol=legend_cols)
 
         # make subax and plot dG
         subax = plt.axes(sub)
         _plot_dg(self, subax, var=sub_var, x_axis=sub_x)
-
-        plt.savefig(fout)
-        plt.show()
+        if fout != None:
+            plt.savefig(fout)
+        if show:
+            plt.show()
