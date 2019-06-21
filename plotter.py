@@ -34,8 +34,6 @@ class ADVANCED_1(PLOT):
         self.top_ax = self.fig.add_subplot(self.gs[0:3, :-1], 
                                            sharex=self.top_ax)
         self.top_ax.set_xticklabels([])
-        self.bot_ax = self.fig.add_subplot(self.gs[3:, :-1], 
-                                           sharex=self.top_ax)
         self.im = {'top':self.fig.add_subplot(self.gs[0:2, -1:]),
                    'mid':self.fig.add_subplot(self.gs[2:4, -1:]),
                    'bot':self.fig.add_subplot(self.gs[4:, -1:])}
