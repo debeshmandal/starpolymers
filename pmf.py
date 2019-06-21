@@ -258,13 +258,16 @@ class PMF():
         _write_pmf(self.pmf, self.fname)
         return
 
-    def plot(self, fname='pmf', show=True):
-        fig, ax = plt.subplots()
+    def plot(self, fout='pmf', show=True, legend_on=True,
+             ax=None):
+        if ax == None:
+            fig, ax = plt.subplots()
         _plot_pmf(self, ax)
         ax.set_xlabel(r'$\xi$ [$\sigma$]', fontsize='large')
         ax.set_ylabel(r'$\mathcal{W}$ [$k_BT$]', fontsize='large')
         ax.tick_params(labelsize='large')
-        fig.savefig('{}.pdf'.format(fname))
+        if fout != None:
+            fig.savefig('{}.pdf'.format(fout))
         if show:
             plt.show()
 
