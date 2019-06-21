@@ -30,7 +30,9 @@ class ADVANCED_1(PLOT):
         PLOT.__init__(self, fname)
         self.fig = plt.figure(constrained_layout=True)
         self.gs = gridspec.GridSpec(ncols=3, nrows=6, figure=self.fig)
-        self.top_ax = self.fig.add_subplot(self.gs[0:3, :-1])
+        self.bot_ax = self.fig.add_subplot(self.gs[3:, :-1])
+        self.top_ax = self.fig.add_subplot(self.gs[0:3, :-1], 
+                                           sharex=self.top_ax)
         self.top_ax.set_xticklabels([])
         self.bot_ax = self.fig.add_subplot(self.gs[3:, :-1], 
                                            sharex=self.top_ax)
