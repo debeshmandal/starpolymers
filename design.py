@@ -23,3 +23,32 @@ cdict = {'blue': ((0.024, 0.451, 0.573),
                     (0.592, 0.314, 0.031),
                     (0.412, 0.208, 0.000),
                     (0.243, 0.122, 0.000))}
+
+def label_generator(variables, parameters, units=None):
+    dictionary = dict()
+    for i in range(len(parameters)):
+        label = ''
+        params = parameters[i]
+        for j in range(len(variables)):
+            label += variables[j]
+            label += '='
+            label += str(params[j])
+            if units != None:
+                    label += units[j]
+            if j+1 != len(variables):
+                label += ', '
+        dictionary[i+1] = label
+    
+    return dictionary
+
+def colour(dataframe, order_by=0):
+    colours = []
+    params = dataframe.values[:, order_by]
+    group, counts = np.unique(params, return_counts=True)
+    if len(group)/len(params) == 1:
+        return False
+    for i in range(len(group)):
+        c = base[i]
+        for j in range(counts[i]):
+            colours.append(cdict[c][j])
+    return colours
