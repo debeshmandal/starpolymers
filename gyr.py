@@ -146,10 +146,10 @@ def _get_gyr(runs, fname='gyr.out', root=None,
     return data
 
 def _get_size(GYR, PMF, bound=5, mol='gyr'):
-    xi = _get_min(PMF, bound=bound)
+    xi = _get_min(PMF, bound=bound) 
     data = GYR.gyr
     data = data[data['xi'] > xi[0]]
-    data = data[data['xi'] < xi[1]]
+    data = data[data['xi'] < xi[1]+1]
     mean = data[mol].mean()
     std = data[mol].std()
     return [mean, std]
@@ -194,7 +194,8 @@ def _plot_xi(GYR_LIST, ax, mol='star'):
                     
         else:
            ax.plot(xi, rg, color=colours[i-1],
-                   label=labels[i])
+                   label=labels[i], marker=markers[i],
+                   markevery=500)
                    
     ax.set_xlabel(r'$\xi$ [$\sigma$]')
     ax.set_ylabel(r'$\langle R_g \rangle$({}) [$\sigma$]'.format(mol))
@@ -232,9 +233,10 @@ def _plot_complex(GYR_LIST, ax, var=0, x_axis=1):
                         ecolor=colour, markersize=5,
                         elinewidth=1, color=colour)
     
-    ax.set_xlabel(GYR_LIST.COMPLEX.columns[x_axis])
-    ax.set_ylabel(r'$\langle R_g \rangle _{complex}$ [$\sigma$]')
-    ax.tick_params(direction='in')
+    ax.set_xlabel(GYR_LIST.COMPLEX.columns[x_axis], fontsize='large')
+    ax.set_ylabel(r'$\langle R_g \rangle _{complex}$ [$\sigma$]',
+                  fontsize='large')
+    ax.tick_params(direction='in', labelsize='large')
     return
 
 class GYR():
@@ -290,7 +292,7 @@ class GYR_LIST():
 
     def plot_xi(self, fout='gyr.pdf', mol='star', ax=None, 
                 legend_on=True, show=False):
-        if ax != None:
+        if ax == None:
             fig, ax = plt.subplots()
         _plot_xi(self, ax, mol=mol)
 
@@ -299,7 +301,7 @@ class GYR_LIST():
         #_plot_dg(self, subax)
         
         if legend_on:
-            plt.legend(frameon=False)
+            plt.legend(frameon=False, fontsize='large')
         if fout != None:
             plt.savefig(fout)
         if show:
@@ -308,11 +310,11 @@ class GYR_LIST():
     def plot_complex(self, fout='gyr.pdf', legend_cols=2,
                      var=0, x_axis=1, ax=None, legend_on=True,
                      show=False):
-        if ax != None:
+        if ax == None:
             fig, ax = plt.subplots()
         _plot_complex(self, ax, var=var, x_axis=x_axis)
         if legend_on:
-            plt.legend(frameon=False)
+            plt.legend(frameon=False, fontsize='large')
         if fout != None:
             plt.savefig(fout)
         if show:

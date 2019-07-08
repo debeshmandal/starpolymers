@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import matplotlib.gridspec as gridspec
 
+_letters = ['a','b','c','d','e','g','h','i','j','k','l']
+
 class PLOT():
     def __init__(self, fname):
         self.fname = fname
@@ -33,13 +35,13 @@ class ADVANCED_1(PLOT):
         self.bot_ax = self.fig.add_subplot(self.gs[3:, :-1])
         self.top_ax = self.fig.add_subplot(self.gs[0:3, :-1], 
                                            sharex=self.bot_ax)
-        self.top_ax.set_xticklabels([])
-        self.im = {'top':self.fig.add_subplot(self.gs[0:2, -1:]),
-                   'mid':self.fig.add_subplot(self.gs[2:4, -1:]),
-                   'bot':self.fig.add_subplot(self.gs[4:, -1:])}
-
-        for pos in self.im:
-            ax = self.im[pos]
+        #self.top_ax.set_xticklabels([])
+        self.im = [self.fig.add_subplot(self.gs[0:2, -1:]),
+                   self.fig.add_subplot(self.gs[2:4, -1:]),
+                   self.fig.add_subplot(self.gs[4:, -1:])]
+        
+        for i in range(3):
+            ax = self.im[i]
             ax.set_xticklabels([])
             ax.set_yticklabels([])
             ax.set_yticks([])
@@ -52,4 +54,17 @@ class ADVANCED_1(PLOT):
         ax.imshow(img)
 
 
+    def label_image(self, target_ax, xy_list, xytext_list):
+        for i in range(3):
+            ax = self.im[i]
+            ax.text(20, 20, _letters[i],
+                    horizontalalignment='left',
+                    verticalalignment='top')
+            target_ax.annotate(_letters[i], xy=xy_list[i],
+                               xytext=xytext_list[i],
+                               arrowprops=dict(arrowstyle="->",
+                                               connectionstyle="arc3"))
+           
+
         
+ 
