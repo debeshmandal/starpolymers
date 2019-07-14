@@ -328,3 +328,6 @@ class PMF_LIST():
             plt.savefig(fout)
         if show:
             plt.show()
+
+    def write(self, fout='pmfs.csv'):
+        self.PMF.to_csv(fout, index=False)
