@@ -1,3 +1,6 @@
+import numpy as np
+import pandas as pd
+
 markers = ['o','d','*','P','h','x','+','p','D','v','^','>','<','s','X']
 base = ['blue', 'red', 'green', 'orange']
 cdict = {'blue': ((0.024, 0.451, 0.573),
