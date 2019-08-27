@@ -23,7 +23,7 @@ def _collate(pmf_list):
     return data
 
 def _integrate(pmf):
-    data = pmf.pmf
+    data = pmf.pmf.values
     dr = data[1, 1] - data[0, 1]
     result = data[:,0]**2 * data[:,1] * dr
     return np.sum(result)
