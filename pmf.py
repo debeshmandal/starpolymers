@@ -144,6 +144,7 @@ def _get_dg(PMF_LIST, variables, parameters):
 def _get_integral(PMF_LIST, variables, parameters):
 
     dataframe = pd.DataFrame()
+    params = np.array(parameters)
     for i in range(len(variables)):
         dataframe[variables[i]] = params[:,i]
  
@@ -151,7 +152,7 @@ def _get_integral(PMF_LIST, variables, parameters):
     for pmf in PMF_LIST:
         I.append(pmf.integral)
     dataframe['integral'] = I
-    
+
     return dataframe
 
 def _write_pmf(dataframe, fname):
