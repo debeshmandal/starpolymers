@@ -22,6 +22,12 @@ def _collate(pmf_list):
         data['{}_std'.format(i+1)] = pmf['std']
     return data
 
+def _integrate(pmf):
+    data = pmf.pmf
+    dr = data[1, 1] - data[0, 1]
+    result = data[:,0]**2 * data[:,1] * dr
+    return np.sum(result)
+
 def _label_generator(variables, parameters, units=None):
     dictionary = dict()
     for i in range(len(parameters)):
@@ -123,15 +129,18 @@ def _get_dg(PMF_LIST, variables, parameters):
     
     dg = []
     std = []
+    I = []
     
     for i in range(PMF_LIST.N):
         temp = _dg(PMF_LIST.PMF['{}_mean'.format(i+1)],
                    PMF_LIST.PMF['{}_std'.format(i+1)])
         dg.append(temp[0])
         std.append(temp[1])
+        I.append(PMF_LIST.PMF.integral)
 
     dataframe['dg'] = dg
     dataframe['std'] = std
+    dataframe['integral'] = I
     return dataframe
 
 def _write_pmf(dataframe, fname):
@@ -253,6 +262,7 @@ class PMF():
         else:
             self.fname = '{}.csv'.format(fname)
         self.pmf = _get_pmf(runs, root=root)
+        self.integral = _integrate(self)
     
     def write(self):
         _write_pmf(self.pmf, self.fname)
@@ -302,7 +312,7 @@ class PMF_LIST():
         self.PMF = _collate(pmf_list)
 
         # self.dg should be a dataframe with
-        # columns=['variables[0], ..., variables[N], dg, err]
+        # columns=['variables[0], ..., variables[N], dg, err, integral]
         self.dg = _get_dg(self, variables, parameters)
 
         # self.labels is given by e.g. {1: 'variable = parameter[0]',...
