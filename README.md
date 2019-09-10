@@ -12,4 +12,10 @@ git clone https://github.com/debeshmandal/starpolymers
 
 ## Usage
 
-```import starpolymers```
+Examples:
+
+```
+import starpolymers
+from starpolymers.star_gen2 import FileGenerator
+from starpolymers.pmf import PMF
+```
