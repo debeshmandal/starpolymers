@@ -38,7 +38,7 @@ class TWO_AXES_SHAREX(PLOT):
 class BACK_TO_BACK(PLOT):
     def __init__(self, fname):
         PLOT.__init__(self, fname)
-        self.fig, ((self.ax_L), (self.ax_R)) = plt.subplots(1, 2, sharey=True, sharex=True)
+        self.fig, ((self.ax_L), (self.ax_R)) = plt.subplot(1, 2, sharey=True, sharex=True)
         self.ax_R.invert_xaxis()
         
 
