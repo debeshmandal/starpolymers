@@ -1,11 +1,21 @@
 # starpolymers
 
-Repository of active modules used for a variety of star polymer experiments
+Star Polymers is a Python Library used for generating LAMMPS input files and analysing LAMMPS output files, in dump formats and other formats. Additionally, there are scripts used for interacting with Colvars input/output files.
 
-Current files:
+## Installation
 
-star_gen2.py - Generates LAMMPS configuration data files
+Clone this repository to a Python path
 
-ML_test2.py - Used for Linear Regression of Rg Data
+```
+git clone https://github.com/debeshmandal/starpolymers
+```
 
---- TEST TEXT ---
+## Usage
+
+Examples:
+
+```
+import starpolymers
+from starpolymers.star_gen2 import FileGenerator
+from starpolymers.pmf import PMF
+```
