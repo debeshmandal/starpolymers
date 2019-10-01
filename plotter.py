@@ -13,11 +13,19 @@ class PLOT():
     def write(self):
         self.fig.savefig(self.fname)
 
-
 class TWO_AXES_SHAREX(PLOT):
     def __init__(self, fname):
         PLOT.__init__(self, fname)
         self.fig, self.ax = plt.subplots(2, sharex=True)
+
+class BACK_TO_BACK(PLOT):
+    def __init__(self, fname):
+        PLOT.__init__(self, fname)
+        self.fig = plt.figure(constrained_layout=True)
+        self.gs = gridspec.GridSpec(ncols=2, nrows=2, figure=self.fig)
+        self.ax_L = self.fig.add_subplot(self.gs[0:1], [0:])
+        self.ax_R = self.fig.add_subplot(self.gs[1:],[0:])
+        self.ax_R.invert_xaxis()
         
 
 class ADVANCED_1(PLOT):
@@ -64,7 +72,11 @@ class ADVANCED_1(PLOT):
                                xytext=xytext_list[i],
                                arrowprops=dict(arrowstyle="->",
                                                connectionstyle="arc3"))
-           
 
+class ADVANCED_2(PLOT):
+    def __init__(self, fname):
+        PLOT.__init__(self, fname)
+        self.fig = plt.figure(constrained_layout=True)
+        self.gs = gridspec.GridSpec(ncols=3, nrows=6, figure=self.fig)
         
  
