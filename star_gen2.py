@@ -141,17 +141,16 @@ def item_charge(item, system):
 
     # create list from range
 
-    
-
-    # calculate number of charges
-    # and sample the list
-
     atom_list = []
 
     if item['charge_style'] == 'all':
         atom_list = range(1, n_atoms+1)
 
     if item['charge_style'] == 'random':
+
+    # calculate number of charges
+    # and sample the list
+
         atom_list = range(1, n_atoms+1)
         n_charges = int(n_atoms*item['charge_params']['ratio'])
         atom_list = random.sample(atom_list, n_charges)
@@ -169,7 +168,7 @@ def item_charge(item, system):
                 atom_list.extend(list(arm_list[arm_charges_neg:]))
         if item['charge_params']['centre']:
             atom_list.append(n_atoms)
-
+            print "atom_list: {}, {}".format(atom_list, len(atom_list))
     return atom_list
 
 def charge_gen(item, atom_number, charge_list):
@@ -256,7 +255,8 @@ def neutraliser(system):
             elif item['charge_style'] == 'diblock-regular':
                 q = item['charge_max']
                 n_atoms = MaxCalculator(item).atoms(system)
-                sys_charge += item['kap'] * -q * int(item['charge_params']['ratio'] * item['lam']) + 1
+                sys_charge += item['kap'] * -q * int(item['charge_params']['ratio'] * item['lam']) -1
+    print "sys_charge: {}".format(sys_charge)
     return int(sys_charge)
 
 def salt(item, system, neutralise=True):

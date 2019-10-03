@@ -29,6 +29,7 @@ for i in range(1, len(sys.argv)):
     data = pd.read_csv(fname, delim_whitespace=True, 
                     skiprows=start, nrows=n_atoms[0],
                     header=None)
+    
 
     # get charge column
     # sum up
@@ -41,3 +42,4 @@ for i in range(1, len(sys.argv)):
         print "\nSUCCESS: The overall charge of {} is {}".format(fname, overall)
     else:
         print "\nERROR: The overall charge of {} is {}".format(fname, overall)
+        print data.tail(1)    
