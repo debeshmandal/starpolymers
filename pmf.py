@@ -24,7 +24,7 @@ def _collate(pmf_list):
 
 def _integrate(pmf):
     data = pmf.pmf.values
-    dr = data[1, 1] - data[0, 1]
+    dr = data[1, 0] - data[0, 0]
     result = data[:,0]**2 * data[:,1] * dr
     return np.sum(result)
 
@@ -152,7 +152,6 @@ def _get_integral(PMF_LIST, variables, parameters):
     for pmf in PMF_LIST:
         I.append(pmf.integral)
     dataframe['integral'] = I
-
     return dataframe
 
 def _write_pmf(dataframe, fname):
