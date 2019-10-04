@@ -62,7 +62,7 @@ class ADVANCED_1(PLOT):
                    self.fig.add_subplot(self.gs[2:4, -1:]),
                    self.fig.add_subplot(self.gs[4:, -1:])]
         
-        for i in range(3):
+        for i in range(len(self.im)):
             ax = self.im[i]
             ax.set_xticklabels([])
             ax.set_yticklabels([])
@@ -79,20 +79,33 @@ class ADVANCED_2(PLOT):
     """
     def __init__(self, fname):
         PLOT.__init__(self, fname)
-        self.fig = plt.figure(constrained_layout=True)
-        self.gs = gridspec.GridSpec(ncols=3, nrows=6, figure=self.fig)
+        self.fig = plt.figure(constrained_layout=True, figsize=(12.6, 4.2))
+        self.gs = gridspec.GridSpec(ncols=12, nrows=6, figure=self.fig)
         #self.top_ax.set_xticklabels([])
-        self.sub_ax = [self.fig.add_subplot(self.gs[0:2, -1:]),
-                       self.fig.add_subplot(self.gs[2:4, -1:]),
-                       self.fig.add_subplot(self.gs[4:, -1:])]
+        self.sub_ax = [self.fig.add_subplot(self.gs[2:4, 0:2]),
+                       self.fig.add_subplot(self.gs[2:4, 2:4]),
+                       self.fig.add_subplot(self.gs[2:4, 4:6]),
+                       self.fig.add_subplot(self.gs[2:4, 6:8])]
         #self.top_ax.set_xticklabels([])
-        self.im = [self.fig.add_subplot(self.gs[0:2, -1:]),
-                   self.fig.add_subplot(self.gs[2:4, -1:]),
-                   self.fig.add_subplot(self.gs[4:, -1:])]
+        self.im = [self.fig.add_subplot(self.gs[0:2, 0:2]),
+                   self.fig.add_subplot(self.gs[0:2, 2:4]),
+                   self.fig.add_subplot(self.gs[0:2, 4:6]),
+                   self.fig.add_subplot(self.gs[0:2, 6:8]),
+                   self.fig.add_subplot(self.gs[4:6, 0:2]),
+                   self.fig.add_subplot(self.gs[4:6, 2:4]),
+                   self.fig.add_subplot(self.gs[4:6, 4:6]),
+                   self.fig.add_subplot(self.gs[4:6, 6:8]),]
+
+        for i in range(len(self.im)):
+            ax = self.im[i]
+            ax.set_xticklabels([])
+            ax.set_yticklabels([])
+            ax.set_yticks([])
+            ax.set_xticks([])
+            
         
         #self.top_ax.set_xticklabels([])
-        self.ax = [self.fig.add_subplot(self.gs[0:2, -1:]),
-                       self.fig.add_subplot(self.gs[2:4, -1:]),
-                       self.fig.add_subplot(self.gs[4:, -1:])]
+        self.ax = [self.fig.add_subplot(self.gs[0:3, 8:]),
+                   self.fig.add_subplot(self.gs[3:6, 8:])]
         
  
