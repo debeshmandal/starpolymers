@@ -86,7 +86,7 @@ class ADVANCED_2(PLOT):
         # Add sub axes
         self.sub_ax=[]
         for i in range(M):
-            self.sub_ax.append(self.fig.add_subplot(self.gs[N-1:N+1, 2*i:2*(i+1))
+            self.sub_ax.append(self.fig.add_subplot(self.gs[N-1:N+1, 2*i:2*(i+1)]))
 
         # Add image axes        
         self.im = []
