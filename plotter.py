@@ -80,7 +80,7 @@ class ADVANCED_2(PLOT):
     """
     def __init__(self, fname, N, dims=(10.4, 4.2)):
         PLOT.__init__(self, fname)
-        self.fig = plt.figure(constrained_layout=True, figsize=dims
+        self.fig = plt.figure(constrained_layout=True, figsize=dims)
         self.gs = gridspec.GridSpec(ncols=12, nrows=2*N, figure=self.fig)
         # Add sub axes
         self.sub_ax = [self.fig.add_subplot(self.gs[N-1:N+1, 0:2]),
