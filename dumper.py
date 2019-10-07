@@ -36,27 +36,12 @@ def com(array):
 
 class DumpReader():
 
-    def __init__(self, ID, box=50, fname=None):
-        self.ID = str(ID)
-        if fname == None:
-            self.root = 'results'
-            self.path = '{}/{}'.format(self.root, self.ID)
-        else:
-            self.fname = fname
-        self.box = box
+    def __init__(self, fname, box=50):
+        self.fname = fname
+        self.box=box
 
-    def change_path(self, path, kind='path'):
-        if kind=='path':
-            self.path = path
-        elif kind=='root':
-            self.root = path
-
-    def read(self, step=0, kind='positions-short', unwrap=False, use_fname=False):
+    def read(self, kind='positions-short', unwrap=False):
         
-        if use_fname:
-            fname = self.fname
-        else:
-            fname = '{0}/dump.{1}.{2}'.format(self.path, self.ID, step)
         with open(fname, 'r') as f:
             for i, line in enumerate(f):
                 if i == 8:
@@ -157,158 +142,6 @@ class DumpReader():
         # take mean and std
 
         # return mean and std
-
-    def counterion_number(self, step, bound=2):
-        data = self.read(step, kind='positions-long')
-        dfs = {'star': data[data['mol']==1].reset_index(drop=True),
-               'dna': data[data['mol']==2].reset_index(drop=True),
-               'pos': data[(data['q']>0) & (data['mol']==3)].reset_index(drop=True),
-               'neg': data[(data['q']<0) & (data['mol']==3)].reset_index(drop=True)}
-        count = 0
-
-        dist = np.transpose(distance_matrix(dfs['star'][['x','y','z']].values,
-                                    dfs['neg'][['x','y','z']].values))
-
-        count += len(dist[dist[:,0]<=bound])
-
-        dist = np.transpose(distance_matrix(dfs['dna'][['x','y','z']].values,
-                                    dfs['pos'][['x','y','z']].values))
-
-        count += len(dist[dist[:,0]<=bound])
-        
-        #for i in range(len(dfs['pos'])):
-        #    ion=dfs['pos'][['x', 'y', 'z']].loc[[i]].values
-        #    for j in range(len(dfs['dna'])):
-        #        atom = dfs['dna'][['x', 'y', 'z']].loc[[j]].values
-        #        
-        #        if distances(ion, atom)<bound:
-        #            count +=1
-        #            continue
-
-        
-
-                    
-        #for i in range(len(dfs['neg'])):
-        #    ion = dfs['neg'][['x', 'y', 'z']].loc[[i]].values
-        #    for j in range(len(dfs['star'])):
-        #        atom = dfs['star'][['x', 'y', 'z']].loc[[j]].values
-        #        #count_2 = 0
-        #        if distances(ion, atom)<bound:
-        #            count +=1
-        #            continue
-
-        #count = count_1 + count_2
-
-        return count
-
-    def xyz(self, steps, out=True, folder=None):
-        for step in steps:
-            data = self.read(step)
-            data = data[['mol', 'x', 'y', 'z']]
-            if folder != None:
-                fname = '{0}/{1}.{2}.xyz'.format(folder, self.ID, step)
-            else:
-                fname = '{0}.{1}.xyz'.format(self.ID, step)
-            with open(fname, 'w') as f:
-                f.write(str(data.shape[0]-1))
-                f.write('\n')
-                data.to_csv(f, header=False, index=None, sep=' ')
-
-    def dep_pqr(self, config, steps, out=True, folder=None, radius=2.0,
-            molecules=[1,2]):
-        
-        for step in steps:
-            data = self.read(step, kind='positions-long')
-            r = radius
-            # write HETATMs
-            master = data.rename(columns={'id': 'residueNumber',
-                                          'x': 'X',
-                                          'y': 'Y',
-                                          'z': 'Z',
-                                          'mol': 'molName',
-                                          'q': 'charge'})
-            master['recordName'] = ['HETATM']*len(master)
-            master['radius'] = [radius] * len(master)
-            atomNames = ['C'] * len(master)
-            master['atomName'] = atomNames
-            #master['molName'] = ['ION'] * len(master)
-            master = master[master['molName'] != 3]
-            master = master[['recordName', 'residueNumber',
-                             'atomName', 'molName',
-                             'X',
-                             'Y',
-                             'Z',
-                             'charge',
-                             'radius']]
-            
-            
-            # write CONECTs
-
-            conects = pd.DataFrame()
-
-            # read from BONDS to ANGLES
-
-            # generate list of atom_IDs - this becomes ATOM_ID
-
-            # for all atoms (get total number of atoms)
-
-                # ATOM 1 = each atom - create line
-
-                # search column 1 - if atom appears in this ATOM $(counter+2)
-                # equals number in column 2, counter += 1
-
-                # search column 2 - if atom appears in this, ATOM $(counter+2)
-                # equals number in column 1, counter += 1, if counter == 3,
-                # new line
-            
-            if folder != None:
-                fname = '{0}/{1}.{2}.pqr'.format(folder, self.ID, step)
-            else:
-                fname = '{0}.{1}.pqr'.format(self.ID, step)
-
-            # with open as f:
-            master = master.round(2)
-            master.to_csv(fname, header=False, index=None, sep=' ')
-                # conects.to_csv
-                # END
-            print master
-
-    def gyration(self, step, salt=3):
-        """
-
-        Returns the radius of gyration of all molecules except the salt
-        molecule.
-
-        Arguments:
-
-        step: integer value for timestep
-        salt=3: which molecule to exclude
-
-        """
-        
-        # read file ensuring that ix iy and iz are present
-        try:
-            data = self.read(step, kind='all')[['mol','x','y','z',
-                                                'ix', 'iy', 'iz']]
-        except KeyError:
-            print "Periodic Boundary image (i.e. ix, iy, iz) not present"
-        
-        # remove salt atoms
-        data = data[data['mol']!=salt]
-
-        # for atoms that are not in i*==0, move them by box*i*
-        data['xs'] = data['x'].values + self.box*data['ix'].values
-        data['ys'] = data['y'].values + self.box*data['iy'].values
-        data['zs'] = data['z'].values + self.box*data['iz'].values
-        data = data[['xs', 'ys', 'zs']]
-
-        dist = 0
-        for i in range(len(data)):
-            for j in range(len(data)):
-                dist += distances(data.values[i], data.values[j]) ** 2
-            rg2 = dist/(2*len(data)**2)
-            rg = math.sqrt(rg2)
-        return rg
         
     
         

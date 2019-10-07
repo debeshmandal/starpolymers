@@ -2,7 +2,6 @@
 
 from starpolymers.packages import *
 from starpolymers.dumper import DumpReader as dr
-from multiprocessing import Pool
 from scipy.spatial import distance
 from mpl_toolkits.mplot3d import Axes3D
 from itertools import permutations
@@ -85,20 +84,17 @@ class Atom():
             return False
 
 class Converter():
-    def __init__(self, path, ID, step, box=50, exclude=[3]):
-        self.path = path
-        self.ID = ID
-        self.step = step
+    def __init__(self, fname, box=50, exclude=[3]):
+        self.fname = fname
         self.box = box
         self.exclude = exclude
 
-    def create_molecule(self):
+    def create(self):
         # read dump file
         # ignore atoms that belong to exclude molecule
 
-        reader = dr(self.ID, box=self.box)
-        reader.change_path(self.path)
-        data = reader.read(self.step)
+        reader = dr(fname=self.fname, box=self.box)
+        data = reader.read(use_fname=True)
         for i in self.exclude:
             data = data[data['mol']!=i]
         data = data[['x', 'y', 'z']].values
