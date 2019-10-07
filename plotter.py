@@ -78,21 +78,21 @@ class ADVANCED_2(PLOT):
     has two axes in a column.
 
     """
-    def __init__(self, fname, N, dims=(10.4, 4.2)):
+    def __init__(self, fname, N, M=4, dims=(10.4, 4.2)):
         PLOT.__init__(self, fname)
         self.fig = plt.figure(constrained_layout=True, figsize=dims)
-        self.gs = gridspec.GridSpec(ncols=12, nrows=2*N, figure=self.fig)
+        self.gs = gridspec.GridSpec(ncols=2*M+4, nrows=2*N, figure=self.fig)
+        
         # Add sub axes
-        self.sub_ax = [self.fig.add_subplot(self.gs[N-1:N+1, 0:2]),
-                       self.fig.add_subplot(self.gs[N-1:N+1, 2:4]),
-                       self.fig.add_subplot(self.gs[N-1:N+1, 4:6]),
-                       self.fig.add_subplot(self.gs[N-1:N+1, 6:8])]
+        self.sub_ax=[]
+        for i in range(M):
+            self.sub_ax.append(self.fig.add_subplot(self.gs[N-1:N+1, 2*i:2*(i+1))
 
         # Add image axes        
         self.im = []
         for i in range(N):
             if i!=(max(range(N))/2):
-                for j in range(4):
+                for j in range(M):
                     self.im.append(self.fig.add_subplot(self.gs[2*i:2*i+2, 2*j:2*(j+1)]))
 
 
@@ -106,7 +106,7 @@ class ADVANCED_2(PLOT):
             
         
         # Add main axes
-        self.ax = [self.fig.add_subplot(self.gs[0:N, 8:]),
-                   self.fig.add_subplot(self.gs[N:, 8:])]
+        self.ax = [self.fig.add_subplot(self.gs[0:N, 2*M:]),
+                   self.fig.add_subplot(self.gs[N:, 2*M:])]
         
  
