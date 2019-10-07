@@ -77,33 +77,25 @@ class ADVANCED_2(PLOT):
     has two axes in a column.
 
     """
-    def __init__(self, fname):
+    def __init__(self, fname, N, dims=(10.4, 4.2)):
         PLOT.__init__(self, fname)
-        self.fig = plt.figure(constrained_layout=True, figsize=(8.4, 4.2))
-        self.gs = gridspec.GridSpec(ncols=12, nrows=10, figure=self.fig)
-        #self.top_ax.set_xticklabels([])
-        self.sub_ax = [self.fig.add_subplot(self.gs[4:6, 0:2]),
-                       self.fig.add_subplot(self.gs[4:6, 2:4]),
-                       self.fig.add_subplot(self.gs[4:6, 4:6]),
-                       self.fig.add_subplot(self.gs[4:6, 6:8])]
-        #self.top_ax.set_xticklabels([])
-        self.im = [self.fig.add_subplot(self.gs[0:2, 0:2]),
-                   self.fig.add_subplot(self.gs[0:2, 2:4]),
-                   self.fig.add_subplot(self.gs[0:2, 4:6]),
-                   self.fig.add_subplot(self.gs[0:2, 6:8]),
-                   self.fig.add_subplot(self.gs[2:4, 0:2]),
-                   self.fig.add_subplot(self.gs[2:4, 2:4]),
-                   self.fig.add_subplot(self.gs[2:4, 4:6]),
-                   self.fig.add_subplot(self.gs[2:4, 6:8]),
-                   self.fig.add_subplot(self.gs[6:8, 0:2]),
-                   self.fig.add_subplot(self.gs[6:8, 2:4]),
-                   self.fig.add_subplot(self.gs[6:8, 4:6]),
-                   self.fig.add_subplot(self.gs[6:8, 6:8]),
-                   self.fig.add_subplot(self.gs[8:10, 0:2]),
-                   self.fig.add_subplot(self.gs[8:10, 2:4]),
-                   self.fig.add_subplot(self.gs[8:10, 4:6]),
-                   self.fig.add_subplot(self.gs[8:10, 6:8])]
+        self.fig = plt.figure(constrained_layout=True, figsize=dims
+        self.gs = gridspec.GridSpec(ncols=12, nrows=2*N, figure=self.fig)
+        # Add sub axes
+        self.sub_ax = [self.fig.add_subplot(self.gs[N-1:N+1, 0:2]),
+                       self.fig.add_subplot(self.gs[N-1:N+1, 2:4]),
+                       self.fig.add_subplot(self.gs[N-1:N+1, 4:6]),
+                       self.fig.add_subplot(self.gs[N-1:N+1, 6:8])]
 
+        # Add image axes        
+        self.im = []
+        for i in range(N):
+            if i!=(max(range(N))/2):
+                for j in range(4):
+                    self.im.append(self.fig.add_subplot(self.gs[2*i:2*i+2, 2*j:2*(j+1)]))
+
+
+        # Remove Labels
         for i in range(len(self.im)):
             ax = self.im[i]
             ax.set_xticklabels([])
@@ -112,8 +104,8 @@ class ADVANCED_2(PLOT):
             ax.set_xticks([])
             
         
-        #self.top_ax.set_xticklabels([])
-        self.ax = [self.fig.add_subplot(self.gs[0:5, 8:]),
-                   self.fig.add_subplot(self.gs[5:, 8:])]
+        # Add main axes
+        self.ax = [self.fig.add_subplot(self.gs[0:N, 8:]),
+                   self.fig.add_subplot(self.gs[N:, 8:])]
         
  
