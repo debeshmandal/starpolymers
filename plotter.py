@@ -19,16 +19,17 @@ class PLOT():
         ax.imshow(img)
 
 
-    def label_image(self, target_ax, xy_list, xytext_list):
+    def label_image(self, target_ax, xy_list=None, xytext_list=None):
         for i in range(3):
             ax = self.im[i]
             ax.text(20, 20, _letters[i],
                     horizontalalignment='left',
                     verticalalignment='top')
-            target_ax.annotate(_letters[i], xy=xy_list[i],
-                               xytext=xytext_list[i],
-                               arrowprops=dict(arrowstyle="->",
-                                               connectionstyle="arc3"))
+            if xy_list!=None and xytext_list!=None:
+                target_ax.annotate(_letters[i], xy=xy_list[i],
+                                   xytext=xytext_list[i],
+                                   arrowprops=dict(arrowstyle="->",
+                                                   connectionstyle="arc3"))
 
 class TWO_AXES_SHAREX(PLOT):
     def __init__(self, fname):
