@@ -5,4 +5,4 @@ import mpl_toolkits.mplot3d
 import numpy as np
 import pandas as pd
 from scipy.spatial import Delaunay
-from scipy.spatial.distance import euclidean
+from scipy.spatial.distance import euclidean, cdist

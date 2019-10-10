@@ -42,13 +42,13 @@ class DumpReader():
 
     def read(self, kind='positions-short', unwrap=False):
         
-        with open(fname, 'r') as f:
+        with open(self.fname, 'r') as f:
             for i, line in enumerate(f):
                 if i == 8:
                     columns = line
         columns = columns.lstrip('ITEMS: ATOMS ')
         columns = columns.split()
-        positions = pd.read_csv(fname, skiprows=9, delimiter = ' ',
+        positions = pd.read_csv(self.fname, skiprows=9, delimiter = ' ',
                                 header=None)
         delete = len(positions.columns.tolist())-1
         positions = positions.drop(delete, axis=1)
