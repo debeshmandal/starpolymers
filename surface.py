@@ -1,6 +1,8 @@
-from starpolymers.dumper import DumpReader as dr
-from starpolymers.tools.cylinders import Molecule
-from starpolymers.packages import *
+from dumper import DumpReader as dr
+from tools.cylinders import Molecule
+from packages import *
+import pmf
+import os
 
 def _label_generator(variables, parameters, units=None):
     dictionary = dict()
@@ -22,17 +24,29 @@ def _label_generator(variables, parameters, units=None):
 def _get_min(PMF, bound=5):
     return PMF.min(bound=bound)
 
-def _surf():
+def _get_frac(potential):
+    return float(len(potential[potential['pot']<0]['pot']))/len(potential)
+
+def _surf(fname, timesteps, radius=2.2, bjerrum=2, T=1.2, dna=2):
     results = []
     results_nosalt = []
-    for i in range(timesteps):
-                results.append(Surface().potential)
-                results_nosalt.append(Surface().potential_nosalt)
+    for i in timesteps:
+        
+        s = Surface(fname.format(i), 
+                    radius=radius, 
+                    bjerrum=bjerrum, 
+                    T=T, 
+                    dna=dna)
+        
+        results.append(_get_frac(s.potential))
+        results_nosalt.append(_get_frac(s.potential_nosalt))
+        
+    
     data = pd.DataFrame()
-    data['ts'] = ts
+    data['ts'] = timesteps
     data['pot'] = results
     data['pot_nosalt'] = results_nosalt
-    return
+    return data
 
 def _get_surf(runs, timesteps, root=None, 
               f_traj='out.colvars.traj', radius=2.0, 
@@ -48,21 +62,29 @@ def _get_surf(runs, timesteps, root=None,
         fname = 'dump.{}.lammpstrj'
         fin = '{}{}/{}'.format(root, run, fname)
        
+       
         try:
             os.system('cd {}/{} && tar xzf dumps.tar.gz'.format(root, run))
 
-            _surf()
+            temp = _surf(fin, timesteps, 
+                         radius=radius, 
+                         bjerrum=bjerrum, 
+                         T=T, 
+                         dna=dna)
+
             
+            #print temp
             os.system('cd {}/{} && rm *.lammpstrj'.format(root, run))
+            
            
             PMF_traj = '{}{}/{}'.format(root, run, f_traj)
-            try:
-                traj = pmf._get_traj(PMF_traj) # has columns ['ts', 'xi']
-            except:
-                None
+            
+            traj = pmf._get_traj(PMF_traj) # has columns ['ts', 'xi']
+            
+            
             # merge temp and traj
             merged = pd.merge(temp, traj, on='ts')         
-            
+            #print merged
             xi=xi.append(merged['xi'])
             surf=surf.append(merged['pot'])
             surf_nosalt = surf_nosalt.append(merged['pot_nosalt'])
@@ -177,12 +199,21 @@ class Surface():
         plt.show()
 
 class SURF():
-    def __init__(self, PMF, fname='surf', runs=10, root=None):
+    def __init__(self, PMF, timesteps, fname='surf', runs=10, root=None,
+                 surf_params={'radius': 2.0, 
+                              'bjerrum':2.0, 
+                              'T':1.2,
+                              'dna':2}, bound=5.0):
         if root != None:
             self.fname = '{}/{}.csv'.format(root, fname)
         else:
             self.fname = '{}.csv'.format(fname)
-        self.surf = _get_surf()
+        self.surf = _get_surf(runs, timesteps, root=root, 
+                              f_traj='out.colvars.traj', 
+                              radius=surf_params['radius'], 
+                              bjerrum=surf_params['bjerrum'],
+                              T=surf_params['T'], 
+                              dna=surf_params['dna'])
         self.complex = {'mean':_get_size(self, PMF, bound=bound)[0],
                         'std':_get_size(self, PMF, bound=bound)[1]}
         self.complex_nosalt = {'mean':_get_size(self, PMF, bound=bound, mol='pot_nosalt')[0],
