@@ -174,7 +174,7 @@ def _get_size(SURF, PMF, bound=5, mol='pot'):
 
     
 class Surface():
-    def __init__(self, fname, radius=2.2, bjerrum=2, T=1.2, dna=2):
+    def __init__(self, fname, radius=2.0, bjerrum=2.0, T=1.2, dna=2):
         self.data = dr(fname).read(kind='positions-long')
         
         dna = _get_dna(self.data, 2)
@@ -221,6 +221,9 @@ class SURF():
 
     def write(self):
         self.surf.to_csv(self.fname, index=False)
+        with open('{}.complex'.format(self.fname), 'w') as f:
+            f.write('{} {}\n'.format(self.complex['mean'], self.complex['std']))
+            f.write('{} {}\n'.format(self.complex_nosalt['mean'], self.complex['std']))
         return None
 
 class SURF_LIST():
