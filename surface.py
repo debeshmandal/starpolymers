@@ -24,10 +24,10 @@ def _label_generator(variables, parameters, units=None):
 def _get_min(PMF, bound=5):
     return PMF.min(bound=bound)
 
-def _get_frac(potential):
-    return float(len(potential[potential['pot']<0]['pot']))/len(potential)
+def _get_frac(energy):
+    return float(len(energy[energy['pot']<0]['pot']))/len(energy)
 
-def _surf(fname, timesteps, radius=2.2, bjerrum=2, T=1.2, dna=2):
+def _surf(fname, timesteps, radius=2.2, bjerrum=2, T=1.2, dna=2, epsilon=1.0):
     results = []
     results_nosalt = []
     for i in timesteps:
@@ -36,10 +36,11 @@ def _surf(fname, timesteps, radius=2.2, bjerrum=2, T=1.2, dna=2):
                     radius=radius, 
                     bjerrum=bjerrum, 
                     T=T, 
-                    dna=dna)
+                    dna=dna,
+                    epsilon=epsilon)
         
-        results.append(_get_frac(s.potential))
-        results_nosalt.append(_get_frac(s.potential_nosalt))
+        results.append(_get_frac(s.energy))
+        results_nosalt.append(_get_frac(s.energy_nosalt))
         
     
     data = pd.DataFrame()
@@ -50,7 +51,7 @@ def _surf(fname, timesteps, radius=2.2, bjerrum=2, T=1.2, dna=2):
 
 def _get_surf(runs, timesteps, root=None, 
               f_traj='out.colvars.traj', radius=2.0, 
-              bjerrum=2, T=1.2, dna=2):
+              bjerrum=2, T=1.2, dna=2, epsilon=1.0):
     xi = pd.Series()
     surf = pd.Series()
     surf_nosalt = pd.Series()
@@ -70,7 +71,8 @@ def _get_surf(runs, timesteps, root=None,
                          radius=radius, 
                          bjerrum=bjerrum, 
                          T=T, 
-                         dna=dna)
+                         dna=dna,
+                         epsilon=epsilon)
 
             
             #print temp
@@ -108,21 +110,26 @@ def _get_dna(dataframe, mol):
     array = dataframe[dataframe['mol']==mol][['x','y','z']].values
     return array
 
-def _potential(surface, atoms, bjerrum, T):
-    inverse = atoms[:,-1].transpose() * (1./cdist(surface, atoms[:,:-1]))
-    return pd.DataFrame(inverse).sum(axis=1)
+def _energy(surface, atoms, bjerrum, T, sigma, epsilon):
+    inverse_distances = (1./cdist(surface, atoms[:,:-1])) 
+    # atoms[:,-1] is the charge
+    U_elec = bjerrum * T * atoms[:,-1].transpose() * inverse_distances
+    U_LJ = (1./(4.*epsilon)) * (np.power(sigma*inverse_distances, 6) - np.power(sigma*inverse_distances, 12))
+    energy = U_elec + U_LJ
+    result = pd.DataFrame(energy).sum(axis=1)
+    return result
     
-def _get_potential(Surface, bjerrum, T, salt=True):
+def _get_energy(Surface, bjerrum, T, sigma, epsilon, salt=True):
     gridpoints = Surface.surface
     if salt:
-        potential = _potential(Surface.surface, Surface.atoms, bjerrum, T)
+        energy = _energy(Surface.surface, Surface.atoms, bjerrum, sigma, epsilon, T)
     else:
-        potential = _potential(Surface.surface, Surface.atoms_nosalt, bjerrum, T)
+        energy = _energy(Surface.surface, Surface.atoms_nosalt, bjerrum, sigma, epsilon, T)
     results = pd.DataFrame()
     results['x'] = gridpoints[:,0]
     results['y'] = gridpoints[:,1]
     results['z'] = gridpoints[:,2]
-    results['pot'] = potential
+    results['pot'] = energy
     return results
 
 def _plot_complex(SURF_LIST, ax, var=0, x_axis=1):
@@ -174,25 +181,25 @@ def _get_size(SURF, PMF, bound=5, mol='pot'):
 
     
 class Surface():
-    def __init__(self, fname, radius=2.0, bjerrum=2.0, T=1.2, dna=2):
+    def __init__(self, fname, radius=2.0, bjerrum=2.0, T=1.2, dna=2, eps=1.0):
         self.data = dr(fname).read(kind='positions-long')
         
         dna = _get_dna(self.data, 2)
         self.atoms = self.data[['x','y','z','q']].values
         self.surface = Molecule(dna, N=125, sigma=radius).points
-        self.potential = _get_potential(self, bjerrum, T)
+        self.energy = _get_energy(self, bjerrum, T, radius, eps)
 
         self.data_nosalt = self.data[self.data['mol']!=3]
         self.atoms_nosalt = self.data_nosalt[['x','y','z','q']].values
-        self.potential_nosalt = _get_potential(self, bjerrum, T, salt=False)
+        self.energy_nosalt = _get_energy(self, bjerrum, T, radius, eps, salt=False)
 
     def plot(self):
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        ax.scatter(self.potential['x'].values,
-                self.potential['y'].values,
-                self.potential['z'].values,
-                c=self.potential['pot'].values)
+        ax.scatter(self.energy['x'].values,
+                self.energy['y'].values,
+                self.energy['z'].values,
+                c=self.energy['pot'].values)
         ax.set_xlim(-25,25)
         ax.set_ylim(-25,25)
         ax.set_zlim(-25,25)                
