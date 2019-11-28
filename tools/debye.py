@@ -1,6 +1,8 @@
 from bjerrum import bjerrum
 from math import pi
 
+avo = 6.02e23
+
 def I(salts):
     strength = 0
     for salt in salts:
