@@ -181,17 +181,17 @@ def _get_size(SURF, PMF, bound=5, mol='pot'):
 
     
 class Surface():
-    def __init__(self, fname, radius=2.0, bjerrum=2.0, T=1.2, dna=2, eps=1.0):
+    def __init__(self, fname, radius=2.0, bjerrum=2.0, T=1.2, dna=2, epsilon=1.0):
         self.data = dr(fname).read(kind='positions-long')
         
         dna = _get_dna(self.data, 2)
         self.atoms = self.data[['x','y','z','q']].values
         self.surface = Molecule(dna, N=125, sigma=radius).points
-        self.energy = _get_energy(self, bjerrum, T, radius, eps)
+        self.energy = _get_energy(self, bjerrum, T, radius, epsilon)
 
         self.data_nosalt = self.data[self.data['mol']!=3]
         self.atoms_nosalt = self.data_nosalt[['x','y','z','q']].values
-        self.energy_nosalt = _get_energy(self, bjerrum, T, radius, eps, salt=False)
+        self.energy_nosalt = _get_energy(self, bjerrum, T, radius, epsilon, salt=False)
 
     def plot(self):
         fig = plt.figure()
