@@ -27,9 +27,7 @@ def _label_generator(variables, parameters, units=None):
     return dictionary
 
 def _get_manning_radius(f, mol1, mol2, q2, L=100):
-    atoms = DumpReader(f, 
-                       box=50).read(use_fname=True,
-                                     kind='positions-long')
+    atoms = DumpReader(f, box=50).read(kind='positions-long')
 
     molecule = atoms[atoms['mol']==mol1][['x','y','z']].values
     counterions = atoms[atoms['mol']==mol2]
@@ -43,9 +41,7 @@ def _nc(ts, radius, mol1, mol2, q2, L=100, fdump='dump.{}.lammpstrj'):
     results = []
     for i in ts:
         fname = fdump.format(i)
-        atoms = DumpReader(fname, 
-                           box=50).read(use_fname=True,
-                                         kind='positions-long')
+        atoms = DumpReader(fname, box=50).read(kind='positions-long')
         
         molecule = atoms[atoms['mol']==mol1][['x','y','z']].values
         counterions = atoms[atoms['mol']==mol2]
