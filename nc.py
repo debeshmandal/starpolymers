@@ -44,9 +44,8 @@ def _nc(ts, radius, mol1, mol2, q2, L=100, fdump='dump.{}.lammpstrj'):
     results = []
     for i in ts:
         fname = fdump.format(i)
-        atoms = DumpReader('none', 
-                           box=50,
-                           fname=fname).read(use_fname=True,
+        atoms = DumpReader(fname, 
+                           box=50).read(use_fname=True,
                                          kind='positions-long')
         
         molecule = atoms[atoms['mol']==mol1][['x','y','z']].values
