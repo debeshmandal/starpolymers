@@ -14,17 +14,14 @@ jupyter-client==5.2.4
 jupyter-core==4.4.0
 kiwisolver==1.0.1
 matplotlib==2.2.3
-mkl-fft==1.0.0
 mkl-random==1.0.1
 numpy==1.16.3
 pandas==0.23.1
 pathlib2==2.3.3
 pexpect==4.6.0
-pickleshare==0.7.5
 prompt-toolkit==1.0.15
 ptyprocess==0.6.0
 Pygments==2.3.1
-pymol==1.7.4.0
 pyparsing==2.2.0
 python-dateutil==2.7.3
 pytz==2018.4
