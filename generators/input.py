@@ -63,22 +63,28 @@ class InputFile():
         """
         return
 
-class Entry():
+class Entry(object):
     """
     Stores a setting used in a LAMMPS input file
     """
     def __init__(self, kind, params, name=None):
         """
+        >>> Entry('variable', 100, name='kap')
+        Entry(variable[kap]: 100)
         """
         self.kind = kind
         self.params = params
         self.name = name
 
     def __repr__(self):
+        if self.name == None:
+            name = ''
+        else:
+            name = self.name
         return "Entry({}[{}]: {})".format(
             self.kind,
-            self.name,
-            ' '.join([i for i in self.params])
+            name,
+            self.params
         )
 
     def is_similar(self, other):
@@ -88,9 +94,6 @@ class Entry():
         >>> Entry('run', 1000).is_similar(Entry('run', 2000))
         True
         """
-        if type(other) != Entry:
-            raise TypeError
-
         if self.kind == other.kind:
             if other.name != None:
                 if self.name == other.name:
