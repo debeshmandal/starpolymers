@@ -67,7 +67,7 @@ class Entry():
     """
     Stores a setting used in a LAMMPS input file
     """
-    def __init__(kind, params, name=None):
+    def __init__(self, kind, params, name=None):
         """
         """
         self.kind = kind
