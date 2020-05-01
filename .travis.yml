@@ -1,3 +1,3 @@
 language: python
 python: "2.7"
-script: python -m doctest __init__.py
+script: python -m doctest generators/input.py

@@ -75,8 +75,28 @@ class Entry():
         self.name = name
 
     def __repr__(self):
-        return "Entry({} {} {})".format(
+        return "Entry({}[{}]: {})".format(
             self.kind,
             self.name,
             ' '.join([i for i in self.params])
         )
+
+    def is_similar(self, other):
+        """
+        Returns true if two entries are substitutable
+
+        >>> Entry('run', 1000).is_similar(Entry('run', 2000))
+        True
+        """
+        if type(other) != Entry:
+            raise TypeError
+
+        if self.kind == other.kind:
+            if other.name != None:
+                if self.name == other.name:
+                    return True
+                else:
+                    return False
+            else:
+                return True
+                
