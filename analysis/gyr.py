@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pmf
 from pmf import PMF
-from starpolymer.tools.design import base, cdict, markers
+from starpolymers.tools.design import base, cdict, markers
 
 def _collate(gyr_list):
     data = dict()

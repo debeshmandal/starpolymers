@@ -9,10 +9,9 @@ from scipy.spatial import Delaunay
 from scipy.spatial.distance import cdist, euclidean
 
 import pmf
-from starpolymer.readers.dumper import DumpReader as dr
-from starpolymer.tools.cylinders import Molecule
-from starpolymer.tools.design import base, cdict, markers
-
+from starpolymers.readers.dumper import DumpReader as dr
+from starpolymers.tools.cylinders import Molecule
+from starpolymers.tools.design import base, cdict, markers
 
 def _label_generator(variables, parameters, units=None):
     dictionary = dict()
