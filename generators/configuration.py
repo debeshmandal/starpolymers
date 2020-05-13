@@ -1,12 +1,13 @@
-# Star Generator Module
-
+"""
+Script for generating LAMMPS config files for a set of molecules.
+"""
 import numpy as np
 import pandas as pd
 import math
 import os
 import random
-from brush import Brush
-import base
+from starpolymers.molecules.brush import Brush
+from starpolymers.molecules import base
 
 spacing = 1.0
 

@@ -1,8 +1,17 @@
-from dumper import DumpReader as dr
-from tools.cylinders import Molecule
-from packages import *
-import pmf
 import os
+from itertools import combinations as combos
+
+import matplotlib.pyplot as plt
+import mpl_toolkits.mplot3d
+import numpy as np
+import pandas as pd
+from scipy.spatial import Delaunay
+from scipy.spatial.distance import cdist, euclidean
+
+import pmf
+from starpolymers.readers.dumper import DumpReader as dr
+from starpolymers.tools.cylinders import Molecule
+from starpolymers.tools.design import base, cdict, markers
 
 def _label_generator(variables, parameters, units=None):
     dictionary = dict()

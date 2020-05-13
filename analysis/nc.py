@@ -5,9 +5,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pmf
 from pmf import PMF
-from design import *
+from starpolymers.tools.design import base, cdict, markers
 import rdf
-from starpolymers.dumper import DumpReader
+from starpolymers.readers.dumper import DumpReader
 
 def _label_generator(variables, parameters, units=None):
     dictionary = dict()
