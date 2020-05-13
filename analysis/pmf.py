@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
-from design import *
+from starpolymer.tools.design import base, cdict, markers
 
 def _scale(series, n=5):
     factor = series.tail(n).mean()

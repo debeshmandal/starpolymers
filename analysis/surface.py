@@ -1,6 +1,6 @@
-from dumper import DumpReader as dr
-from tools.cylinders import Molecule
-from packages import *
+from starpolymer.readers.dumper import DumpReader as dr
+from starpolymer.tools.cylinders import Molecule
+from starpolymers.packages import *
 import pmf
 import os
 

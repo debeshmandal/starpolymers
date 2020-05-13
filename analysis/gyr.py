@@ -1,12 +1,14 @@
-# aim is to read, write and plot gyr files and DeltaG
-# together
-
+"""
+Objects to calculate the radius of gyration, using
+information from a potential of mean force (PMF) generated
+by Colvars
+"""
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import pmf
 from pmf import PMF
-from design import *
+from starpolymer.tools.design import base, cdict, markers
 
 def _collate(gyr_list):
     data = dict()
@@ -14,7 +16,6 @@ def _collate(gyr_list):
         gyr = gyr_list[i].gyr        
         data[i+1] = gyr
     return data
-
 
 def _colour(GYR_LIST, order_by=0):
     colours = []

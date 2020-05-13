@@ -5,7 +5,7 @@ import numpy as np
 import numpy.linalg as la
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from dumper import DumpReader as dr
+from starpolymers.readers.dumper import DumpReader as dr
 
 def product(vector):
     result = 1
