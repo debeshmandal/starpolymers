@@ -6,7 +6,7 @@ class InputFile():
     Takes a template LAMMPS input file and parses the lines
     to return entries that can be edited
     """
-    def __init__(template, comment='# LAMMPS input file'):
+    def __init__(self, template, comment='# LAMMPS input file'):
         """
         File handler for LAMMPS input files.
         """
@@ -14,7 +14,7 @@ class InputFile():
         self.settings = self._parse_template(template)
         
 
-    def _parse_template(fname):
+    def _parse_template(self, fname):
         """
         Read a template file and create Entry objects
         """
@@ -57,7 +57,7 @@ class InputFile():
     def entries(self, index=0):
         return
     
-    def write(fout):
+    def write(self, fout):
         """
         Write entries to file
         """
