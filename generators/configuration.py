@@ -1,13 +1,15 @@
 """
 Script for generating LAMMPS config files for a set of molecules.
 """
-import numpy as np
-import pandas as pd
 import math
 import os
 import random
-from starpolymers.molecules.brush import Brush
+
+import numpy as np
+import pandas as pd
+
 from starpolymers.molecules import base
+from starpolymers.molecules.brush import Brush
 
 spacing = 1.0
 
@@ -40,44 +42,6 @@ translation = np.array([[0, 0, 0],
                         [2, 1.5, -0.5],
                         [1.2, -0.5, 0.5],
                         [-0.5, -0.5, -0.5]])
-
-# ---- #
-
-# for star: use dictionary to read properties? #
-
-test_star = {'molecule': 'star',
-                 'kap': 3,
-                 'lam': 10,
-                 'charge_style': 'all',
-                 'charge_max': 1}
-
-test_star2 = {'molecule': 'star',
-                 'kap': 5,
-                 'lam': 8,
-                 'charge_style': 'all',
-                 'charge_max': 1}
-
-
-# for DNA: use dictionary to read properties? #
-
-test_DNA = {'molecule': 'DNA',
-                'kap': 1,
-                'lam': 21,
-                'charge_style': 'all',
-                'charge_max': -1,
-            'counterions': True}
-
-# overall system should be list of item dictionaries #
-
-test_system = [test_star, test_DNA]
-
-dummy_item = {'molecule': 'dummy',
-              'kap': 0,
-              'lam': 0,
-              'charge_style': 'all',
-              'charge_max': 0}
-
-# ---- #
 
 def central_centre_gen(n_atoms, kap, lam, angle_shift, atom_shift):
 
@@ -196,42 +160,6 @@ def charge_gen(item, atom_number, charge_list):
     #    'a' : 'blocks'|'arms' : {}|[] ... }
     #
     #    return float(charge)
-
-
-def __check_item(item):
-
-    isvalid = bool()
-    if item['molecule'] in molecule_list:
-        isvalid = True
-    else:
-        print "ERROR: item['molecule'] must be one of {}".format(molecule_list)
-        return isvalid
-
-    if type(item['molecule'])!=str:
-        isvalid = False
-        print "ERROR: {} should have an item['molecule'] that is a string".format(item['molecule'])
-        return isvalid
-    
-    elif item['molecule'] in lam_list:
-        if type(item['lam'])!=int:
-            isvalid = False
-            print "ERROR: {} is a molecule and needs an integer value for item['lam']".format(item['molecule'])
-            return isvalid
-
-    elif item['molecule'] == 'star':
-        if type(item['kap'])!=int:
-            isvalid = False
-            print "ERROR: {} is a star and needs an integer value for item['kap']".format(item['molecule'])
-            return isvalid
-        
-    elif item['molecule'] in salt_list:
-        if type(item['concentration']) != int:
-            isvalid = False
-            print "ERROR: {} is a salt and needs"
-        return isvalid
-    else:
-        isvalid = True
-        return isvalid
 
 def neutraliser(system):
     """
