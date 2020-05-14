@@ -1,7 +1,45 @@
-spacing = 1.0
-lam_list = ['star', 'DNA']
-salt_list = ['salt']
-molecule_list = lam_list + salt_list
+import random
+
+import numpy as np
+
+from _common import Molecule
+from _common import PE_SPACING as spacing
+
+class LinearPolyelectrolyte(Molecule):
+    def __init__(self, item):
+        super(Molecule, self).__init__(item)
+
+        self._atoms = self.generate_atoms()
+        self._bonds = self.generate_bonds()
+        self._angles = self.generate_angles()
+
+    def generate_atoms(self):
+        """
+        Returns dataframe with the following columns
+        """
+        return
+
+    def generate_bonds(self):
+        return
+
+    def generate_angles(self):
+        return
+
+class StarPolyelectrolyte(Molecule):
+    def __init__(self, item):
+        super(Molecule, self).__init__(item)
+        self._atoms = self.generate_atoms()
+        self._bonds = self.generate_bonds()
+        self._angles = self.generate_angles()
+
+    def generate_atoms(self):
+        return
+
+    def generate_bonds(self):
+        return
+
+    def generate_angles(self):
+        return
 
 def central_centre_gen(n_atoms, kap, lam, angle_shift, atom_shift):
 
@@ -183,15 +221,6 @@ def salt(item, system, neutralise=True):
             extra = n_neut % anion              
     return [n_anions, n_cations, extra]
 
-def make_brush(item, mol=1):
-    brush = Brush(item['trunk']['lam'], mol=mol,
-                  starting_position=item['start'],
-                  direction=item['direction'], base_id=item.get('base_id'),
-                  graft_type=item.get('graft_type', 1))
-    for branch in item['branches']:
-        brush.create_branch(branch['site'],branch['lam'])
-    return brush
-
 class MaxCalculator():
 
     def __init__(self, item):
@@ -221,13 +250,6 @@ class MaxCalculator():
 
             if salt(self.item, system)[2] != 0:
                 max_atoms+=1
-
-        if self.item['molecule']=='brush':
-            brush=make_brush(self.item)
-            max_atoms = brush.write_atoms()[1]
-        if self.item['molecule']=='base':
-            max_atoms = base.base_gen(self.item['dims'],
-                                      spac=self.item['spacing'])[1]
         return max_atoms
 
     def bonds(self):
@@ -246,9 +268,6 @@ class MaxCalculator():
             max_bonds = lam-1
         elif self.item['molecule'] == 'salt':
             max_bonds = 0
-        elif self.item['molecule'] == 'brush':
-            brush = make_brush(self.item)
-            max_bonds = brush.write_bonds()[1]
         elif self.item['molecule'] == 'base':
             max_bonds=0
         return max_bonds
