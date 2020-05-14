@@ -12,37 +12,12 @@ import pandas as pd
 from starpolymers.molecules import base
 from starpolymers.molecules.brush import Brush
 
+from starpolymers.tools.geometry import direction, translation
+
 spacing = 1.0
-
-direction = np.array([[1, 0, 0],
-                      [0, 1, 0],
-                      [0, 0, 1],
-                      [-1, 0, 0],
-                      [0, -1, 0],
-                      [0, 0, -1],
-                      [1/math.sqrt(2), 1/math.sqrt(2), 0],
-                      [0, 1/math.sqrt(2), 1/math.sqrt(2)],
-                      [1/math.sqrt(2), 0, 1/math.sqrt(2)],
-                      [-1/math.sqrt(2), 1/math.sqrt(2), 0],
-                      [0, -1/math.sqrt(2), 1/math.sqrt(2)],
-                      [-1/math.sqrt(2), 0, 1/math.sqrt(2)],
-                      [1/math.sqrt(2), -1/math.sqrt(2), 0],
-                      [0, 1/math.sqrt(2), -1/math.sqrt(2)],
-                      [1/math.sqrt(2), 0, -1/math.sqrt(2)],
-                      [-1/math.sqrt(2), -1/math.sqrt(2), 0],
-                      [0, -1/math.sqrt(2), -1/math.sqrt(2)],
-                      [-1/math.sqrt(2), 0, -1/math.sqrt(2)]])
-
-
 lam_list = ['star', 'DNA']
 salt_list = ['salt']
 molecule_list = lam_list + salt_list
-
-translation = np.array([[0, 0, 0],
-                        [0.2, 0.2, 0],
-                        [2, 1.5, -0.5],
-                        [1.2, -0.5, 0.5],
-                        [-0.5, -0.5, -0.5]])
 
 def central_centre_gen(n_atoms, kap, lam, angle_shift, atom_shift):
 
@@ -343,11 +318,20 @@ class FileGenerator():
                 
     """
 
-    def __init__(self, box, atom_masses=[1.0], bond_types=1, angle_types=1):
+    def __init__(
+        self, 
+        box, 
+        atom_masses=[1.0], 
+        bond_types=1, 
+        angle_types=1,
+        suppress_printing = False
+        ):
+
         self._box = box
         self._atom_masses = atom_masses
         self._bond_types = bond_types
         self._angle_types = angle_types
+        self._suppress_printing = suppress_printing
 
     def write_comments(self, system):
 
@@ -381,8 +365,6 @@ class FileGenerator():
         MAX_atoms = int()
         MAX_bonds = int()
         MAX_angles = int()
-
-        spac = spacing
 
         atom_type_list = range(1, len(self._atom_masses)+1)
         bond_type_list = list(np.array(range(self._bond_types))+1)
@@ -446,7 +428,6 @@ class FileGenerator():
 
     def write_masses(self):
 
-        
         masses = str()
 
         for i in range(len(self._atom_masses)):
@@ -480,8 +461,6 @@ class FileGenerator():
             CUMU_atoms += MaxCalculator(system[i]).atoms(system)
         
         atom_ID_shift = CUMU_atoms
-        spac = spacing
-        #shift_length = item['lam'] * spac
         atom_pos_shift = translation
         try:
             lam = item['lam']
@@ -494,10 +473,11 @@ class FileGenerator():
             counterions = False
 
         if item['molecule'] == 'star':
+            # atom_list = Molecule(item).atoms
 
             kap = item['kap']           
             atom_type = 1
-            mol_length = lam*spac
+            mol_length = lam * spacing
             n_atoms = kap * lam + 1 + atom_ID_shift
 
             for i in range(kap):
@@ -511,9 +491,9 @@ class FileGenerator():
                     charge = charge_gen(item, atom_id-atom_ID_shift, charge_list)
                     
                     # else continue
-                    x_pos = (mol_length-(j*spac))*direction[i][0] + atom_pos_shift[system_index][0]
-                    y_pos = (mol_length-(j*spac))*direction[i][1] + atom_pos_shift[system_index][1]
-                    z_pos = (mol_length-(j*spac))*direction[i][2] + atom_pos_shift[system_index][2]
+                    x_pos = (mol_length-(j*spacing))*direction[i][0] + atom_pos_shift[system_index][0]
+                    y_pos = (mol_length-(j*spacing))*direction[i][1] + atom_pos_shift[system_index][1]
+                    z_pos = (mol_length-(j*spacing))*direction[i][2] + atom_pos_shift[system_index][2]
                     next_line = str()
                     next_line += str("{} ".format(atom_id))
                     next_line += str("{} ".format(molecule_id))
@@ -535,14 +515,14 @@ class FileGenerator():
             
             # create DNA atoms
             atom_type = 1
-            mol_length = lam*spac
+            mol_length = lam*spacing
             n_atoms = lam
             for i in range(lam):
                 atom_id = i+1 + atom_ID_shift
                 charge = charge_gen(item, atom_id-atom_ID_shift, charge_list)
-                x_pos = (mol_length-(i*spac))*direction[0][0] + atom_pos_shift[system_index][0]
-                y_pos = (mol_length-(i*spac))*direction[0][1] + atom_pos_shift[system_index][1]
-                z_pos = (mol_length-(i*spac))*direction[0][2] + atom_pos_shift[system_index][2]
+                x_pos = (mol_length-(i*spacing))*direction[0][0] + atom_pos_shift[system_index][0]
+                y_pos = (mol_length-(i*spacing))*direction[0][1] + atom_pos_shift[system_index][1]
+                z_pos = (mol_length-(i*spacing))*direction[0][2] + atom_pos_shift[system_index][2]
                 next_line = str()
                 next_line += str("{} ".format(atom_id))
                 next_line += str("{} ".format(molecule_id))
@@ -559,9 +539,9 @@ class FileGenerator():
             for i in range(lam):
                 atom_id = i+1 + atom_ID_shift + lam
                 charge = -1 * charge_gen(item, atom_id-atom_ID_shift, charge_list)
-                x_pos = (mol_length-(i*spac))*direction[0][0] + atom_pos_shift[system_index][0] + spac
-                y_pos = (mol_length-(i*spac))*direction[0][1] + atom_pos_shift[system_index][1] + spac
-                z_pos = (mol_length-(i*spac))*direction[0][2] + atom_pos_shift[system_index][2] + spac
+                x_pos = (mol_length-(i*spacing))*direction[0][0] + atom_pos_shift[system_index][0] + spacing
+                y_pos = (mol_length-(i*spacing))*direction[0][1] + atom_pos_shift[system_index][1] + spacing
+                z_pos = (mol_length-(i*spacing))*direction[0][2] + atom_pos_shift[system_index][2] + spacing
                 next_line = str()
                 next_line += str("{} ".format(atom_id))
                 next_line += str("{} ".format(molecule_id))
@@ -683,8 +663,8 @@ class FileGenerator():
         except:
             None
 
-
         if item['molecule'] == 'star':
+            # bond_list = Molecule(item).bonds
 
             kap = item['kap']           
             n_atoms = kap * lam + 1 + atom_ID_shift
@@ -760,6 +740,7 @@ class FileGenerator():
         
         
         if item['molecule'] == 'star':
+            # angle_list = Molecule(item).angles
 
             kap = item['kap']
             n_atoms = kap * lam + 1 + atom_ID_shift
@@ -823,7 +804,7 @@ class FileGenerator():
 
         return angle_list
 
-    def write_system_to_file(self, system, fname='config.dat', angles=True):
+    def write_system_to_file(self, system, fname='config.dat'):
 
         """
 
@@ -856,26 +837,36 @@ class FileGenerator():
         with open(fname, 'w') as f:
             f.write(self.write_comments(system))
             f.write(self.write_header(system))
+
+            # write masses
             f.write('\nMasses\n\n')
             f.write(self.write_masses())
+
+            # write atoms
             f.write('\nAtoms\n\n')
             for i in range(len(system)):
                 if i == 0:
                     f.write(self.write_atoms(system, i))
                 else:
                     f.write(self.write_atoms(system, i))   
-            f.write('\nBonds\n\n')
-            for i in range(len(system)):
-                if i == 0:
-                    f.write(self.write_bonds(system, i))
-                else:
-                    f.write(self.write_bonds(system, i))
-            if angles == True:
+            
+            # write bonds
+            if self._bond_types > 0: 
+                f.write('\nBonds\n\n')
+                for i in range(len(system)):
+                    if i == 0:
+                        f.write(self.write_bonds(system, i))
+                    else:
+                        f.write(self.write_bonds(system, i))
+
+            # write angles
+            if self._angle_types > 0:
                 f.write('\nAngles\n\n')
                 for i in range(len(system)):
                     if i == 0:
                         f.write(self.write_angles(system, i))
                     else:
                         f.write(self.write_angles(system, i))
-        print "Writing complete for {}".format(fname)
-        return
+
+        if not self._suppress_printing:
+            print "Writing complete for {}".format(fname)

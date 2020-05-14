@@ -5,6 +5,7 @@ Script to generate a simple configuration
 from starpolymers.generators.configuration import FileGenerator
 
 def main():
+    
     # first initiate the FileGenerator
     fg = FileGenerator(30, atom_masses=[1.0])
 
