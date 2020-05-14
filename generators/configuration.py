@@ -4,6 +4,7 @@ Script for generating LAMMPS config files for a set of molecules.
 import math
 import os
 import random
+import datetime
 
 import numpy as np
 import pandas as pd
@@ -322,7 +323,6 @@ class MaxCalculator():
     #        max_charge = 0
     #    return max_charge
                 
-
 class FileGenerator():
     """
     Input:
@@ -344,10 +344,10 @@ class FileGenerator():
     """
 
     def __init__(self, box, atom_masses=[1.0], bond_types=1, angle_types=1):
-        self.box = box
-        self.atom_masses = atom_masses
-        self.bond_types = bond_types
-        self.angle_types = angle_types
+        self._box = box
+        self._atom_masses = atom_masses
+        self._bond_types = bond_types
+        self._angle_types = angle_types
 
     def write_comments(self, system):
 
@@ -356,14 +356,15 @@ class FileGenerator():
         Returns string that is formatted as the first few lines of a LAMMPS config data file
 
         """
-        comments = str()
-        #kap = system[0]['kap']
-        #lam = system[0]['lam']
-        #first_line = str('Star Polymer with {} arms which are {} beads in length'.format(kap, lam))
-        first_line = 'test'
-        second_line = str('secondline')
-        comments += str('# {}\n'.format(first_line))
-        comments += str('# {}\n'.format(second_line))
+        comments = ''
+        first_line = 'LAMMPS config file [{}]'.format(
+            str(datetime.datetime.today()).split('.')[0]
+        )
+        second_line = 'Molecules: {}'.format(
+            ', '.join([i['molecule'] for i in system[:3]])
+        )
+        comments += '# {}\n'.format(first_line)
+        comments += '# {}\n'.format(second_line)
         comments += '\n'
 
         return comments
@@ -383,9 +384,9 @@ class FileGenerator():
 
         spac = spacing
 
-        atom_type_list = range(1, len(self.atom_masses)+1)
-        bond_type_list = list(np.array(range(self.bond_types))+1)
-        angle_type_list = list(np.array(range(self.angle_types))+1)
+        atom_type_list = range(1, len(self._atom_masses)+1)
+        bond_type_list = list(np.array(range(self._bond_types))+1)
+        angle_type_list = list(np.array(range(self._angle_types))+1)
             
 
         for item in system:
@@ -418,12 +419,12 @@ class FileGenerator():
         b_bond_types = max(bond_type_list)
         c_angle_types = max(angle_type_list)
 
-        xlo = -self.box
-        xhi = self.box
-        ylo = -self.box
-        yhi = self.box
-        zlo = -self.box
-        zhi = self.box
+        xlo = -self._box
+        xhi = self._box
+        ylo = -self._box
+        yhi = self._box
+        zlo = -self._box
+        zhi = self._box
         
         header = str()
 
@@ -448,9 +449,9 @@ class FileGenerator():
         
         masses = str()
 
-        for i in range(len(self.atom_masses)):
+        for i in range(len(self._atom_masses)):
             next_line = str()
-            next_line += str("{} {}\n".format(i+1, self.atom_masses[i]))
+            next_line += str("{} {}\n".format(i+1, self._atom_masses[i]))
             masses += next_line
 
         return masses
@@ -469,7 +470,7 @@ class FileGenerator():
 
         atom_list = str()
         item = system[system_index]
-        box = self.box
+        box = self._box
         charge_list = item_charge(item, system)
 
         # write function to check that item obeys rules
