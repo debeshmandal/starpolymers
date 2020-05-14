@@ -15,3 +15,6 @@ def test__common():
     _common.ParticleArray({'molecule' : 'star'})
     _common.registry
     return
+
+def test_MoleculeFactory():
+    return
