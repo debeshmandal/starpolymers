@@ -12,12 +12,11 @@ import pandas as pd
 from starpolymers.molecules import base
 from starpolymers.molecules.brush import Brush
 
+from starpolymers.molecules import registry, MoleculeFactory
+
 from starpolymers.tools.geometry import direction, translation
 
 spacing = 1.0
-lam_list = ['star', 'DNA']
-salt_list = ['salt']
-molecule_list = lam_list + salt_list
 
 def central_centre_gen(n_atoms, kap, lam, angle_shift, atom_shift):
 
