@@ -11,10 +11,15 @@ class _Registry():
 registry = _Registry()
 
 class AbstractMolecule:
-    def __init__(self, item, molecule=1, start=1):
+    def __init__(self, item, molecule=1):
         self.molecule = item['molecule']
         self._atoms = pd.DataFrame()
         self._molecule = molecule
+
+    @property
+    def charge(self):
+        _charge = sum(self._atoms['q'].values)
+        return _charge
 
     @property
     def atoms(self):
@@ -51,11 +56,11 @@ class AbstractMolecule:
 
 class ParticleArray(AbstractMolecule):
     def __init__(self, item):
-        super().__init__(item)
+        super(AbstractMolecule, self).__init__(item)
 
 class Molecule(AbstractMolecule):
     def __init__(self, item):
-        super().__init__(item)
+        super(AbstractMolecule, self).__init__(item)
 
     @property
     def bonds(self):
@@ -118,7 +123,3 @@ class Molecule(AbstractMolecule):
         # export string
         string = ''.join(lines)
         return string
-
-    @property
-    def charge(self):
-        return
