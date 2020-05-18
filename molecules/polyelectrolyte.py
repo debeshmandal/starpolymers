@@ -1,11 +1,15 @@
 import random
 
 import numpy as np
+import pandas as pd
 
 from _common import Molecule
 from _common import PE_SPACING as spacing
 
 class LinearPolyelectrolyte(Molecule):
+    """
+    Linear Polyelectrolyte with given length
+    """
     def __init__(self, item):
         super(Molecule, self).__init__(item)
 
@@ -17,7 +21,24 @@ class LinearPolyelectrolyte(Molecule):
         """
         Returns dataframe with the following columns
         """
-        return
+        starting_point = self.settings['spacing']
+        direction = self.settings['direction'][0]
+        length = self._item['lam']
+        positions = np.array([
+            starting_point + direction * spacing * i for \
+                i in range(length)
+        ])
+
+        data = pd.DataFrame({
+            'mol' : len(positions) * [self.mol],
+            'type' : len(positions) * [self.atom_type],
+            'x' : positions[:, 0],
+            'y' : positions[:, 1],
+            'z' : positions[:, 2],
+            'q' : self.generate_charges()
+        })
+
+        return data
 
     def generate_bonds(self):
         return

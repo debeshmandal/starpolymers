@@ -1,5 +1,5 @@
 import pandas as pd
-
+from starpolymers.tools import geometry
 PE_SPACING = 1.0
 
 class _MoleculeRegistry():
@@ -12,16 +12,29 @@ class _MoleculeRegistry():
             'bonds' : ['id', 'type', 'atom_1', 'atom_2'],
             'angles' : ['id', 'type', 'atom_1', 'atom_2', 'atom_3']
         }
+        self.spacing = 1.
+        self.directions = geometry.direction
+
+    @property
+    def settings(self):
+        return {
+            'spacing' : self.spacing,
+            'direction' : self.directions
+        }
 
 registry = _MoleculeRegistry()
 
 class AbstractMolecule:
     def __init__(self, item, id=1):
-        self.molecule = item['molecule']
+        self._item = item
         self._atoms = pd.DataFrame(
             columns = registry.columns['atoms']
         )
         self._id = id
+
+    @property
+    def kind(self):
+        return self.item['molecule']
 
     @property
     def charge(self):
@@ -48,7 +61,7 @@ class AbstractMolecule:
             
             # create line
             line = '{} {} {} {} {} {} {}\n'.format(
-                molecule,
+                self.kind,
                 atom_type, 
                 charge,
                 x, 
@@ -61,12 +74,22 @@ class AbstractMolecule:
         string = ''.join(lines)
         return string
 
+    @property
+    def n(self):
+        @property
+        def atoms(self):
+            return len(self.atoms)
+        def bonds(self):
+            return len(self.bonds)
+        def angles(self):
+            return len(self.angles)
+
 class ParticleArray(AbstractMolecule):
     def __init__(self, item):
         AbstractMolecule.__init__(self, item)
 
 class Molecule(AbstractMolecule):
-    def __init__(self, item):
+    def __init__(self, item, settings=registry.settings):
         AbstractMolecule.__init__(self, item)
         self._bonds = pd.DataFrame(
             columns = registry.columns['bonds']
@@ -74,6 +97,7 @@ class Molecule(AbstractMolecule):
         self._angles = pd.DataFrame(
             columns = registry.columns['angles']
         )
+        self.settings = settings
 
     @property
     def bonds(self):
