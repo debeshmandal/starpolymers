@@ -61,27 +61,26 @@ class LinearPolyelectrolyte(Molecule):
         return data
 
     def generate_charges(self, positions):
+
+        charge = self._item['charge_max']
+        length = len(positions)
+
         def _all():
-            return
+            return [charge] * length
 
         def _random():
-            return
+            return [charge] * length
 
         def _diblock():
-            return
-        
-        if self._item['charge_style'] == 'all':
-            charge = self._item['charge_max']
-            # return _all()
-            return [charge] * len(positions)
-        
-        elif self._item['charge_style'] == 'random':
-            # return _random()
-            return [charge] * len(positions)
+            return [charge] * length
 
-        elif self._item['charge_style'] == 'diblock-regular':
-            # return _diblock()
-            return [charge] * len(positions)
+        functions = {
+            'all' : _all,
+            'random' : _random,
+            'diblock-regular' : _diblock
+        }
+
+        return functions[self._item['charge_style']]()
 
 class StarPolyelectrolyte(Molecule):
     def __init__(self, item):
