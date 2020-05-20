@@ -98,6 +98,28 @@ class StarPolyelectrolyte(Molecule):
     def generate_angles(self):
         return
 
+    def generate_charges(self, positions):
+
+        charge = self._item['charge_max']
+        length = len(positions)
+
+        def _all():
+            return [charge] * length
+
+        def _random():
+            return [charge] * length
+
+        def _diblock():
+            return [charge] * length
+
+        functions = {
+            'all' : _all,
+            'random' : _random,
+            'diblock-regular' : _diblock
+        }
+
+        return functions[self._item['charge_style']]()
+
 def central_centre_gen(n_atoms, kap, lam, angle_shift, atom_shift):
 
     """
