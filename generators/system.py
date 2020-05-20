@@ -1,8 +1,14 @@
 import numpy as np
+import pandas as pd
+
+from starpolymers.molecules._common import registry
 
 class System():
     def __init__(self, box, molecules=[], atom_masses=[1.0], bond_types=1, angle_types=1):
-        self._molecules = molecules
+
+        for i, molecule in enumerate(molecules):
+            self.add_molecule(molecule, mol=i+1)
+
         self._box = box
         self._masses = atom_masses
         self.types = {
@@ -10,10 +16,31 @@ class System():
             'bond' : bond_types,
             'angles' : angle_types
         }
+        self._atoms = pd.DataFrame(
+            columns = registry.columns['atoms']
+        )
+        self._bonds = pd.DataFrame(
+            columns = registry.columns['atoms']
+        )
+        self._angles = pd.DataFrame(
+            columns = registry.columns['angles']
+        )
         self.assert_neutral()
 
     def assert_neutral(self):
         assert True
+
+    @property
+    def atoms(self):
+        return self._atoms
+
+    @property
+    def bonds(self):
+        return self._bonds
+
+    @property
+    def angles(self):
+        return self._angles
     
     @property
     def box(self):
@@ -47,4 +74,13 @@ class System():
         }
 
     def add_molecule(self, molecule, mol=1):
-        return
+        def _atoms():
+            return
+        def _bonds():
+            return
+        def _angles():
+            return
+        
+        _atoms()
+        _bonds()
+        _angles()
