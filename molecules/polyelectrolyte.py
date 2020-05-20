@@ -11,7 +11,7 @@ class LinearPolyelectrolyte(Molecule):
     Linear Polyelectrolyte with given length
     """
     def __init__(self, item):
-        super(Molecule, self).__init__(item)
+        Molecule.__init__(self, item)
 
         self._atoms = self.generate_atoms()
         self._bonds = self.generate_bonds()
@@ -31,20 +31,57 @@ class LinearPolyelectrolyte(Molecule):
 
         data = pd.DataFrame({
             'mol' : len(positions) * [self.mol],
-            'type' : len(positions) * [self.atom_type],
+            'type' : len(positions) * [self.types['atom']],
             'x' : positions[:, 0],
             'y' : positions[:, 1],
             'z' : positions[:, 2],
-            'q' : self.generate_charges()
+            'q' : self.generate_charges(positions)
         })
 
         return data
 
     def generate_bonds(self):
-        return
+
+        data = pd.DataFrame({
+            'type' : (self.n['atoms']-1) * [self.types['bond']],
+            'atom_1' : np.arange(1, self.n['atoms']),
+            'atom_2' : np.arange(2, self.n['atoms']+1),
+        })
+
+        return data
 
     def generate_angles(self):
-        return
+        data = pd.DataFrame({
+            'type' : (self.n['atoms']-2) * [self.types['angle']],
+            'atom_1' : np.arange(1, self.n['atoms']-1),
+            'atom_2' : np.arange(2, self.n['atoms']),
+            'atom_3' : np.arange(3, self.n['atoms']+1),
+        })
+
+        return data
+
+    def generate_charges(self, positions):
+        def _all():
+            return
+
+        def _random():
+            return
+
+        def _diblock():
+            return
+        
+        if self._item['charge_style'] == 'all':
+            charge = self._item['charge_max']
+            # return _all()
+            return [charge] * len(positions)
+        
+        elif self._item['charge_style'] == 'random':
+            # return _random()
+            return [charge] * len(positions)
+
+        elif self._item['charge_style'] == 'diblock-regular':
+            # return _diblock()
+            return [charge] * len(positions)
 
 class StarPolyelectrolyte(Molecule):
     def __init__(self, item):

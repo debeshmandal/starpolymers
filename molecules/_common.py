@@ -9,8 +9,8 @@ class _MoleculeRegistry():
         self.molecule_list = self.lam_list + self.salt_list
         self.columns = {
             'atoms' : ['type', 'q', 'x', 'y', 'z'],
-            'bonds' : ['id', 'type', 'atom_1', 'atom_2'],
-            'angles' : ['id', 'type', 'atom_1', 'atom_2', 'atom_3']
+            'bonds' : ['type', 'atom_1', 'atom_2'],
+            'angles' : ['type', 'atom_1', 'atom_2', 'atom_3']
         }
         self.spacing = 1.
         self.directions = geometry.direction
@@ -76,21 +76,20 @@ class AbstractMolecule:
 
     @property
     def n(self):
-        @property
-        def atoms(self):
-            return len(self.atoms)
-        def bonds(self):
-            return len(self.bonds)
-        def angles(self):
-            return len(self.angles)
+        return {
+            'atoms' : len(self._atoms),
+            'bonds' : len(self._bonds),
+            'angles' : len(self._angles)
+        }
 
 class ParticleArray(AbstractMolecule):
     def __init__(self, item):
         AbstractMolecule.__init__(self, item)
 
 class Molecule(AbstractMolecule):
-    def __init__(self, item, settings=registry.settings):
+    def __init__(self, item, settings=registry.settings, mol=1):
         AbstractMolecule.__init__(self, item)
+        self.mol = mol
         self._bonds = pd.DataFrame(
             columns = registry.columns['bonds']
         )
@@ -98,6 +97,11 @@ class Molecule(AbstractMolecule):
             columns = registry.columns['angles']
         )
         self.settings = settings
+        self.types = {
+            'atom' : item.get('atom_type', 1),
+            'bond' : item.get('bond_type', 1),
+            'angle' : item.get('angle_type', 1)
+        }
 
     @property
     def bonds(self):
