@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from starpolymers.molecules._common import registry
+from starpolymers.molecules._common import registry, AbstractMolecule
 
 class System():
     def __init__(self, box, molecules=[], atom_masses=[1.0], bond_types=1, angle_types=1):
@@ -54,18 +54,6 @@ class System():
         }
 
     @property
-    def atom_types(self):
-        return self.types['atom']
-
-    @property
-    def bond_types(self):
-        return self.types['bond']
-
-    @property
-    def angle_types(self):
-        return self.types['angle']
-
-    @property
     def n(self):
         return {
             'atoms' : len(self.atoms),
@@ -73,7 +61,12 @@ class System():
             'angles' : len(self.angles)
         }
 
-    def add_molecule(self, molecule, mol=1):
+    def add_molecule(self, molecule, mol=1
+    ):
+        if not isinstance(molecule, AbstractMolecule):
+            raise TypeError(
+                'A molecule that is not an '
+                'instance of abstract molecule was passed to system')
         def _atoms():
             return
         def _bonds():
