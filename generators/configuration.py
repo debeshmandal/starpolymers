@@ -1,4 +1,4 @@
-from generators.system import System
+from system import System
 import datetime
 
 class ConfigFile():
