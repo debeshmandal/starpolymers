@@ -9,12 +9,12 @@ class System():
         for i, molecule in enumerate(molecules):
             self.add_molecule(molecule, mol=i+1)
 
-        self._box = box
+        self._box = float(box)
         self._masses = atom_masses
         self.types = {
             'atom' : len(atom_masses),
             'bond' : bond_types,
-            'angles' : angle_types
+            'angle' : angle_types
         }
         self._atoms = pd.DataFrame(
             columns = registry.columns['atoms']

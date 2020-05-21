@@ -84,7 +84,7 @@ class LinearPolyelectrolyte(Molecule):
 
 class StarPolyelectrolyte(Molecule):
     def __init__(self, item):
-        super(Molecule, self).__init__(item)
+        Molecule.__init__(self, item)
         self._atoms = self.generate_atoms()
         self._bonds = self.generate_bonds()
         self._angles = self.generate_angles()

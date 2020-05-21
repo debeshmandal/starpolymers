@@ -9,8 +9,7 @@ class MoleculeFactory():
             'dna' : LinearPolyelectrolyte,
             'salt' : Salt
         }
-        self._function = self.registry[item_list['molecule']]
-    
-    @property
-    def molecules(self):
-        return self._function(self.item)
+        self.molecules = []
+        for item in item_list:
+            mol = self.registry[item['molecule']](item)
+            self.molecules.append(mol)

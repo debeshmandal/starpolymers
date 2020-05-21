@@ -8,7 +8,7 @@ class ConfigFile():
     def write(self, fname='config.dat'):
         with open(fname, 'w') as f:
             f.write(self.comments)
-            f.write(self.headers)
+            f.write(self.header)
             f.write(self.atoms)
             f.write(self.bonds)
             f.write(self.angles)
