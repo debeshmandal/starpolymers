@@ -1,0 +1,19 @@
+{
+    "molecules" : [
+        {
+            "molecule": "dna",
+            "lam": 21,
+            "charge_style": "all",
+            "charge_max": -3,
+            "central" : "all",
+            "counterions": false,
+            "angle_type": 1
+        },
+        {
+            "molecule": "salt",
+            "anion" : 1,
+            "cation" : 2,
+            "concentration": 10
+        }
+    ]
+}

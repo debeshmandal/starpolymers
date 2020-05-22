@@ -10,9 +10,8 @@ class LinearPolyelectrolyte(Molecule):
     """
     Linear Polyelectrolyte with given length
     """
-    def __init__(self, item):
-        Molecule.__init__(self, item)
-
+    def __init__(self, item, **kwargs):
+        Molecule.__init__(self, item, **kwargs)
         self._atoms = self.generate_atoms()
         self._bonds = self.generate_bonds()
         self._angles = self.generate_angles()
@@ -62,7 +61,7 @@ class LinearPolyelectrolyte(Molecule):
 
     def generate_charges(self, positions):
 
-        charge = self._item['charge_max']
+        charge = float(self._item['charge_max'])
         length = len(positions)
 
         def _all():
@@ -83,8 +82,8 @@ class LinearPolyelectrolyte(Molecule):
         return functions[self._item['charge_style']]()
 
 class StarPolyelectrolyte(Molecule):
-    def __init__(self, item):
-        Molecule.__init__(self, item)
+    def __init__(self, item, **kwargs):
+        Molecule.__init__(self, item, **kwargs)
         self._atoms = self.generate_atoms()
         self._bonds = self.generate_bonds()
         self._angles = self.generate_angles()

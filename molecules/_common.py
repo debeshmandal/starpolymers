@@ -25,12 +25,21 @@ class _MoleculeRegistry():
 registry = _MoleculeRegistry()
 
 class AbstractMolecule:
-    def __init__(self, item, id=1):
+    def __init__(self, item, settings=registry.settings, mol=1, **kwargs):
+        
         self._item = item
         self._atoms = pd.DataFrame(
             columns = registry.columns['atoms']
         )
-        self._id = id
+        self._bonds = pd.DataFrame(
+            columns = registry.columns['bonds']
+        )
+        self._angles = pd.DataFrame(
+            columns = registry.columns['angles']
+        )
+        self.settings = settings
+        self.mol = mol
+        self._kwargs = kwargs
 
     @property
     def kind(self):
@@ -83,20 +92,13 @@ class AbstractMolecule:
         }
 
 class ParticleArray(AbstractMolecule):
-    def __init__(self, item):
-        AbstractMolecule.__init__(self, item)
+    def __init__(self, item, **kwargs):
+        AbstractMolecule.__init__(self, item, **kwargs)
+        self.types = {'atom' : item.get('atom_type', 1)}
 
 class Molecule(AbstractMolecule):
-    def __init__(self, item, settings=registry.settings, mol=1):
-        AbstractMolecule.__init__(self, item)
-        self.mol = mol
-        self._bonds = pd.DataFrame(
-            columns = registry.columns['bonds']
-        )
-        self._angles = pd.DataFrame(
-            columns = registry.columns['angles']
-        )
-        self.settings = settings
+    def __init__(self, item, **kwargs):
+        AbstractMolecule.__init__(self, item, **kwargs)
         self.types = {
             'atom' : item.get('atom_type', 1),
             'bond' : item.get('bond_type', 1),
