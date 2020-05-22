@@ -31,7 +31,7 @@ class System():
             self.add_molecule(molecule)
 
     def assert_neutral(self):
-        assert True
+        assert self.charge == 0
 
     @property
     def atoms(self):
@@ -135,5 +135,5 @@ class System():
                 })
             ], sort=True).reset_index(drop=True)
         
-        assert self.charge == 0
+        self.assert_neutral()
         return

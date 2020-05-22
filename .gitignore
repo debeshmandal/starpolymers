@@ -2,4 +2,4 @@
 .vscode
 .cache
 __pycache__
-*/test_config.dat
+./test/configs/*/test_config.dat
