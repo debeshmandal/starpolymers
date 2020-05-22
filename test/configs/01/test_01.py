@@ -25,7 +25,7 @@ def _generate(fout):
     config.write(fout)
 
 def test_01():
-    fout = '{}/new.dat'.format(ROOT)
+    fout = '{}/test_config.dat'.format(ROOT)
     _generate(fout)
     assert ConfigFile.validate(fout)
     assert ConfigFile.compare('{}/config.dat'.format(ROOT), fout)
