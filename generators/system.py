@@ -6,9 +6,7 @@ from starpolymers.molecules._common import registry, AbstractMolecule
 class System():
     def __init__(self, box, molecules=[], atom_masses=[1.0], bond_types=1, angle_types=1):
 
-        for i, molecule in enumerate(molecules):
-            self.add_molecule(molecule, mol=i+1)
-
+        self._molecules = int(0)
         self._box = float(box)
         self._masses = atom_masses
         self.types = {
@@ -17,7 +15,7 @@ class System():
             'angle' : angle_types
         }
         self._atoms = pd.DataFrame(
-            columns = registry.columns['atoms']
+            columns = ['mol'] + registry.columns['atoms']
         )
         self._bonds = pd.DataFrame(
             columns = registry.columns['atoms']
@@ -26,6 +24,9 @@ class System():
             columns = registry.columns['angles']
         )
         self.assert_neutral()
+
+        for molecule in molecules:
+            self.add_molecule(molecule)
 
     def assert_neutral(self):
         assert True
@@ -58,22 +59,26 @@ class System():
         return {
             'atoms' : len(self.atoms),
             'bonds' : len(self.bonds),
-            'angles' : len(self.angles)
+            'angles' : len(self.angles),
+            'molecules' : self._molecules
         }
 
-    def add_molecule(self, molecule, mol=1
-    ):
-        if not isinstance(molecule, AbstractMolecule):
-            raise TypeError(
-                'A molecule that is not an '
-                'instance of abstract molecule was passed to system')
+    def add_molecule(self, molecule):
+        #if not isinstance(molecule, AbstractMolecule):
+        #    raise TypeError(
+        #        'A molecule that is not an '
+        #        'instance of abstract molecule was passed to system')
         def _atoms():
-            return
+            _temp = molecule._atoms.copy()
+            _temp['mol'] = self._molecules + 1
+            self._atoms = pd.concat([self._atoms, _temp], sort=False)
+
         def _bonds():
-            return
+            self._bonds = pd.concat([self._bonds, molecule._bonds], sort=False)
         def _angles():
-            return
+            self._angles = pd.concat([self._angles, molecule._angles], sort=False)
         
         _atoms()
         _bonds()
         _angles()
+        self._molecules += 1

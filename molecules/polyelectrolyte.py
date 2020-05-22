@@ -44,8 +44,8 @@ class LinearPolyelectrolyte(Molecule):
 
         data = pd.DataFrame({
             'type' : (self.n['atoms']-1) * [self.types['bond']],
-            'atom_1' : np.arange(1, self.n['atoms']),
-            'atom_2' : np.arange(2, self.n['atoms']+1),
+            'atom_1' : range(1, self.n['atoms']),
+            'atom_2' : range(2, self.n['atoms']+1),
         })
 
         return data
@@ -53,9 +53,9 @@ class LinearPolyelectrolyte(Molecule):
     def generate_angles(self):
         data = pd.DataFrame({
             'type' : (self.n['atoms']-2) * [self.types['angle']],
-            'atom_1' : np.arange(1, self.n['atoms']-1),
-            'atom_2' : np.arange(2, self.n['atoms']),
-            'atom_3' : np.arange(3, self.n['atoms']+1),
+            'atom_1' : range(1, self.n['atoms']-1),
+            'atom_2' : range(2, self.n['atoms']),
+            'atom_3' : range(3, self.n['atoms']+1),
         })
 
         return data
