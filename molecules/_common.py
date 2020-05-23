@@ -1,6 +1,5 @@
 import pandas as pd
 from starpolymers.tools import geometry
-PE_SPACING = 1.0
 
 class _MoleculeRegistry():
     def __init__(self):

@@ -25,10 +25,18 @@ class System():
         self._angles = pd.DataFrame(
             columns = registry.columns['angles']
         )
-        self.assert_neutral()
 
-        for molecule in molecules:
+        for i, molecule in enumerate(molecules):
+            if molecule._item['molecule'] == 'salt':
+                mol, salt = i, molecule
             self.add_molecule(molecule)
+
+        try:
+            self.assert_neutral()
+        except AssertionError:
+            self.neutralise(salt, mol=mol)
+
+        self.assert_neutral()
 
     def assert_neutral(self):
         assert self.charge == 0
@@ -90,7 +98,7 @@ class System():
         _angles()
         self._molecules += 1
 
-    def neutralise(self, salt):
+    def neutralise(self, salt, mol=None):
 
         def difference(_delta, n_anions, anion, n_cations, cation):
             diff = (n_anions * -anion + n_cations * cation) + _delta
@@ -124,9 +132,13 @@ class System():
                 raise StopIteration
             
         n = int(n_cations + n_anions)
+
+        if mol == None:
+            mol = self._molecules
+        
         self._atoms = pd.concat([self._atoms,
             pd.DataFrame({
-                    'mol' : n * [self._molecules],
+                    'mol' : n * [mol],
                     'type' : n * [salt._atoms['type'][0]],
                     'x' : np.random.uniform(size=(n, 1)).T[0],
                     'y' : np.random.uniform(size=(n, 1)).T[0],
@@ -137,3 +149,7 @@ class System():
         
         self.assert_neutral()
         return
+
+class SystemJSON():
+    def __init__(self, json_path):
+        pass
