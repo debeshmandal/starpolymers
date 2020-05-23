@@ -1,12 +1,12 @@
 {
     "molecules" : [
         {
-            "molecule": "star",
-            "kap": 4,
+            "molecule": "dna",
             "lam": 5,
             "charge" : {
-                "style" : "all",
-                "max" : 1.0
+                "style" : "random",
+                "max" : 1,
+                "ratio" : 0.2
             },
             "central" : "all",
             "angle_type": 1

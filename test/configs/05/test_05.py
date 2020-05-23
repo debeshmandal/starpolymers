@@ -22,14 +22,14 @@ def _generate(fout):
     box = 50
     molecules = MoleculeFactory(_parse_molecules(f_mol), box=box).molecules
     system = System(50, molecules=molecules)
-    config = ConfigFile(system, comment='Star Polyelectrolyte in Neutral system')
+    config = ConfigFile(system, comment='Statistical Star Co-Polyelectrolyte in Neutral system')
     config.write(fout)
 
-def test_05():
+def test_04():
     fout = '{}/test_config.dat'.format(ROOT)
     _generate(fout)
     assert ConfigFile.validate(fout)
     assert ConfigFile.compare('{}/config.dat'.format(ROOT), fout)
 
 if __name__ == '__main__':
-    test_05()
+    test_04()
