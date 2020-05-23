@@ -61,14 +61,23 @@ class LinearPolyelectrolyte(Molecule):
 
     def generate_charges(self, positions):
 
-        charge = float(self._item['charge_max'])
+        charge = float(self._item['charge']['max'])
         length = len(positions)
 
         def _all():
             return [charge] * length
 
         def _random():
-            return [charge] * length
+            _n = len(positions)
+            _ratio = self._item['charge']['ratio']
+            if _ratio > 1.0:
+                raise ValueError('Charge ratio ({}) is greater than 1.'.format(_ratio))
+            _n_charges = int((1-_ratio) * _n)
+            indexes = sorted(random.sample(range(_n), _n_charges))
+            charge_list = [charge] * length
+            for i in indexes:
+                charge_list[i] = 0.0
+            return charge_list
 
         def _diblock():
             return [charge] * length
@@ -79,7 +88,7 @@ class LinearPolyelectrolyte(Molecule):
             'diblock-regular' : _diblock
         }
 
-        return functions[self._item['charge_style']]()
+        return functions[self._item['charge']['style']]()
 
 class StarPolyelectrolyte(Molecule):
     def __init__(self, item, **kwargs):
@@ -182,15 +191,24 @@ class StarPolyelectrolyte(Molecule):
         return pd.DataFrame(data)
 
     def generate_charges(self, positions):
-
-        charge = float(self._item['charge_max'])
+        
+        charge = float(self._item['charge']['max'])
         length = len(positions)
 
         def _all():
             return [charge] * length
 
         def _random():
-            return [charge] * length
+            _n = len(positions)
+            _ratio = self._item['charge']['ratio']
+            if _ratio > 1.0:
+                raise ValueError('Charge ratio ({}) is greater than 1.'.format(_ratio))
+            _n_charges = int((1-_ratio) * _n)
+            indexes = sorted(random.sample(range(_n), _n_charges))
+            charge_list = [charge] * length
+            for i in indexes:
+                charge_list[i] = 0.0
+            return charge_list
 
         def _diblock():
             return [charge] * length
@@ -201,4 +219,4 @@ class StarPolyelectrolyte(Molecule):
             'diblock-regular' : _diblock
         }
 
-        return functions[self._item['charge_style']]()
+        return functions[self._item['charge']['style']]()

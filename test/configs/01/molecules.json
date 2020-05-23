@@ -3,8 +3,10 @@
         {
             "molecule": "dna",
             "lam": 21,
-            "charge_style": "all",
-            "charge_max": 0,
+            "charge" : {
+                "style" : "all",
+                "max" : 0.0
+            },
             "central" : "all",
             "counterions": false,
             "angle_type": 1

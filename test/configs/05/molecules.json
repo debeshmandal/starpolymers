@@ -4,8 +4,10 @@
             "molecule": "star",
             "kap": 4,
             "lam": 5,
-            "charge_style": "all",
-            "charge_max": 1,
+            "charge" : {
+                "style" : "all",
+                "max" : 1.0
+            },
             "central" : "all",
             "angle_type": 1
         },

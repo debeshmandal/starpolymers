@@ -22,7 +22,7 @@ def _generate(fout):
     box = 50
     molecules = MoleculeFactory(_parse_molecules(f_mol), box=box).molecules
     system = System(50, molecules=molecules)
-    config = ConfigFile(system, comment='Star Polyelectrolyte in Neutral system')
+    config = ConfigFile(system, comment='Statistical Star Polyelectrolyte in Neutral system')
     config.write(fout)
 
 def test_04():

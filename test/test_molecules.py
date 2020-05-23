@@ -18,25 +18,7 @@ def test__common():
     return
 
 def test_polyelectrolyte():
-    polyelectrolyte.LinearPolyelectrolyte({
-        'molecule': 'DNA',
-        'kap': 1,
-        'lam': 21,
-        'charge_style': 'all',
-        'charge_max': -1,
-        'counterions': False,
-        'angle_type': 1
-    })
-    #polyelectrolye.StarPolyelectrolyte({
-    #    'molecule': 'star',
-    #    'kap': 10,
-    #    'lam': 3,
-    #    'charge_style': 'all',
-    #    'charge_max': 1,
-    #    'central' : 'all',
-    #    'counterions':False,
-    #    'angle_type': 1
-    #})
+    return
     
 def test_MoleculeFactory():
     return
