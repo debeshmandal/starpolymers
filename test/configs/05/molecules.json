@@ -1,0 +1,19 @@
+{
+    "molecules" : [
+        {
+            "molecule": "star",
+            "kap": 4,
+            "lam": 5,
+            "charge_style": "all",
+            "charge_max": 1,
+            "central" : "all",
+            "angle_type": 1
+        },
+        {
+            "molecule": "salt",
+            "anion" : 1,
+            "cation" : 1,
+            "concentration": 10
+        }
+    ]
+}
