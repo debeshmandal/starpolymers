@@ -29,7 +29,7 @@ def test_03():
     fout = '{}/test_config.dat'.format(ROOT)
     _generate(fout)
     assert ConfigFile.validate(fout)
-    #assert ConfigFile.compare('{}/config.dat'.format(ROOT), fout)
+    assert ConfigFile.compare('{}/config.dat'.format(ROOT), fout)
 
 if __name__ == '__main__':
     test_03()
