@@ -105,6 +105,10 @@ class StarPolyelectrolyte(Molecule):
                 y.append((mol_length-(j*spacing))*direction[i][1])
                 z.append((mol_length-(j*spacing))*direction[i][2])
 
+        x.append(0.0)
+        y.append(0.0)
+        z.append(0.0)
+
         data = pd.DataFrame({
                 'mol' : len(x) * [self.mol],
                 'type' : len(x) * [self.types['atom']],
@@ -117,19 +121,50 @@ class StarPolyelectrolyte(Molecule):
         return data
 
     def generate_bonds(self):
-        return self._bonds
+
+        m_bonds = self.kap * self.lam
+        data = {
+            'type' : [],
+            'atom_1' : [],
+            'atom_2' : []
+        }
+            
+        for i in range(m_bonds):
+            atom_1 = i+1
+            
+            if (i+1) % self.lam == 0:      
+                atom_2 = self.n['atoms']                       
+            else:
+                atom_2 = i+2
+
+            data['type'].append(self._item.get('bond_type', 1))
+            data['atom_1'].append(atom_1)
+            data['atom_2'].append(atom_2)
+
+        return pd.DataFrame(data)
 
     def generate_angles(self):
         lam = self.lam
         kap = self.kap
-        n_start = lam+1
-        k=0
         data = {
             'type' : [],
             'atom_1' : [],
             'atom_2' : [],
             'atom_3' : []
         }
+
+        for i in range(kap):
+            for j in range(lam-2):
+                data['type'].append(self._item.get('angle_type', 1))
+                data['atom_1'].append(lam*i+1+j)
+                data['atom_2'].append(lam*i+2+j)
+                data['atom_3'].append(lam*i+3+j)
+
+        for i in range(kap):
+            data['type'].append(self._item.get('angle_type', 1))
+            data['atom_1'].append((i+1)*lam-1)
+            data['atom_2'].append((i+1)*lam)
+            data['atom_3'].append(self.n['atoms'])
 
         for j in reversed(range(kap+1)):
             if j > 2:
@@ -148,7 +183,7 @@ class StarPolyelectrolyte(Molecule):
 
     def generate_charges(self, positions):
 
-        charge = self._item['charge_max']
+        charge = float(self._item['charge_max'])
         length = len(positions)
 
         def _all():
