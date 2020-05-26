@@ -88,7 +88,7 @@ class LinearPolyelectrolyte(Molecule):
             'diblock-regular' : _diblock
         }
 
-        return functions[self._item['charge']['style']]()
+        return functions[self._item['charge'].get('style', 'all')]()
 
 class StarPolyelectrolyte(Molecule):
     def __init__(self, item, **kwargs):
@@ -240,4 +240,4 @@ class StarPolyelectrolyte(Molecule):
             'diblock-regular' : _diblock
         }
 
-        return functions[self._item['charge']['style']]()
+        return functions[self._item['charge'].get('style', 'all')]()
