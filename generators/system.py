@@ -6,7 +6,7 @@ from starpolymers.molecules._common import registry, AbstractMolecule
 
 
 class System():
-    def __init__(self, box, molecules=[], atom_masses=[1.0], bond_types=1, angle_types=1):
+    def __init__(self, box, molecules=[], atom_masses=[1.0], bond_types=1, angle_types=1, threshold=2.0):
 
         self._molecules = int(0)
         self._box = float(box)
@@ -37,6 +37,14 @@ class System():
             self.neutralise(salt, mol=mol)
 
         self.assert_neutral()
+        self.check_overlap(threshold)
+
+    def check_overlap(self, threshold):
+        # get distances between all atoms
+        # for atoms that have a row that is below the threshold
+        # distance
+        return
+
 
     def assert_neutral(self):
         assert self.charge == 0
@@ -86,6 +94,9 @@ class System():
         def _atoms():
             _temp = molecule._atoms.copy()
             _temp['mol'] = self._molecules + 1
+            _temp['x'] = _temp['x'].values + registry.start[self._molecules, 0] * self._box[0]
+            _temp['y'] = _temp['y'].values + registry.start[self._molecules, 1] * self._box[1]
+            _temp['z'] = _temp['z'].values + registry.start[self._molecules, 2] * self._box[2]
             self._atoms = pd.concat([self._atoms, _temp], sort=False).reset_index(drop=True)
 
         def _bonds():

@@ -13,6 +13,7 @@ class _MoleculeRegistry():
         }
         self.spacing = 1.
         self.directions = geometry.direction
+        self.start = geometry.translation
 
     @property
     def settings(self):
