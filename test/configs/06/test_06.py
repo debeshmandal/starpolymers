@@ -25,11 +25,11 @@ def _generate(fout):
     config = ConfigFile(system, comment='Statistical Star Co-Polyelectrolyte in Neutral system')
     config.write(fout)
 
-def test_05():
+def test_06():
     fout = '{}/test_config.dat'.format(ROOT)
     _generate(fout)
     assert ConfigFile.validate(fout)
     assert ConfigFile.compare('{}/config.dat'.format(ROOT), fout)
 
 if __name__ == '__main__':
-    test_05()
+    test_06()
