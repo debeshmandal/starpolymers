@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Example file generation for a linear polyelectrolyte in a neutral system
+Example file generation for many diblock star polyelectrolytes
 """
 from starpolymers import MoleculeFactory, System, ConfigFile
 import pytest
@@ -21,8 +21,8 @@ def _generate(fout):
     f_mol = '{}/molecules.json'.format(ROOT)
     box = 50
     molecules = MoleculeFactory(_parse_molecules(f_mol), box=box).molecules
-    system = System(50, molecules=molecules)
-    config = ConfigFile(system, comment='Statistical Star Co-Polyelectrolyte in Neutral system')
+    system = System(box, molecules=molecules)
+    config = ConfigFile(system, comment='Many diblock Star CoPolyelectrolytes in Neutral system')
     config.write(fout)
 
 def test_06():

@@ -211,7 +211,28 @@ class StarPolyelectrolyte(Molecule):
             return charge_list
 
         def _diblock():
-            return [charge] * length
+            params = self._item['charge']
+            q = params['max']
+            ratio = params['ratio']
+            position = params['position'] # should be core or tail
+            if position not in ['core', 'tail']:
+                raise ValueError(
+                    "item['charge']['position']"
+                    " should be 'core' or tail but is {}".format(position)
+                )
+            n_charges_per_arm = int(ratio * self.lam)
+            arm_list = np.array([charge] * self.lam)
+
+            # the PEs tail is where the 0th index is
+            if position == 'core':
+                arm_list[:n_charges_per_arm] = 0.0
+            elif position == 'tail':
+                arm_list[n_charges_per_arm:] = 0.0
+        
+            arm_list = np.concatenate([arm_list] * self.kap)
+            arm_list = np.concatenate([arm_list, np.array([params.get('central', q)])])
+            assert len(arm_list) == len(positions)
+            return arm_list
 
         functions = {
             'all' : _all,
