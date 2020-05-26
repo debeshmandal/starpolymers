@@ -94,9 +94,9 @@ class System():
         def _atoms():
             _temp = molecule._atoms.copy()
             _temp['mol'] = self._molecules + 1
-            _temp['x'] = _temp['x'].values + registry.start[self._molecules, 0] * self._box[0]
-            _temp['y'] = _temp['y'].values + registry.start[self._molecules, 1] * self._box[1]
-            _temp['z'] = _temp['z'].values + registry.start[self._molecules, 2] * self._box[2]
+            _temp['x'] = _temp['x'].values + registry.start[self._molecules, 0] * self.box['xhi']
+            _temp['y'] = _temp['y'].values + registry.start[self._molecules, 1] * self.box['yhi']
+            _temp['z'] = _temp['z'].values + registry.start[self._molecules, 2] * self.box['zhi']
             self._atoms = pd.concat([self._atoms, _temp], sort=False).reset_index(drop=True)
 
         def _bonds():
