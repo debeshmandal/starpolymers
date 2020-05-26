@@ -1,0 +1,31 @@
+{
+    "molecules" : [
+        {
+            "molecule": "star",
+            "kap": 3,
+            "lam": 16,
+            "charge" : {
+                "style" : "diblock-regular",
+                "max" : 1,
+                "ratio" : 0.2,
+                "position" : "core"
+            },
+            "central" : "all",
+            "angle_type": 1
+        },
+        {
+            "molecule": "dna",
+            "lam": 21,
+            "charge" : {
+                "max" : -3
+            },
+            "angle_type": 2
+        },
+        {
+            "molecule": "salt",
+            "anion" : 1,
+            "cation" : 1,
+            "concentration": 1000
+        }
+    ]
+}
