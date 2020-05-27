@@ -1,4 +1,5 @@
 import os.path as path
+import re
 
 """
 Objects used for scripting the generation of LAMMPS input files
@@ -47,16 +48,29 @@ class Entry(object):
 class Variable(Entry):
     def __init__(self, name, value):
         Entry.__init__(self, name, value)
+        try:
+            self.params = float(self.params)
+            self.equals = 'equal'
+        except ValueError:
+            self.equals = 'string'
 
     @property
     def string(self):
-        l_type = 'string' if isinstance(self.params, str) else 'equal'
         return "{} {} {} {}".format(
             type(self).__name__.lower(),
             self.name,
-            l_type,
+            self.equals,
             self.params
         )
+
+    @property
+    def regex(self):
+        pattern = r"(\nvariable {} {}) [A-z|0-9]+(\n)".format(
+            self.name,
+            self.equals
+        )
+        replacement = '\\1 {}\\2'.format(self.params)
+        return pattern, replacement
 
 class Fix(Entry):
     def __init__(self):
@@ -77,6 +91,7 @@ class Template():
     be written.
     """
     def __init__(self, f_template):
+        self._string = ''
         self._variables = []
         self._fixes = []
         self._dumps = []
@@ -86,7 +101,8 @@ class Template():
         
     def read(self, fname):
         with open(fname, 'r') as f:
-            for i, line in enumerate(f):
+            self._string += f.read()
+            for i, line in enumerate(self._string.split('\n')):
                 line_list = line.split()
                 if len(line_list) == 0: continue
 
@@ -101,18 +117,25 @@ class Template():
     def write(self):
         return
 
+    def update(self, entry_obj):
+        if not isinstance(entry_obj, Entry):
+            raise TypeError('entry_obj should be an Entry object')
+        if isinstance(entry_obj, Variable):
+            self._set_variable(entry_obj.name, entry_obj.params)
+            self._string = re.sub(
+                    entry_obj.regex[0],
+                    entry_obj.regex[1],
+                    self._string
+                )
+
     @property
     def variables(self):
-        entry_list = []
         return self._variables
         
-
-    @variables.setter
-    def variables(self, name, value):
+    def _set_variable(self, name, value):
         for variable in self._variables:
             if variable.name == name:
                 variable.params = value
-                return
 
     @variables.getter
     def variables(self):
