@@ -2,3 +2,5 @@
 .vscode
 .cache
 __pycache__
+test/configs/*/test_config.dat
+.pytest_cache

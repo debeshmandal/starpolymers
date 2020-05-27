@@ -1,0 +1,50 @@
+{
+    "molecules" : [
+        {
+            "molecule": "star",
+            "kap": 6,
+            "lam": 8,
+            "charge" : {
+                "style" : "diblock-regular",
+                "max" : 1,
+                "ratio" : 0.2,
+                "position" : "core"
+            },
+            "central" : "all",
+            "angle_type": 1
+        },
+        {
+            "molecule": "star",
+            "kap": 4,
+            "lam": 5,
+            "charge" : {
+                "style" : "diblock-regular",
+                "max" : 1,
+                "ratio" : 0.8,
+                "position" : "tail"
+            },
+            "central" : "all",
+            "angle_type": 1
+        },
+        {
+            "molecule": "star",
+            "kap": 7,
+            "lam": 6,
+            "charge" : {
+                "style" : "diblock-regular",
+                "max" : -1,
+                "ratio" : 0.2,
+                "position" : "tail",
+                "central" : 0.0
+            },
+            "central" : "all",
+            "angle_type": 1
+        },
+        {
+            "molecule": "salt",
+            "anion" : 1,
+            "cation" : 1,
+            "concentration": 500
+        }
+    ]
+}
