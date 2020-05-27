@@ -1,6 +1,10 @@
 """
 Objects used for scripting the generation of LAMMPS input files
 """
+
+templates = {
+    '01_master' : Template('./input_files/_01_master.in')
+}
 class Template():
     """
     Read a template input file, return an object that has parsed all of the 
@@ -9,7 +13,6 @@ class Template():
     """
     def __init__(self, f_template):
         self._fname = f_template
-        
         pass
 
     @property
@@ -18,7 +21,7 @@ class Template():
         return entry_list
 
     @variables.setter
-    def variables(self):
+    def variables(self, name, value):
         return
 
     @variables.getter
@@ -180,12 +183,12 @@ class Variable(Entry):
 
 class Fix(Entry):
     def __init__(self):
-        pass
+        raise NotImplementedError
 
 class Compute(Entry):
     def __init__(self):
-        pass
+        raise NotImplementedError
 
 class Dump(Entry):
     def __init__(self):
-        pass
+        raise NotImplementedError
