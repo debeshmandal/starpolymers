@@ -1,6 +1,15 @@
 """
 Objects used for scripting the generation of LAMMPS input files
 """
+class Template():
+    """
+    Read a template input file, return an object that has parsed all of the 
+    variables which are the only changeable things in a new file that can
+    be written.
+    """
+    def __init__(self, f_template):
+        pass
+
 class InputFile():
     """
     Takes a template LAMMPS input file and parses the lines
