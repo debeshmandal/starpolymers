@@ -114,8 +114,9 @@ class Template():
                         ))
         return
 
-    def write(self):
-        return
+    def write(self, fout):
+        with open(fout, 'w') as f:
+            f.write(self._string)
 
     def update(self, entry_obj):
         if not isinstance(entry_obj, Entry):
