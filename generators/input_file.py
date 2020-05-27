@@ -8,7 +8,60 @@ class Template():
     be written.
     """
     def __init__(self, f_template):
+        self._fname = f_template
+        
         pass
+
+    @property
+    def variables(self):
+        entry_list = []
+        return entry_list
+
+    @variables.setter
+    def variables(self):
+        return
+
+    @variables.getter
+    def variables(self):
+        return
+
+    @property
+    def fixes(self):
+        raise NotImplementedError
+
+    @fixes.setter
+    def fixes(self):
+        raise NotImplementedError
+
+    @fixes.getter
+    def fixes(self):
+        raise NotImplementedError
+
+    @property
+    def computes(self):
+        raise NotImplementedError
+
+    @computes.setter
+    def computes(self):
+        raise NotImplementedError
+
+    @computes.getter
+    def computes(self):
+        raise NotImplementedError
+
+    @property
+    def dumps(self):
+        raise NotImplementedError
+
+    @dumps.setter
+    def dumps(self):
+        raise NotImplementedError
+
+    @dumps.getter
+    def dumps(self):
+        raise NotImplementedError
+
+    
 
 class InputFile():
     """
@@ -76,22 +129,21 @@ class Entry(object):
     """
     Stores a setting used in a LAMMPS input file
     """
-    def __init__(self, kind, params, name=None):
+    def __init__(self, name, params):
         """
         >>> Entry('variable', 100, name='kap')
         Entry(variable[kap]: 100)
         """
-        self.kind = kind
-        self.params = params
         self.name = name
-
+        self.params = params
+        
     def __repr__(self):
         if self.name == None:
             name = ''
         else:
             name = self.name
-        return "Entry({}[{}]: {})".format(
-            self.kind,
+        return "{}([{}]: {})".format(
+            type(self).__name__,
             name,
             self.params
         )
@@ -112,3 +164,28 @@ class Entry(object):
             else:
                 return True
                 
+class Variable(Entry):
+    def __init__(self, name, value):
+        Entry.__init__(self, name, value)
+
+    @property
+    def string(self):
+        l_type = 'string' if isinstance(self.params, str) else 'equal'
+        return "{} {} {} {}".format(
+            type(self).__name__.lower(),
+            self.name,
+            l_type,
+            self.params
+        )
+
+class Fix(Entry):
+    def __init__(self):
+        pass
+
+class Compute(Entry):
+    def __init__(self):
+        pass
+
+class Dump(Entry):
+    def __init__(self):
+        pass
