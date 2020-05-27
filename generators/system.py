@@ -47,8 +47,6 @@ class System():
         table = cdist(self._atoms[['x', 'y', 'z']].values, self._atoms[['x', 'y', 'z']].values)
         x = 0
         while table.any():
-            if x % 10 == 0 :
-                print x
             table[abs(table) > threshold] = 0.0
             # for atoms that have a row that is below the threshold,
             # nudge by random vector scaled by threshold
