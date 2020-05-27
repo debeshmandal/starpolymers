@@ -1,12 +1,13 @@
 import numpy as np
 import pandas as pd
 
+from scipy.spatial.distance import cdist
 from starpolymers.molecules import Salt
 from starpolymers.molecules._common import registry, AbstractMolecule
 
 
 class System():
-    def __init__(self, box, molecules=[], atom_masses=[1.0], bond_types=1, angle_types=1, threshold=2.0):
+    def __init__(self, box, molecules=[], atom_masses=[1.0], bond_types=1, angle_types=1, threshold=0.01):
 
         self._molecules = int(0)
         self._box = float(box)
@@ -37,13 +38,31 @@ class System():
             self.neutralise(salt, mol=mol)
 
         self.assert_neutral()
-        self.check_overlap(threshold)
+        self.fix_overlap(threshold)
 
-    def check_overlap(self, threshold):
+    def fix_overlap(self, threshold):
+        if threshold == 0.0:
+            return
         # get distances between all atoms
-        # for atoms that have a row that is below the threshold
-        # distance
+        table = cdist(self._atoms[['x', 'y', 'z']].values, self._atoms[['x', 'y', 'z']].values)
+        x = 0
+        while table.any():
+            if x % 10 == 0 :
+                print x
+            table[abs(table) > threshold] = 0.0
+            # for atoms that have a row that is below the threshold,
+            # nudge by random vector scaled by threshold
+            for i, row in enumerate(table):
+                if row.any():
+                    self._atoms.loc[i, 'x'] += np.random.random() * threshold * 10
+                    self._atoms.loc[i, 'y'] += np.random.random() * threshold * 10
+                    self._atoms.loc[i, 'z'] += np.random.random() * threshold * 10
+
+            x+=1
+            if x > 25:
+                raise StopIteration("Trying to fix overlaps but reached iteration limit of 25.")
         return
+
 
 
     def assert_neutral(self):
