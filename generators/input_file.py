@@ -65,11 +65,11 @@ class Variable(Entry):
 
     @property
     def regex(self):
-        pattern = r"(\nvariable {} {}) [A-z|0-9]+(\n)".format(
+        pattern = r"(variable {} {}) [A-z|0-9|\.]+(\n)".format(
             self.name,
             self.equals
         )
-        replacement = '\\1 {}\\2'.format(self.params)
+        replacement = r"\1 {}\2".format(self.params)
         return pattern, replacement
 
 class Fix(Entry):
@@ -123,6 +123,8 @@ class Template():
             raise TypeError('entry_obj should be an Entry object')
         if isinstance(entry_obj, Variable):
             self._set_variable(entry_obj.name, entry_obj.params)
+            #print entry_obj.regex[0], entry_obj.regex[1]
+            #print re.search(entry_obj.regex[0], self._string)
             self._string = re.sub(
                     entry_obj.regex[0],
                     entry_obj.regex[1],
@@ -137,6 +139,8 @@ class Template():
         for variable in self._variables:
             if variable.name == name:
                 variable.params = value
+                print '{} has been updated to {}'.format(variable.name, variable.params)
+
 
     @variables.getter
     def variables(self):
@@ -242,5 +246,6 @@ class InputFile():
         return
 
 templates = {
+    '00_test' : Template('{}/input_files/_00_test.in'.format(ROOT)),
     '01_master' : Template('{}/input_files/_01_master.in'.format(ROOT))
 }
