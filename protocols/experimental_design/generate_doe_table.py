@@ -4,7 +4,7 @@ import random
 
 ranges = {
     'kap' : np.arange(2, 9, 1),
-    'lam' : np.arange(5, 36),
+    'lam' : np.arange(5, 26),
     'charge_max' : np.arange(0.0, 4.0, 1.0),
     'charge_ratio' : np.arange(0.0, 1.1, 0.1),
     'charge_position' : ['core', 'tail'],
@@ -14,7 +14,7 @@ ranges = {
     'k2': [0., 1., 5., 10., 100.]
 }
 
-def generate_table(n, seed=1994):
+def generate_table(n, seed=1994, write=False, fout='table.csv', show=False):
     data = pd.DataFrame(columns=ranges.keys())
     random.seed(seed)
     for i in range(n):
@@ -28,8 +28,11 @@ def generate_table(n, seed=1994):
                 ],
                 sort=False
             ).reset_index(drop=True)
-    print data
+    if show:
+        print data
+    if write:
+        data.to_csv(fout, index=False)
     return data
 
 if __name__ == '__main__':
-    generate_table(10)
+    generate_table(10, show=True)

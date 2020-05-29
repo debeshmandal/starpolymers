@@ -24,6 +24,6 @@ def generate_config(row, fout='config.dat'):
             }   
         }]).molecules[0]
     )
-    system = System(box, molecules=molecules, atom_masses=[1.0, 1.0, 1.0], bond_types=2, angle_types=2)
+    system = System(box, molecules=molecules, atom_masses=[1.0, 1.0, 1.0], bond_types=2, angle_types=2, threshold=0.001)
     ConfigFile(system).write(fout)
     return system
