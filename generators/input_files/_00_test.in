@@ -1,0 +1,7 @@
+# LAMMPS input file
+# Star Polymer in solution
+
+# ----- Variables -----
+
+variable K equal 20.0
+variable R0 equal 5.0

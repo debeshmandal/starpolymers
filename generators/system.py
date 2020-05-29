@@ -26,6 +26,11 @@ class System():
         self._angles = pd.DataFrame(
             columns = registry.columns['angles']
         )
+        self.add_molecules(molecules)
+        self.assert_neutral()
+        self.fix_overlap(threshold)
+
+    def add_molecules(self, molecules):
 
         for i, molecule in enumerate(molecules):
             if molecule._item['molecule'] == 'salt':
@@ -36,9 +41,6 @@ class System():
             self.assert_neutral()
         except AssertionError:
             self.neutralise(salt, mol=mol)
-
-        self.assert_neutral()
-        self.fix_overlap(threshold)
 
     def fix_overlap(self, threshold):
         if threshold == 0.0:
