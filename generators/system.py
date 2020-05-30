@@ -9,6 +9,7 @@ from starpolymers.molecules._common import registry, AbstractMolecule
 class System():
     def __init__(self, box, molecules=[], atom_masses=[1.0], bond_types=1, angle_types=1, threshold=0.01):
 
+        self._atom_ID_shift = 0
         self._molecules = int(0)
         self._box = float(box)
         self._masses = atom_masses
@@ -26,6 +27,7 @@ class System():
         self._angles = pd.DataFrame(
             columns = registry.columns['angles']
         )
+        
         self.add_molecules(molecules)
         self.assert_neutral()
         self.fix_overlap(threshold)
@@ -119,13 +121,22 @@ class System():
             self._atoms = pd.concat([self._atoms, _temp], sort=False).reset_index(drop=True)
 
         def _bonds():
-            self._bonds = pd.concat([self._bonds, molecule._bonds], sort=False).reset_index(drop=True)
+            _temp = molecule._bonds.copy()
+            _temp['atom_1'] = _temp['atom_1'] + self._atom_ID_shift
+            _temp['atom_2'] = _temp['atom_2'] + self._atom_ID_shift
+            self._bonds = pd.concat([self._bonds, _temp], sort=False).reset_index(drop=True)
+
         def _angles():
-            self._angles = pd.concat([self._angles, molecule._angles], sort=False).reset_index(drop=True)
+            _temp = molecule._angles.copy()
+            _temp['atom_1'] = _temp['atom_1'] + self._atom_ID_shift
+            _temp['atom_2'] = _temp['atom_2'] + self._atom_ID_shift
+            _temp['atom_3'] = _temp['atom_3'] + self._atom_ID_shift
+            self._angles = pd.concat([self._angles, _temp], sort=False).reset_index(drop=True)
         
         _atoms()
         _bonds()
         _angles()
+        self._atom_ID_shift += len(molecule._atoms)
         self._molecules += 1
 
     def neutralise(self, salt, mol=None):
