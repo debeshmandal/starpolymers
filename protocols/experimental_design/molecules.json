@@ -2,7 +2,7 @@
     "molecules" : [
         {
             "molecule": "dna",
-            "lam": 5,
+            "lam": 21,
             "charge" : {
                 "style" : "all",
                 "max" : -3

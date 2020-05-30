@@ -1,5 +1,6 @@
 from starpolymers.generators.input_file import templates, Variable
 from starpolymers.generators.configuration import ConfigFile, System
+from starpolymers.generators.colvars import Colvars
 from starpolymers.molecules import read_json, MoleculeFactory
 
 def generate_input(row, fout='simulation.in'):
@@ -26,4 +27,6 @@ def generate_config(row, fout='config.dat'):
     )
     system = System(box, molecules=molecules, atom_masses=[1.0, 1.0, 1.0], bond_types=2, angle_types=2, threshold=0.001)
     ConfigFile(system).write(fout)
+    Colvars(row['kap']*row['lam']+1, 21, upper=70.0, k=2.0, stop=70, steps=1000000).write(fname='col.vars')
+
     return system
