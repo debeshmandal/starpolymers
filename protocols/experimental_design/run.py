@@ -18,8 +18,8 @@ def generate(n, index, seed=1994):
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='Design of Experiments example script')
-    parser.add_argument('--index', default=1)
+    parser.add_argument('--index', default=1, type=int)
     parser.add_argument('--seed', default=1994)
-    parser.add_argument('-n', '--number', default=10)
+    parser.add_argument('-n', '--number', default=10, type=int)
     args = parser.parse_args()
     generate(args.number, args.index-1, args.seed)
