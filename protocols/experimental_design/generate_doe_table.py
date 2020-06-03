@@ -43,7 +43,7 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--write', action='store_true', default=False)
     parser.add_argument('--file', default='./table.csv')
     parser.add_argument('-s', '--seed', default=1994, type=int)
-    parser.add_argument('-p', '--print', action='store_true', default=False)
+    parser.add_argument('--show', action='store_true', default=False)
     args = parser.parse_args()
 
     generate_table(
@@ -51,5 +51,5 @@ if __name__ == '__main__':
         write=args.write,
         fout=args.fout,
         seed=args.seed,
-        show=args.print
+        show=args.show
     )
