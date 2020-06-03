@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import random
+from argparse import ArgumentParser
 
 ranges = {
     'kap' : np.arange(2, 9, 1),
@@ -35,4 +36,20 @@ def generate_table(n, seed=1994, write=False, fout='table.csv', show=False):
     return data
 
 if __name__ == '__main__':
-    generate_table(10, show=True)
+    parser = ArgumentParser(
+        description="Generate a DoE table based on randomly sampled values found in the file"
+    )
+    parser.add_argument('-n', '--number', default=100, type=int)
+    parser.add_argument('-w', '--write', action='store_true', default=False)
+    parser.add_argument('--file', default='./table.csv')
+    parser.add_argument('-s', '--seed', default=1994, type=int)
+    parser.add_argument('-p', '--print', action='store_true', default=False)
+    args = parser.parse_args()
+
+    generate_table(
+        args.number,
+        write=args.write,
+        fout=args.fout,
+        seed=args.seed,
+        show=args.print
+    )
