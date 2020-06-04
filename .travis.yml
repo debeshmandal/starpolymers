@@ -22,7 +22,18 @@ install:
   - conda activate test-environment
   - conda install pandas numpy scipy matplotlib pytest scikit-learn
   - conda activate test-environment
-  - export PYTHONPATH=$PYTHONPATH:~/
+  - python setup.py sdist bdist_wheel
+  - pip install dist/*.whl
 
+deploy:
+  provider: pypi
+  username: "__token__"
+  password: pypi-AgEIcHlwaS5vcmcCJDU3ZGQ2NjkzLTkwYWEtNGE0ZS04YjhjLTM5YTRhZTlkOTczMAACJXsicGVybWlzc2lvbnMiOiAidXNlciIsICJ2ZXJzaW9uIjogMX0AAAYg-ii4WlUxf9M9TfES9abFIulhzKpU1kgeCpTKB32D238
+  on:
+    branch: deploy-init
+  
 script: 
   - pytest
+  - conda deactivate
+  - conda create -n verify python=2.7
+  - pip install starpolymers
