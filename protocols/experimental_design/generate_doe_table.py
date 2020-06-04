@@ -49,7 +49,7 @@ if __name__ == '__main__':
     generate_table(
         args.number,
         write=args.write,
-        fout=args.fout,
+        fout=args.file,
         seed=args.seed,
         show=args.show
     )
