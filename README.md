@@ -1,21 +1,64 @@
-# starpolymers
+# `starpolymers`
 
-Star Polymers is a Python Library used for generating LAMMPS input files and analysing LAMMPS output files, in dump formats and other formats. Additionally, there are scripts used for interacting with Colvars input/output files.
+`starpolymers` is a Python Library used for generating LAMMPS input files and analysing LAMMPS output files, in dump formats and other formats. Additionally, there are scripts used for interacting with Colvars input/output files. 
+
+The package is used to generate molecules and LAMMPS configuration files that follow the `atom_style full` convention. User-defined molecules can be added if the package is installed manually
+
+## Features
+
+- Create LAMMPS system containing 'molecules'
+- Molecules include salt, linear polyelectrolytes, star polymers
+- Use a template LAMMPS input file and change the variables
+- Generate a Colvars input file for free energy calculations
+- Import LAMMPS dump files
+
+### Upcoming
+
+- Analysis on dump files
+- Plotting tools
+- Custom molecules without manual installation
 
 ## Installation
 
-Clone this repository to a Python path
+### pip
 
-```
-git clone https://github.com/debeshmandal/starpolymers
-```
+Star Polymers is available on PyPi and can be installed using:
+
+    pip install starpolymers
+
+
+### conda
+
+There are plans to deploy onto Anaconda via `conda-forge` but this has not been implemented yet. It is expected that this will be implemented in `v1.1.3-5`
+
+### manual installation
+
+To install the package manually run the following commands:
+
+    git clone https://github.com/debeshmandal/starpolymers.git
+    cd starpolymers
+    python setup.py
+    cd dist
+    pip install *.whl
+
+Alternatively, since the package is written entirely in Python, one can clone the package and append the path to the `$PYTHONPATH` environment variable.
 
 ## Usage
 
-Examples:
+A variety of examples can be found in the `./test` folder which contains tests for generating files. Notably the `config` and `input_files` subfolders contain examples of generating files needed to create LAMMPS systems and run simulations.
 
-```
-import starpolymers
-from starpolymers.star_gen2 import FileGenerator
-from starpolymers.pmf import PMF
-```
+### Example
+
+    import starpolymers
+    lammps_system = starpolymers.generators.System(50)
+    molecules = starpolymers.generators.MoleculeFactory([
+            {
+                'molecule' : 'salt', 
+                'concentration' : 100, 
+                'anion' : 1, 
+                'cation' : 1
+            }
+        ])
+    lammps_system.add_molecules(molecules)
+    config_file = starpolymers.generators.ConfigFile(system)
+    config_file.write('config.dat')
