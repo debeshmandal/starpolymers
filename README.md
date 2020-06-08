@@ -29,7 +29,9 @@ Star Polymers is available on PyPi and can be installed using:
 
 ### conda
 
-There are plans to deploy onto Anaconda via `conda-forge` but this has not been implemented yet. It is expected that this will be implemented in `v1.1.3-5`
+From v1.1.3 it will be possible to install `starpolymers` using anaconda, via conda-forge:
+
+    conda install starpolymers -c conda-forge
 
 ### manual installation
 
@@ -37,9 +39,7 @@ To install the package manually run the following commands:
 
     git clone https://github.com/debeshmandal/starpolymers.git
     cd starpolymers
-    python setup.py
-    cd dist
-    pip install *.whl
+    pip install . -vv
 
 Alternatively, since the package is written entirely in Python, one can clone the package and append the path to the `$PYTHONPATH` environment variable.
 
