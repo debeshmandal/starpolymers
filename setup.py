@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
     name="starpolymers",
-    version="1.1.2",
+    version="2.0.0",
     author="Debesh Mandal",
     description="Package for creating polymers for simulation",
     long_description=long_description,
@@ -13,9 +13,9 @@ setuptools.setup(
     url="https://github.com/debeshmandal/starpolymers",
     packages=setuptools.find_packages(),
     classifiers=[
-        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='~=2.7',
+    python_requires='~=3.*',
 )
