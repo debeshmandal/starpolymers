@@ -21,7 +21,7 @@ def gyrstats(kap,lam):
     return mean, std
 
 results_ML = pd.DataFrame()
-results_mean = pd.DataFrame(index=range(3,12),columns=range(3,12))
+results_mean = pd.DataFrame(index=list(range(3,12)),columns=list(range(3,12)))
 
 for kap in range(3,12):
     for lam in range(3,12):

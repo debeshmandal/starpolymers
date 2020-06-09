@@ -16,11 +16,11 @@ ranges = {
 }
 
 def generate_table(n, seed=1994, write=False, fout='table.csv', show=False):
-    data = pd.DataFrame(columns=ranges.keys())
+    data = pd.DataFrame(columns=list(ranges.keys()))
     random.seed(seed)
     for i in range(n):
         settings = dict(ranges)
-        for key, value in settings.items():
+        for key, value in list(settings.items()):
             settings[key] = random.sample(value, 1)
         data = pd.concat(
                 [
@@ -30,7 +30,7 @@ def generate_table(n, seed=1994, write=False, fout='table.csv', show=False):
                 sort=False
             ).reset_index(drop=True)
     if show:
-        print data
+        print(data)
     if write:
         data.to_csv(fout, index=False)
     return data

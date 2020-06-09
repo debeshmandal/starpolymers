@@ -29,7 +29,7 @@ def central_centre_gen(n_atoms, kap, lam, angle_shift, atom_shift):
     angle_list_central = str()
     n_start = lam+1
     k=0
-    for j in reversed(range(kap+1)):
+    for j in reversed(list(range(kap+1))):
         if j > 2:
             for i in range((kap-j),kap-1):
                 angle_ID = kap+1 + k + angle_shift
@@ -48,7 +48,7 @@ def central_centre_gen(n_atoms, kap, lam, angle_shift, atom_shift):
                 k+=1
 
 
-    for j in reversed(range(kap+1)):
+    for j in reversed(list(range(kap+1))):
         if j == 2:
             angle_ID = kap+1+k + angle_shift
             angle_type = 1
@@ -84,14 +84,14 @@ def item_charge(item, system):
     atom_list = []
 
     if item['charge_style'] == 'all':
-        atom_list = range(1, n_atoms+1)
+        atom_list = list(range(1, n_atoms+1))
 
     if item['charge_style'] == 'random':
 
     # calculate number of charges
     # and sample the list
 
-        atom_list = range(1, n_atoms+1)
+        atom_list = list(range(1, n_atoms+1))
         n_charges = int(n_atoms*item['charge_params']['ratio'])
         atom_list = random.sample(atom_list, n_charges)
 
@@ -100,7 +100,7 @@ def item_charge(item, system):
         arm_charges = item['lam'] * item['charge_params']['ratio']
         arm_charges = int(arm_charges)
         for i in range(item['kap']):
-            arm_list = np.array(range(1, item['lam']+1)) + (i*item['lam'])
+            arm_list = np.array(list(range(1, item['lam']+1))) + (i*item['lam'])
             if item['charge_params']['block_position'] == 'centre':
                 atom_list.extend(list(arm_list[:arm_charges]))
             elif item['charge_params']['block_position'] == 'end':
@@ -108,7 +108,7 @@ def item_charge(item, system):
                 atom_list.extend(list(arm_list[arm_charges_neg:]))
         if item['charge_params']['centre']:
             atom_list.append(n_atoms)
-            print "atom_list: {}, {}".format(atom_list, len(atom_list))
+            print(("atom_list: {}, {}".format(atom_list, len(atom_list))))
     return atom_list
 
 def charge_gen(item, atom_number, charge_list):
@@ -160,7 +160,7 @@ def neutraliser(system):
                 q = item['charge_max']
                 n_atoms = MaxCalculator(item).atoms(system)
                 sys_charge += item['kap'] * -q * int(item['charge_params']['ratio'] * item['lam']) -1
-    print "sys_charge: {}".format(sys_charge)
+    print(("sys_charge: {}".format(sys_charge)))
     return int(sys_charge)
 
 def salt(item, system, neutralise=True):
@@ -365,9 +365,9 @@ class FileGenerator():
         MAX_bonds = int()
         MAX_angles = int()
 
-        atom_type_list = range(1, len(self._atom_masses)+1)
-        bond_type_list = list(np.array(range(self._bond_types))+1)
-        angle_type_list = list(np.array(range(self._angle_types))+1)
+        atom_type_list = list(range(1, len(self._atom_masses)+1))
+        bond_type_list = list(np.array(list(range(self._bond_types)))+1)
+        angle_type_list = list(np.array(list(range(self._angle_types)))+1)
             
 
         for item in system:
@@ -868,4 +868,4 @@ class FileGenerator():
                         f.write(self.write_angles(system, i))
 
         if not self._suppress_printing:
-            print "Writing complete for {}".format(fname)
+            print(("Writing complete for {}".format(fname)))

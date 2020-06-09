@@ -136,7 +136,7 @@ def raddist_calc(kap, lam, step='100', resolution=10):
 
     MAX_length = DistancesFromCentre[2].max()
 
-    print 'Maximum length from the central atom =', MAX_length
+    print(('Maximum length from the central atom =', MAX_length))
 
     # Use this distance as a normaliser... and scale to use integers corresponding to bin index
 
@@ -155,7 +155,7 @@ def raddist_calc(kap, lam, step='100', resolution=10):
                 if int(scaled_distances[i]-size) == j:
                     bins[j] = bins[j]+1
             except:
-                print 'error'
+                print('error')
 
     g_r = pd.DataFrame(bins)
     g_r = g_r.reset_index(drop=False)

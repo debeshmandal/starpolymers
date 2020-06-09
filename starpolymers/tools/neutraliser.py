@@ -39,7 +39,7 @@ for i in range(1, len(sys.argv)):
     # print
 
     if overall == 0:
-        print "\nSUCCESS: The overall charge of {} is {}".format(fname, overall)
+        print(("\nSUCCESS: The overall charge of {} is {}".format(fname, overall)))
     else:
-        print "\nERROR: The overall charge of {} is {}".format(fname, overall)
-        print data.tail(1)    
+        print(("\nERROR: The overall charge of {} is {}".format(fname, overall)))
+        print((data.tail(1)))    

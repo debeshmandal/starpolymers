@@ -14,7 +14,7 @@ beta = 1.0/kBT
 bf = exp(-beta) # e^-kBT - same as exp(beta)
 
 def pprint(a):
-    print '\n', pd.DataFrame(a), '\n'
+    print(('\n', pd.DataFrame(a), '\n'))
 
 def write_to_csv(path):
     data = pd.read_csv('{}/xi.hist'.format(path), header=None, delim_whitespace=True,
@@ -227,7 +227,7 @@ class WHAM():
 
         self.initialise_csv_files()
         self.initialise_master()
-        print (self.master['counts'][self.centres].sum(axis=1)/self.master['counts'][self.centres].sum(axis=1).sum()).sum()
+        print(((self.master['counts'][self.centres].sum(axis=1)/self.master['counts'][self.centres].sum(axis=1).sum()).sum()))
         F_old = np.copy(self.master['exp(-bF)']['exp(-bF)'].values)
         self.iterate()
         F_new = self.master['exp(-bF)']['exp(-bF)'].values
@@ -235,8 +235,8 @@ class WHAM():
         counter = 0
 
         while (counter < max_iterations) & (abs(convergence) > conv):
-            print '\nconvergence = ', convergence
-            print '\ntotal probability = ',self.master['master']['p'].sum()
+            print(('\nconvergence = ', convergence))
+            print(('\ntotal probability = ',self.master['master']['p'].sum()))
             F_old = np.copy(self.master['exp(-bF)']['exp(-bF)'].values)
             self.iterate()
             F_new = self.master['exp(-bF)']['exp(-bF)'].values
