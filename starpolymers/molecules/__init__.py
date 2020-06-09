@@ -1,7 +1,7 @@
-from polyelectrolyte import StarPolyelectrolyte, LinearPolyelectrolyte
-from salt import Salt
+from .polyelectrolyte import StarPolyelectrolyte, LinearPolyelectrolyte
+from .salt import Salt
 import json
-from _common import registry
+from ._common import registry
 
 class MoleculeFactory():
     def __init__(self, item_list, box=None):

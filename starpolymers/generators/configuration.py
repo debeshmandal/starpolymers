@@ -1,4 +1,4 @@
-from system import System
+from .system import System
 import datetime
 
 import pandas as pd
@@ -151,7 +151,7 @@ class ConfigFile():
     def compare(fname_1, fname_2):
         stats_1 = ConfigFile.stats(fname_1)
         stats_2 = ConfigFile.stats(fname_2)
-        for key, value in stats_1.items():
+        for key, value in list(stats_1.items()):
             try:
                 if stats_2[key] != value:
                     return False

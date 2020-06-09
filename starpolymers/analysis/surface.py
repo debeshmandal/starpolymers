@@ -8,7 +8,7 @@ import pandas as pd
 from scipy.spatial import Delaunay
 from scipy.spatial.distance import cdist, euclidean
 
-import pmf
+from . import pmf
 from starpolymers.readers.dumper import DumpReader as dr
 from starpolymers.tools.cylinders import Molecule
 from starpolymers.tools.design import base, cdict, markers
@@ -101,7 +101,7 @@ def _get_surf(runs, timesteps, root=None,
             surf_nosalt = surf_nosalt.append(merged['pot_nosalt'])
             
         except IOError:
-            print "Warning: run {} did not work!".format(run)
+            print(("Warning: run {} did not work!".format(run)))
     
     data = pd.DataFrame() # should end with long dataframe with
                           # columns ['xi', 'pot']

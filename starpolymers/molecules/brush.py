@@ -17,7 +17,7 @@ class Brush():
     def __init__(self, trunk_length, mol=1, starting_position=np.array([0,0,0]),
                  direction='up', base_id=None, graft_type=1):
         self.trunk = {'lam': trunk_length,
-                      'atoms': range(1, trunk_length+1)}
+                      'atoms': list(range(1, trunk_length+1))}
         self.branches = []
         self.n_atoms = trunk_length
         self.generate_atom_list()
@@ -29,14 +29,14 @@ class Brush():
         self.graft_type = graft_type
         
     def generate_atom_list(self):
-        self.atom_list = range(1, self.n_atoms+1)
+        self.atom_list = list(range(1, self.n_atoms+1))
         
     def change_starting_position(self, starting_position=np.array([0,0,0])):
         self.start = starting_position
         
     def create_branch(self, branch_site, branch_length):
         self.branches.append({'lam': branch_length,
-                              'atoms': range(self.n_atoms+1, self.n_atoms+branch_length+1),
+                              'atoms': list(range(self.n_atoms+1, self.n_atoms+branch_length+1)),
                               'site': branch_site})
         self.n_atoms += branch_length
         self.q_branches += 1
@@ -111,8 +111,8 @@ class Brush():
             # build trunk bonds
             
             if bond < self.trunk['lam']:
-                atom_1 = range(1,self.trunk['lam']+1)[bond-1]
-                atom_2 = range(1,self.trunk['lam']+1)[bond]
+                atom_1 = list(range(1,self.trunk['lam']+1))[bond-1]
+                atom_2 = list(range(1,self.trunk['lam']+1))[bond]
                 
             # build bonds in each branch
             

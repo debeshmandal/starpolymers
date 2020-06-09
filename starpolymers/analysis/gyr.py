@@ -6,13 +6,13 @@ by Colvars
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import pmf
-from pmf import PMF
+from . import pmf
+from .pmf import PMF
 from starpolymers.tools.design import base, cdict, markers
 
 def _collate(gyr_list):
     data = dict()
-    for i in (range(len(gyr_list))):
+    for i in (list(range(len(gyr_list)))):
         gyr = gyr_list[i].gyr        
         data[i+1] = gyr
     return data
@@ -131,7 +131,7 @@ def _get_gyr(runs, fname='gyr.out', root=None,
             gyr=gyr.append(merged['gyr'])
             
         except IOError:
-            print "Warning: run {} did not work!".format(run)
+            print(("Warning: run {} did not work!".format(run)))
     
     data = pd.DataFrame() # should end with long dataframe with
                           # columns ['xi', 'gyr']

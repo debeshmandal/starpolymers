@@ -26,7 +26,7 @@ y = dataset.iloc[:,6].values
 results_RF = pd.DataFrame()
 results_SLR = pd.DataFrame()
 test_size = np.arange(0.05,1,0.05)
-print test_size
+print(test_size)
 
 for i in range(19):
     ts=float(i+1)/20
@@ -86,8 +86,8 @@ for i in range(19):
     results_RF = results_RF.append(temp_RF,ignore_index=True)
     results_SLR = results_SLR.append(temp_SLR,ignore_index=True)
 
-print results_RF
-print results_SLR
+print(results_RF)
+print(results_SLR)
 fig = plt.figure()
 ax = fig.gca()
 ax.errorbar(test_size, results_RF[0],yerr=results_RF[1],

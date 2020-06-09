@@ -3,10 +3,10 @@ import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import pmf
-from pmf import PMF
+from . import pmf
+from .pmf import PMF
 from starpolymers.tools.design import base, cdict, markers
-import rdf
+from . import rdf
 from starpolymers.readers.dumper import DumpReader
 
 def _label_generator(variables, parameters, units=None):
@@ -112,7 +112,7 @@ def _get_nc(runs, mol1, mol2, q2, timesteps, root=None,
             nc=nc.append(merged['nc'])
             
         except IOError:
-            print "Warning: run {} did not work!".format(run)
+            print(("Warning: run {} did not work!".format(run)))
     
     data = pd.DataFrame() # should end with long dataframe with
                           # columns ['xi', 'NC']

@@ -86,12 +86,12 @@ class SymmetryAnalyser:
         scaled_eigenvalues = eigenvalues / eigenvalues.max()
         symmetry_index = product(scaled_eigenvalues)
         if pretty == True:
-            print '\nThe mean (centre-of-mass) is \n', mean
-            print '\nThe covariance matrix is \n', covariance
-            print '\nThe eigenvalues are \n', eigenvalues
-            print '\nThe eigenvectors are \n', eigenvectors
-            print '\nThe scaled eigenvalues are \n', scaled_eigenvalues
-            print '\nThe symmetry_index is {0:.4e}'.format(symmetry_index)
+            print(('\nThe mean (centre-of-mass) is \n', mean))
+            print(('\nThe covariance matrix is \n', covariance))
+            print(('\nThe eigenvalues are \n', eigenvalues))
+            print(('\nThe eigenvectors are \n', eigenvectors))
+            print(('\nThe scaled eigenvalues are \n', scaled_eigenvalues))
+            print(('\nThe symmetry_index is {0:.4e}'.format(symmetry_index)))
         if symmetry_only == True:
             return symmetry_index
         else:

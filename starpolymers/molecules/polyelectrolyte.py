@@ -3,7 +3,7 @@ import random
 import numpy as np
 import pandas as pd
 
-from _common import Molecule
+from ._common import Molecule
 from starpolymers.tools.geometry import translation
 
 class LinearPolyelectrolyte(Molecule):
@@ -43,8 +43,8 @@ class LinearPolyelectrolyte(Molecule):
 
         data = pd.DataFrame({
             'type' : (self.n['atoms']-1) * [self.types['bond']],
-            'atom_1' : range(1, self.n['atoms']),
-            'atom_2' : range(2, self.n['atoms']+1),
+            'atom_1' : list(range(1, self.n['atoms'])),
+            'atom_2' : list(range(2, self.n['atoms']+1)),
         })
 
         return data
@@ -52,9 +52,9 @@ class LinearPolyelectrolyte(Molecule):
     def generate_angles(self):
         data = pd.DataFrame({
             'type' : (self.n['atoms']-2) * [self.types['angle']],
-            'atom_1' : range(1, self.n['atoms']-1),
-            'atom_2' : range(2, self.n['atoms']),
-            'atom_3' : range(3, self.n['atoms']+1),
+            'atom_1' : list(range(1, self.n['atoms']-1)),
+            'atom_2' : list(range(2, self.n['atoms'])),
+            'atom_3' : list(range(3, self.n['atoms']+1)),
         })
 
         return data
@@ -73,7 +73,7 @@ class LinearPolyelectrolyte(Molecule):
             if _ratio > 1.0:
                 raise ValueError('Charge ratio ({}) is greater than 1.'.format(_ratio))
             _n_charges = int((1-_ratio) * _n)
-            indexes = sorted(random.sample(range(_n), _n_charges))
+            indexes = sorted(random.sample(list(range(_n)), _n_charges))
             charge_list = [charge] * length
             for i in indexes:
                 charge_list[i] = 0.0
@@ -175,7 +175,7 @@ class StarPolyelectrolyte(Molecule):
             data['atom_2'].append((i+1)*lam)
             data['atom_3'].append(self.n['atoms'])
 
-        for j in reversed(range(kap+1)):
+        for j in reversed(list(range(kap+1))):
             if j > 2:
                 for i in range((kap-j),kap-1):
                     data['type'].append(self._item.get('angle_type', 1))
@@ -204,7 +204,7 @@ class StarPolyelectrolyte(Molecule):
             if _ratio > 1.0:
                 raise ValueError('Charge ratio ({}) is greater than 1.'.format(_ratio))
             _n_charges = int((1-_ratio) * _n)
-            indexes = sorted(random.sample(range(_n), _n_charges))
+            indexes = sorted(random.sample(list(range(_n)), _n_charges))
             charge_list = [charge] * length
             for i in indexes:
                 charge_list[i] = 0.0

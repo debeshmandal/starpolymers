@@ -151,11 +151,11 @@ class System():
             return
 
         if delta < 0:
-            n_cations = abs( delta / abs(int(salt.cation)) )
+            n_cations = abs( delta // abs(int(salt.cation)) )
             n_anions = 0
             
         if delta > 0:
-            n_anions = abs( delta / abs(int(salt.anion)))
+            n_anions = abs( delta // abs(int(salt.anion)))
             n_cations = 0
 
         diff = difference(delta, n_anions, salt.anion, n_cations, salt.cation)

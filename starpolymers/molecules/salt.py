@@ -1,4 +1,4 @@
-from _common import ParticleArray
+from ._common import ParticleArray
 import numpy as np
 import pandas as pd
 

@@ -14,7 +14,7 @@ def _scale(series, n=5):
 
 def _collate(pmf_list):
     data = pd.DataFrame()
-    for i in (range(len(pmf_list))):
+    for i in (list(range(len(pmf_list)))):
         pmf = pmf_list[i].pmf
         if i == 0:
             data['xi'] = pmf['xi']
@@ -51,7 +51,7 @@ def _get_traj(fname):
                        header=None, comment='#')
         data = data.rename(columns={0: 'ts', 1: 'xi'})
     except IOError:
-        print 'Warning: No traj for {}!'.format(fname)
+        print(('Warning: No traj for {}!'.format(fname)))
         return 'Error'
     return data
 
@@ -99,7 +99,7 @@ def _get_pmf(runs, fname='out.harmonic1.ti.pmf', root=None):
                 data['xi'] = temp.values[:,0]
                 xi = False
         except IOError:
-            print "Warning: run {} did not work!".format(run)
+            print(("Warning: run {} did not work!".format(run)))
     
     data['mean'] = np.mean(pmfs.values, axis=1)
     data['mean'] = _scale(data['mean'])

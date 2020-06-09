@@ -139,7 +139,7 @@ class Template():
         for variable in self._variables:
             if variable.name == name:
                 variable.params = value
-                print '{} has been updated to {}'.format(variable.name, variable.params)
+                print(('{} has been updated to {}'.format(variable.name, variable.params)))
 
 
     @variables.getter

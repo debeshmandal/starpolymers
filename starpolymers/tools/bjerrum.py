@@ -14,5 +14,5 @@ def bjerrum(epsr, T, reduced=False):
         top = e ** 2
     bottom = eps * k * T * 4 * pi
     length = top/bottom
-    print "The Bjerrum length is {}".format(length)
+    print(("The Bjerrum length is {}".format(length)))
     return length
