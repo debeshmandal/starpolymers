@@ -3,17 +3,17 @@
 
 # ----- Variables -----
 
-variable K equal 20.0
+variable K equal 10.0
 variable R0 equal 5.0
 variable eps equal 0.5
 variable sig equal 1.10
-variable theta0 equal 135.0
-variable k1 equal 1.0
-variable k2 equal 0.0
+variable theta0 equal 90.0
+variable k1 equal 5.0
+variable k2 equal 5.0
 
 variable fconfig string config
-variable step equal 1000
-variable dump_step equal 1000
+variable step equal 10000
+variable dump_step equal 10000
 variable dt equal 0.0015
 variable runlength equal 1000000
 

@@ -18,4 +18,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires=">=3.5",
+    package_data = {'starpolymers' : ['generators/input_files/*.in']},
+    include_package_data=True
 )
