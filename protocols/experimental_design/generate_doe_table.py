@@ -19,9 +19,9 @@ def generate_table(n, seed=1994, write=False, fout='table.csv', show=False):
     data = pd.DataFrame(columns=list(ranges.keys()))
     random.seed(seed)
     for i in range(n):
-        settings = dict(ranges)
-        for key, value in list(settings.items()):
-            settings[key] = random.sample(value, 1)
+        settings = ranges.copy()
+        for key, value in settings.items():
+            settings[key] = random.sample(list(value), 1)
         data = pd.concat(
                 [
                     data,
