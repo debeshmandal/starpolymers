@@ -2,6 +2,9 @@ from starpolymers.generators.input_file import templates, Variable
 from starpolymers.generators.configuration import ConfigFile, System
 from starpolymers.generators.colvars import Colvars
 from starpolymers.molecules import read_json, MoleculeFactory
+from starpolymers.tools import Logger
+
+logger = Logger(__name__)
 
 def generate_input(row, fout='simulation.in'):
     input_file = templates['01_master']

@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import random
 from argparse import ArgumentParser
+from starpolymers.tools import Logger
+
+logger = Logger(__name__)
 
 ranges = {
     'kap' : np.arange(2, 9, 1),
@@ -30,7 +33,7 @@ def generate_table(n, seed=1994, write=False, fout='table.csv', show=False):
                 sort=False
             ).reset_index(drop=True)
     if show:
-        print(data)
+        logging.info(data)
     if write:
         data.to_csv(fout, index=False)
     return data
@@ -45,7 +48,6 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--seed', default=1994, type=int)
     parser.add_argument('--show', action='store_true', default=False)
     args = parser.parse_args()
-
     generate_table(
         args.number,
         write=args.write,
