@@ -1,5 +1,7 @@
 import os.path as path
 import re
+from ..tools import Logger
+logger = Logger(__name__)
 
 """
 Objects used for scripting the generation of LAMMPS input files
@@ -138,8 +140,9 @@ class Template():
     def _set_variable(self, name, value):
         for variable in self._variables:
             if variable.name == name:
+                _old = variable.params
                 variable.params = value
-                print(('{} has been updated to {}'.format(variable.name, variable.params)))
+                logger.info('Update {}: {}\t-> {}'.format(variable.name, _old, variable.params))
 
 
     @variables.getter
