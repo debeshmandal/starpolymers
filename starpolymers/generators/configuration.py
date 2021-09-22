@@ -4,18 +4,24 @@ import datetime
 import pandas as pd
 
 class ConfigFile():
-    def __init__(self, system, comment=''):
+    def __init__(self, system, comment='', include_angles: bool = True):
         self._system = system
         self.comment = comment
+        self.include_angles = include_angles
 
-    def write(self, fname='config.dat'):
+    def write(self, fname='config.dat', angles: bool = True):
+        _include_angles = self.include_angles
+        if not angles:
+            self.include_angles = False
         with open(fname, 'w') as f:
             f.write(self.comments)
             f.write(self.header)
             f.write(self.masses)
             f.write(self.atoms)
             f.write(self.bonds)
-            f.write(self.angles)
+            if self.include_angles:
+                f.write(self.angles)
+        self.include_angles = _include_angles
 
     @property
     def comments(self):
@@ -32,17 +38,19 @@ class ConfigFile():
         header = ''
         header += str("{} atoms\n".format(self._system.n['atoms']))
         header += str("{} bonds\n".format(self._system.n['bonds']))
-        header += str("{} angles\n".format(self._system.n['angles']))
+        if self.include_angles:
+            header += str("{} angles\n".format(self._system.n['angles']))
         header += "\n"
         header += str("{} atom types\n".format(self._system.types['atom']))
         header += str("{} bond types\n".format(self._system.types['bond']))
-        header += str("{} angle types\n".format(self._system.types['angle']))
+        if self.include_angles:
+            header += str("{} angle types\n".format(self._system.types['angle']))
         header += "\n"
         header += str("{} {} xlo xhi\n".format(box['xlo'], box['xhi']))
         header += str("{} {} ylo yhi\n".format(box['ylo'], box['yhi']))
         header += str("{} {} zlo zhi\n".format(box['zlo'], box['zhi']))
         return header
-    
+
     @property
     def masses(self):
         masses = '\nMasses\n\n'
@@ -52,7 +60,7 @@ class ConfigFile():
 
     @property
     def atoms(self):
-        atoms = '\nAtoms\n\n' 
+        atoms = '\nAtoms\n\n'
         table = self._system.atoms
         for i in range(len(table)):
             atoms += "{} {} {} {} {} {} {}\n".format(
@@ -68,7 +76,7 @@ class ConfigFile():
 
     @property
     def bonds(self):
-        bonds = '\nBonds\n\n' 
+        bonds = '\nBonds\n\n'
         table = self._system.bonds
         for i in range(len(table)):
             bonds += "{} {} {} {}\n".format(
@@ -81,7 +89,7 @@ class ConfigFile():
 
     @property
     def angles(self):
-        angles = '\nAngles\n\n' 
+        angles = '\nAngles\n\n'
         table = self._system.angles
         for i in range(len(table)):
             angles += "{} {} {} {} {}\n".format(
@@ -112,25 +120,25 @@ class ConfigFile():
         skip_angles = 26+stats['atom_types']+stats['n_atoms']+stats['n_bonds']
 
         stats['atoms'] = pd.read_csv(
-                fname, 
-                delim_whitespace=True, 
-                header=None, 
+                fname,
+                delim_whitespace=True,
+                header=None,
                 skiprows=skip_atoms,
                 nrows=stats['n_atoms']
             )
 
         stats['bonds'] = pd.read_csv(
-                fname, 
-                delim_whitespace=True, 
-                header=None, 
+                fname,
+                delim_whitespace=True,
+                header=None,
                 skiprows=skip_bonds,
                 nrows=stats['n_bonds']
             )
 
         stats['angles'] = pd.read_csv(
-                fname, 
-                delim_whitespace=True, 
-                header=None, 
+                fname,
+                delim_whitespace=True,
+                header=None,
                 skiprows=skip_angles,
                 nrows=stats['n_angles']
             )
