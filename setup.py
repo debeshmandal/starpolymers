@@ -1,11 +1,11 @@
 import setuptools
+import versioneer
 
 with open("README.md", "r") as f:
     long_description = f.read()
 
 setuptools.setup(
     name="starpolymers",
-    version="2.1.0",
     author="Debesh Mandal",
     description="Package for creating polymers for simulation",
     long_description=long_description,
@@ -19,5 +19,7 @@ setuptools.setup(
     ],
     python_requires=">=3.5",
     package_data = {'starpolymers' : ['generators/input_files/*.in']},
-    include_package_data=True
+    include_package_data=True,
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
 )
