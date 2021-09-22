@@ -10,5 +10,5 @@ def main(*args, **kwargs):
 
 if __name__ == '__main__':
     import argparse
-    parser = ArgumentParser()
+    parser = argparse.ArgumentParser()
     main(**vars(parser.parse_args()))
