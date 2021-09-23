@@ -15,7 +15,7 @@ variable fconfig string lammps.test.conf
 variable step equal 10000
 variable dump_step equal 10000
 variable dt equal 0.00015
-variable runlength equal 500000
+variable runlength equal 5000000
 
 # ----- Initialisation -----
 
@@ -38,9 +38,12 @@ bond_style 		fene 							# bonds
 bond_coeff * ${K} ${R0} ${eps} ${sig}				# bond_type K R0 Epsilon Sigma
 # angle_style class2
 # angle_coeff * ${theta0} ${k1} 0.0 ${k2}
-pair_style lj/cut/coul/long 1.12 10.0
+#pair_style lj/cut/coul/long 1.12 10.0
+#pair_coeff * * 1.0 1.0
+#kspace_style pppm 1.0e-5
+
+pair_style lj/cut/coul/debye 1.12 2.5
 pair_coeff * * 1.0 1.0
-kspace_style pppm 1.0e-5
 
 # ----- Thermostats -----
 
@@ -58,7 +61,7 @@ reset_timestep  0
 thermo 			${dump_step}
 thermo_style 	custom step pe ke etotal temp
 
-dump 			1 all custom ${dump_step} dump_16/dump.*.lammpstrj id type x y z q vx vy vz mol ix iy iz xu yu zu
+dump 			1 all custom ${dump_step} dump/dump.*.lammpstrj id type x y z q vx vy vz mol ix iy iz xu yu zu
 run ${runlength}
 
 # ----- Final Statement -----
