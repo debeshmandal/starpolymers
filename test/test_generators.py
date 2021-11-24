@@ -1,6 +1,5 @@
 from starpolymers.generators.configuration import *
 from starpolymers.generators.input_file import *
-from starpolymers.generators.colvars import *
 import starpolymers.generators.system as system
 
 def test_colvars():
