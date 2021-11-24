@@ -1,15 +1,13 @@
-from starpolymers.generators.configuration import *
+from starpolymers.io.configuration import *
+
 from starpolymers.generators.input_file import *
 import starpolymers.generators.system as system
-
-def test_colvars():
-    assert True
-
-def test_configuration():
-    assert True
 
 def test_input_file():
     assert True
 
 def test_system():
     system.System(100)
+
+if __name__ == '__main__':
+    test_system()
