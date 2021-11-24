@@ -1,4 +1,4 @@
-from .system import System
+from ..generators.system import System
 import datetime
 
 import pandas as pd
