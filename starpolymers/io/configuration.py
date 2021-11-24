@@ -8,6 +8,7 @@ STYLES = [
     'atomic',
     'bond',
     'angle',
+    'dihedral',
     'full',
     'molecular',
     'charge',

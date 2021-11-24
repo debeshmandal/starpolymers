@@ -16,7 +16,10 @@ def test_configuration(delete: bool = True):
     }
     molecule = LinearPolyelectrolyte(item)
     system = System(10., molecules=[molecule])
+
+    # try all styles except dihedral
     for style in STYLES:
+        if style == 'dihedral': continue
         config_file = ConfigFile(system, style=style)
 
         OUT = FOLDER / f'lammps.{style}.conf'
