@@ -1,6 +1,5 @@
 from starpolymers.io.configuration import *
-
-from starpolymers.generators.input_file import *
+from starpolymers.io.input_file import *
 import starpolymers.generators.system as system
 
 def test_input_file():

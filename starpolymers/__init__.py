@@ -3,4 +3,5 @@ __version__ = get_versions()['version']
 del get_versions
 
 from .molecules import MoleculeFactory
-from .generators import System, ConfigFile
+from .generators import System
+from .io import ConfigFile
