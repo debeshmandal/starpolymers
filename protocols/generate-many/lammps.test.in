@@ -7,9 +7,6 @@ variable K equal 10.0
 variable R0 equal 5.0
 variable eps equal 0.5
 variable sig equal 1.10
-variable theta0 equal 90.0
-variable k1 equal 5.0
-variable k2 equal 5.0
 
 variable fconfig string lammps.test.conf
 variable step equal 10000
@@ -27,23 +24,25 @@ timestep 		${dt}
 # ----- Atom Definition -----
 
 read_data 		${fconfig}
-special_bonds 	fene
+special_bonds lj 1.0 1.0 1.0
 dielectric 0.417
 
 neigh_modify one 10000
 
 # ----- Force Fields -----
 
-bond_style 		fene 							# bonds
-bond_coeff * ${K} ${R0} ${eps} ${sig}				# bond_type K R0 Epsilon Sigma
-# angle_style class2
-# angle_coeff * ${theta0} ${k1} 0.0 ${k2}
-#pair_style lj/cut/coul/long 1.12 10.0
-#pair_coeff * * 1.0 1.0
-#kspace_style pppm 1.0e-5
+bond_style  harmonic
+bond_coeff	* 5.0 2.0
 
-pair_style lj/cut/coul/debye 1.12 2.5
-pair_coeff * * 1.0 1.0
+pair_style	hybrid/overlay lj/cut 1.12 yukawa 5.0 10.0
+
+# lj/cut
+pair_modify pair lj/cut shift yes
+pair_coeff	* * lj/cut 1.0 1.0 1.12
+
+# yukawa
+pair_coeff * * yukawa 0.0
+pair_coeff 1 1 yukawa 1.0
 
 # ----- Thermostats -----
 

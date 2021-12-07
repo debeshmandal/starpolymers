@@ -5,7 +5,7 @@ topology with no overlaps.
 from starpolymers import generators
 import subprocess
 
-from starpolymers.generators.configuration import ConfigFile
+from starpolymers.io.configuration import ConfigFile
 from starpolymers.generators.system import System
 from starpolymers.molecules import MoleculeFactory
 from softnanotools.logger import Logger
