@@ -7,3 +7,4 @@ test/configs/*/test_config.dat
 **.bak
 
 lammps.test.conf
+log.lammps
