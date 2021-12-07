@@ -12,7 +12,10 @@ neigh_modify	every 1 delay 1
 bond_style  harmonic
 bond_coeff	1 5.0 2.0
 
-pair_style	hybrid/overlay lj/cut 1.12 yukawa 2.0 5.0
+#angle_style harmonic
+#angle_coeff 1 5.0 120
+
+pair_style	hybrid/overlay lj/cut 1.12 yukawa 5.0 10.0
 
 # lj/cut
 pair_modify pair lj/cut shift yes
@@ -21,11 +24,16 @@ pair_coeff	* * lj/cut 1.0 1.0 1.12
 # yukawa
 pair_coeff * * yukawa 0.0
 pair_coeff 1 1 yukawa 1.0
+pair_coeff 1 3 yukawa -1.0
+pair_coeff 3 3 yukawa 1.0
 
 fix		1 all nve
 fix		2 all langevin 1.0 1.0 1.0 904297
 
-thermo  100
-timestep	0.00012
+thermo  10000
+dump 1 all atom 10000 dump/dump.*
+timestep	0.0012
 
-run		10000
+minimize 0.0 1.0e-8 1000 100000
+
+run		1000000
