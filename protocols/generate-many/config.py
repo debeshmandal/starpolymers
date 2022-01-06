@@ -24,6 +24,7 @@ class ConfigurationContainer:
         },
         'central' : 'all',
         'counterions': False,
+        'atom_type': 1,
     }
 
     dna = {
@@ -35,6 +36,7 @@ class ConfigurationContainer:
         },
         'central' : 'all',
         'counterions': False,
+        'atom_type': 2,
     }
 
     salt = {

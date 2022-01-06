@@ -238,7 +238,7 @@ class StarPolyelectrolyte(Molecule):
 
             # the PEs tail is where the 0th index is
             if position == 'core':
-                arm_list[:n_charges_per_arm] = 0.0
+                arm_list[:-n_charges_per_arm] = 0.0
             elif position == 'tail':
                 arm_list[n_charges_per_arm:] = 0.0
 

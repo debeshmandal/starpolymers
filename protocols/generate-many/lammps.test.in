@@ -34,7 +34,7 @@ neigh_modify one 10000
 bond_style  harmonic
 bond_coeff	* 5.0 2.0
 
-pair_style	hybrid/overlay lj/cut 1.12 yukawa 5.0 10.0
+pair_style	hybrid/overlay lj/cut 1.12 yukawa 1.0 10.0
 
 # lj/cut
 pair_modify pair lj/cut shift yes
@@ -43,6 +43,8 @@ pair_coeff	* * lj/cut 1.0 1.0 1.12
 # yukawa
 pair_coeff * * yukawa 0.0
 pair_coeff 1 1 yukawa 1.0
+pair_coeff 1 2 yukawa -3.0
+pair_coeff 2 2 yukawa 3.0
 
 # ----- Thermostats -----
 
