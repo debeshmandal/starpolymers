@@ -9,8 +9,20 @@ from starpolymers.molecules._common import registry, AbstractMolecule
 
 
 class System():
-    def __init__(self, box, molecules=[], atom_masses=[1.0], bond_types=1, angle_types=1, threshold=0.01):
+    def __init__(
+        self,
+        box,
+        molecules=[],
+        atom_masses=[1.0],
+        bond_types=1,
+        angle_types=1,
+        threshold=0.01,
+        allow_unbalanced_charges: bool = False
+    ):
+        # initial setting to account for unbalanced charges
+        self.allow_unbalanced_charges = allow_unbalanced_charges
 
+        # initialise tables
         self._atom_ID_shift = 0
         self._molecules = int(0)
         self._box = float(box)
@@ -109,10 +121,9 @@ class System():
                 raise StopIteration("Trying to fix overlaps but reached iteration limit of 25.")
         return
 
-
-
     def assert_neutral(self):
-        assert self.charge == 0
+        if not self.allow_unbalanced_charges:
+            assert self.charge == 0
 
     @property
     def atoms(self):
