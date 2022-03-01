@@ -1,5 +1,6 @@
 from .polyelectrolyte import StarPolyelectrolyte, LinearPolyelectrolyte
 from .salt import Salt
+from .polygons import Hexagon
 import json
 from ._common import AbstractMolecule, registry
 
@@ -8,7 +9,8 @@ class MoleculeFactory():
         self.registry = {
             'star' : StarPolyelectrolyte,
             'dna' : LinearPolyelectrolyte,
-            'salt' : Salt
+            'salt' : Salt,
+            'hexagon': Hexagon,
         }
         self.molecules = []
         for item in item_list:
