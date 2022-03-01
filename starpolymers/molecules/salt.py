@@ -2,6 +2,9 @@ from ._common import ParticleArray
 import numpy as np
 import pandas as pd
 
+from softnanotools.logger import Logger
+logger = Logger(__name__)
+
 class Salt(ParticleArray):
     def __init__(self, item, **kwargs):
         ParticleArray.__init__(self, item, **kwargs)
@@ -9,13 +12,15 @@ class Salt(ParticleArray):
         self.anion = float(self._item['anion'])
         self.cation = float(self._item['cation'])
         self._atoms = self.generate_atoms()
-    
+
     def generate_atoms(self):
         """
         Returns dataframe with the following columns
         """
 
         q = self.generate_charges()
+
+        logger.debug(f'Generated charges for Salt object:\n{q}')
 
         positions \
             = np.random.uniform(size=(q.shape[0], 3)) \
@@ -31,7 +36,7 @@ class Salt(ParticleArray):
         })
 
         return data
-    
+
     def generate_charges(self):
 
         # lowest common multiple

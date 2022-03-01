@@ -61,8 +61,10 @@ class LinearPolyelectrolyte(Molecule):
 
     def generate_charges(self, positions):
 
-        charge = float(self._item['charge']['max'])
+        # store length in a variable
         length = len(positions)
+
+        # define the generation functions
 
         def _all():
             return [charge] * length
@@ -82,13 +84,24 @@ class LinearPolyelectrolyte(Molecule):
         def _diblock():
             return [charge] * length
 
+        # store the functions in a hash table
         functions = {
-            'all' : _all,
-            'random' : _random,
-            'diblock-regular' : _diblock
-        }
+                'all' : _all,
+                'random' : _random,
+                'diblock-regular' : _diblock
+            }
 
-        return functions[self._item['charge'].get('style', 'all')]()
+        # manage charges if they exist
+        charge = 0
+        _c = self._item.get('charge', False)
+        if _c:
+            charge += _c['max']
+            return functions[self._item['charge'].get('style', 'all')]()
+
+        # default should be charge is zero of all the particle
+        else:
+            return functions['all']()
+
 
 class StarPolyelectrolyte(Molecule):
     def __init__(self, item, **kwargs):
@@ -137,12 +150,12 @@ class StarPolyelectrolyte(Molecule):
             'atom_1' : [],
             'atom_2' : []
         }
-            
+
         for i in range(m_bonds):
             atom_1 = i+1
-            
-            if (i+1) % self.lam == 0:      
-                atom_2 = self.n['atoms']                       
+
+            if (i+1) % self.lam == 0:
+                atom_2 = self.n['atoms']
             else:
                 atom_2 = i+2
 
@@ -191,7 +204,7 @@ class StarPolyelectrolyte(Molecule):
         return pd.DataFrame(data)
 
     def generate_charges(self, positions):
-        
+
         charge = float(self._item['charge']['max'])
         length = len(positions)
 
@@ -225,10 +238,10 @@ class StarPolyelectrolyte(Molecule):
 
             # the PEs tail is where the 0th index is
             if position == 'core':
-                arm_list[:n_charges_per_arm] = 0.0
+                arm_list[:-n_charges_per_arm] = 0.0
             elif position == 'tail':
                 arm_list[n_charges_per_arm:] = 0.0
-        
+
             arm_list = np.concatenate([arm_list] * self.kap)
             arm_list = np.concatenate([arm_list, np.array([params.get('central', q)])])
             assert len(arm_list) == len(positions)

@@ -1,14 +1,28 @@
 import numpy as np
 import pandas as pd
 
+from typing import List
+
 from scipy.spatial.distance import cdist
 from starpolymers.molecules import Salt
 from starpolymers.molecules._common import registry, AbstractMolecule
 
 
 class System():
-    def __init__(self, box, molecules=[], atom_masses=[1.0], bond_types=1, angle_types=1, threshold=0.01):
+    def __init__(
+        self,
+        box,
+        molecules=[],
+        atom_masses=[1.0],
+        bond_types=1,
+        angle_types=1,
+        threshold=0.01,
+        allow_unbalanced_charges: bool = False
+    ):
+        # initial setting to account for unbalanced charges
+        self.allow_unbalanced_charges = allow_unbalanced_charges
 
+        # initialise tables
         self._atom_ID_shift = 0
         self._molecules = int(0)
         self._box = float(box)
@@ -27,16 +41,58 @@ class System():
         self._angles = pd.DataFrame(
             columns = registry.columns['angles']
         )
-        
+
         self.add_molecules(molecules)
         self.assert_neutral()
         self.fix_overlap(threshold)
 
-    def add_molecules(self, molecules):
+    def add_molecules(self, molecules: List[AbstractMolecule], distribute: bool = False):
+        """Adds a list of molecules stored as a list of AbstractMolecule to
+        the system, if the keyword argument distribute is set to True, then
+        the molecules will dynamically by placed in a grid throughout the
+        box
+
+        Parameters:
+        -----------
+            molecules: a list of items stored as AbstractMolecule
+            distribute:
+                if True, dynamically translates the molecules to fit
+                in the space
+
+        Raises:
+        -------
+            AssertionError:
+                if the system is not neutral in charge after adding
+                the molecules to the system
+
+        """
+        N = len(molecules)
+        if distribute:
+            positions = []
+            row_size = np.ceil(np.cbrt(N))
+            grid_space = (self._box) / (row_size + 1)
+            for i in range(N):
+                a = (i // row_size) - 1
+                b = (i % row_size) - 1
+                c = (i // (row_size ** 2)) - 1
+
+                a -= (c + 1) * row_size
+                com = np.array([a, b, c]) * grid_space
+                positions.append(com)
 
         for i, molecule in enumerate(molecules):
             if molecule._item['molecule'] == 'salt':
                 mol, salt = i, molecule
+
+            if distribute:
+                com = molecule._atoms[['x', 'y', 'z']].mean(axis=0).to_numpy()
+                x = (positions[i][0] - com[0])
+                y = (positions[i][1] - com[1])
+                z = (positions[i][2] - com[2])
+                molecule._atoms['x'] = molecule._atoms['x'] + x
+                molecule._atoms['y'] = molecule._atoms['y'] + y
+                molecule._atoms['z'] = molecule._atoms['z'] + z
+
             self.add_molecule(molecule)
 
         try:
@@ -65,10 +121,9 @@ class System():
                 raise StopIteration("Trying to fix overlaps but reached iteration limit of 25.")
         return
 
-
-
     def assert_neutral(self):
-        assert self.charge == 0
+        if not self.allow_unbalanced_charges:
+            assert self.charge == 0
 
     @property
     def atoms(self):
@@ -81,7 +136,7 @@ class System():
     @property
     def angles(self):
         return self._angles
-    
+
     @property
     def box(self):
         return {
@@ -107,7 +162,7 @@ class System():
         _charge = sum(self._atoms['q'].values)
         return _charge
 
-    def add_molecule(self, molecule):
+    def add_molecule(self, molecule: AbstractMolecule, auto_translate: bool = False):
         #if not isinstance(molecule, AbstractMolecule):
         #    raise TypeError(
         #        'A molecule that is not an '
@@ -115,9 +170,10 @@ class System():
         def _atoms():
             _temp = molecule._atoms.copy()
             _temp['mol'] = self._molecules + 1
-            _temp['x'] = _temp['x'].values + registry.start[self._molecules, 0] * self.box['xhi']
-            _temp['y'] = _temp['y'].values + registry.start[self._molecules, 1] * self.box['yhi']
-            _temp['z'] = _temp['z'].values + registry.start[self._molecules, 2] * self.box['zhi']
+            if auto_translate:
+                _temp['x'] = _temp['x'].values + registry.start[self._molecules, 0] * self.box['xhi']
+                _temp['y'] = _temp['y'].values + registry.start[self._molecules, 1] * self.box['yhi']
+                _temp['z'] = _temp['z'].values + registry.start[self._molecules, 2] * self.box['zhi']
             self._atoms = pd.concat([self._atoms, _temp], sort=False).reset_index(drop=True)
 
         def _bonds():
@@ -132,7 +188,7 @@ class System():
             _temp['atom_2'] = _temp['atom_2'] + self._atom_ID_shift
             _temp['atom_3'] = _temp['atom_3'] + self._atom_ID_shift
             self._angles = pd.concat([self._angles, _temp], sort=False).reset_index(drop=True)
-        
+
         _atoms()
         _bonds()
         _angles()
@@ -153,7 +209,7 @@ class System():
         if delta < 0:
             n_cations = abs( delta // abs(int(salt.cation)) )
             n_anions = 0
-            
+
         if delta > 0:
             n_anions = abs( delta // abs(int(salt.anion)))
             n_cations = 0
@@ -171,12 +227,12 @@ class System():
             i+=1
             if i > 20:
                 raise StopIteration
-            
+
         n = int(n_cations + n_anions)
 
         if mol == None:
             mol = self._molecules
-        
+
         self._atoms = pd.concat([self._atoms,
             pd.DataFrame({
                     'mol' : n * [mol],
@@ -187,7 +243,7 @@ class System():
                     'q' : [salt.cation] * int(n_cations) + [-salt.anion] * int(n_anions)
                 })
             ], sort=True).reset_index(drop=True)
-        
+
         self.assert_neutral()
         return
 

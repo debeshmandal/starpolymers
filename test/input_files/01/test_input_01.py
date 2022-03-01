@@ -1,4 +1,4 @@
-from starpolymers.generators.input_file import templates, Variable
+from starpolymers.io.input_file import templates, Variable
 import pandas as pd
 
 def test_01():
