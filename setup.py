@@ -21,5 +21,8 @@ setuptools.setup(
     package_data = {'starpolymers' : ['io/input_files/*.in']},
     include_package_data=True,
     version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
+    cmdclass=versioneer.get_cmdclass(),    
+    install_requires=[
+          'softnanotools',
+      ],
 )
