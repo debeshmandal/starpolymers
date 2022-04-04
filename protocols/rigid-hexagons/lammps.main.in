@@ -1,0 +1,43 @@
+# Harmonic beadspring benchmark, with yukawa potential
+
+units		lj
+atom_style	full
+special_bonds lj 1.0 1.0 1.0
+
+read_data	config.dat
+read_data config.dat add append shift 2.0 2.0 2.0
+
+neighbor	0.4 bin
+neigh_modify	every 1 delay 1
+
+bond_style  harmonic
+bond_coeff	1 5.0 1.12
+
+#angle_style harmonic
+#angle_coeff 1 5.0 120
+
+pair_style lj/cut 2.5
+
+# lj/cut
+pair_coeff	* * 1.0 1.0
+
+fix		1 all nve
+#fix		2 all langevin 1.0 1.0 1.0 904297
+
+thermo  10000
+
+timestep	0.0012
+
+group hexagon_1 id 1 2 3 4 5 6
+group hexagon_2 id 7 8 9 10 11 12
+
+fix hexagon_1_rigid hexagon_1 rigid single force 1 off off on langevin 1.0 1.0 1.0 428984
+fix hexagon_2_rigid hexagon_2 rigid single force 1 off off on langevin 1.0 1.0 1.0 101010
+
+fix hexagon_spring hexagon_1 spring couple hexagon_2 5.0 1.0 0.0 0.0 1.0
+
+minimize 1.0e-6 1.0e-8 1000 100000
+
+reset_timestep 0
+dump 1 all custom 1000 dump/dump.* id type mol x y z vx vy vz fx fy fz
+run		1000000
